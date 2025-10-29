@@ -1,0 +1,61 @@
+object Form1: TForm1
+  Left = 362
+  Height = 469
+  Top = 252
+  Width = 643
+  Caption = 'Sanal Bilgisayar'
+  ClientHeight = 469
+  ClientWidth = 643
+  LCLVersion = '4.2.0.0'
+  object Panel1: TPanel
+    Left = 0
+    Height = 40
+    Top = 0
+    Width = 643
+    Align = alTop
+    ClientHeight = 40
+    ClientWidth = 643
+    TabOrder = 0
+    object Button1: TButton
+      Left = 558
+      Height = 25
+      Top = 7
+      Width = 75
+      Anchors = [akTop, akRight]
+      Caption = 'Çalıştır'
+      TabOrder = 0
+      OnClick = Button1Click
+    end
+    object Label1: TLabel
+      Left = 8
+      Height = 15
+      Top = 12
+      Width = 120
+      Caption = 'İşlenen Komut Sayısı: 0'
+    end
+    object Label2: TLabel
+      Left = 242
+      Height = 15
+      Top = 12
+      Width = 96
+      Caption = 'Komut İşaretçisi: 0'
+    end
+  end
+  object Memo1: TMemo
+    Left = 0
+    Height = 406
+    Top = 40
+    Width = 643
+    Align = alClient
+    ScrollBars = ssBoth
+    TabOrder = 1
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Height = 23
+    Top = 446
+    Width = 643
+    Panels = <>
+    SimpleText = 'Toplam Uzunluk: 0'
+  end
+end
