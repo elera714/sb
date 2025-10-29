@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls;
+  ComCtrls, Grids, ValEdit;
 
 type
 
@@ -18,11 +18,15 @@ type
     Label2: TLabel;
     Memo1: TMemo;
     Panel1: TPanel;
+    Panel2: TPanel;
     StatusBar1: TStatusBar;
+    ValueListEditor1: TValueListEditor;
     procedure Button1Click(Sender: TObject);
   private
     procedure Yorumla;
     function Isle(AAdres: Integer): Boolean;
+    procedure YazmacDegistir(AYazmacSN, ADeger: Integer; AArtir: Boolean = False);
+    procedure YazmaclariSifirla;
   public
 
   end;
@@ -36,13 +40,14 @@ var
 implementation
 
 {$R *.lfm}
-
-{ TForm1 }
+uses islevler;
 
 procedure TForm1.Button1Click(Sender: TObject);
 var
   F: File of Byte;
 begin
+
+  YazmaclariSifirla;
 
   IP := 0;
 
@@ -50,7 +55,7 @@ begin
   SetLength(Bellek, DosyaU);
 
   Memo1.Lines.Clear;
-  StatusBar1.SimpleText := Format('Toplam Uzunluk: %d', [DosyaU]);
+  StatusBar1.Panels[0].Text := Format('Toplam Uzunluk: %d', [DosyaU]);
   StatusBar1.Repaint;
   Application.ProcessMessages;
 
@@ -69,7 +74,7 @@ begin
     CloseFile(F);
   end;
 
-  StatusBar1.SimpleText := Format('Toplam Uzunluk: %d', [DosyaU]);
+  StatusBar1.Panels[0].Text := Format('Toplam Uzunluk: %d', [DosyaU]);
 
   Yorumla;
 end;
@@ -93,19 +98,13 @@ begin
     Deger := Bellek[DosyaIP];
     Islendi := Isle(DosyaIP);
 
-    Label2.Caption := Format('Komut İşaretçisi: $%.4x', [$7C00 + DosyaIP]);
+    Label2.Caption := Format('Komut İşaretçisi: $07C0:$%.4x', [DosyaIP]);
 
     if(Islendi) then
     begin
 
       Inc(Islenen);
-    end
-    else
-    begin
-
-      Memo1.Lines.Add('$%.2x - İşlenemedi!', [Deger]);
-      HataVar := True;
-    end;
+    end else HataVar := True;
 
     Application.ProcessMessages;
 
@@ -121,27 +120,45 @@ begin
 end;
 
 function TForm1.Isle(AAdres: Integer): Boolean;
+type
+  PSmallInt = ^SmallInt;
 var
-  Deger, D2: Byte;
+  Komut: Byte;
+  D1: ShortInt;     // işaretli 8 bit
+  D2: SmallInt;     // işaretli 16 bit
 begin
 
-  Deger := Bellek[AAdres];
+  Komut := Bellek[AAdres];
 
-  // EB cb JMP rel8
-  if(Deger = $EB) then
+  // B8+ rw - MOV r16,imm16 - Move imm16 to r16
+  if(Komut >= $B8 + YZMC16_AX) and (Komut <= $B8 + YZMC16_DI) then
   begin
 
-    D2 := Bellek[AAdres + 1];
-    Memo1.Lines.Add('$%.2x-$%.2x - jmp', [Deger, D2]);
+    if(ISLEMCI_CM = ICM_BIT16) then
+    begin
+
+      D2 := PSmallInt(@Bellek[AAdres + 1])^;
+      YazmacDegistir(Komut - $B8, D2);
+      Memo1.Lines.Add('$%.2x-$%.4x - mov', [Komut, D2]);
+      Inc(DosyaIP, 3);     // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
+      Result := True;
+    end else Result := False;
+  end
+  // EB cb - JMP rel8
+  else if(Komut = $EB) then
+  begin
+
+    D1 := Bellek[AAdres + 1];
+    Memo1.Lines.Add('$%.2x-$%.2x - jmp', [Komut, D1]);
     Inc(DosyaIP, 2);
-    Inc(DosyaIP, D2);     // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
+    Inc(DosyaIP, D1);     // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
     Result := True;
   end
   // nop komutu - tamamlandı
-  else if(Deger = $90) then
+  else if(Komut = $90) then
   begin
 
-    Memo1.Lines.Add('$%.2x - nop', [Deger]);
+    Memo1.Lines.Add('$%.2x - nop', [Komut]);
     Inc(DosyaIP, 1);
     Result := True;
   end
@@ -150,6 +167,27 @@ begin
 
     Result := False;
   end;
+end;
+
+procedure TForm1.YazmacDegistir(AYazmacSN, ADeger: Integer; AArtir: Boolean = False);
+var
+  i: Integer;
+begin
+
+  i := StrToInt(ValueListEditor1.Cells[1, 1 + AYazmacSN]);
+  if(AArtir) then
+    i := i + ADeger
+  else i := ADeger;
+  ValueListEditor1.Cells[1, 1 + AYazmacSN] := '$' + HexStr(i, 8);
+end;
+
+procedure TForm1.YazmaclariSifirla;
+var
+  i: Integer;
+begin
+
+  for i := YZMC16_AX to YZMC16_DI do
+    ValueListEditor1.Cells[1, 1 + i] := '$00000000';
 end;
 
 end.
