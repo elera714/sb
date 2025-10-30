@@ -12,7 +12,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="24"/>
+        <UsageCount Value="29"/>
       </Unit>
       <Unit>
         <Filename Value="anasayfafrm.pas"/>
@@ -21,9 +21,9 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="130"/>
-        <CursorPos Y="133"/>
-        <UsageCount Value="24"/>
+        <TopLine Value="212"/>
+        <CursorPos X="55" Y="232"/>
+        <UsageCount Value="29"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit>
@@ -31,60 +31,13 @@
         <Filename Value="islevler.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="1"/>
-        <CursorPos X="12" Y="16"/>
-        <UsageCount Value="20"/>
+        <TopLine Value="12"/>
+        <CursorPos X="3" Y="42"/>
+        <UsageCount Value="25"/>
         <Loaded Value="True"/>
       </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="134" Column="7" TopLine="116"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="135" Column="52" TopLine="117"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="137" Column="20" TopLine="119"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="140" Column="14" TopLine="127"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="124" Column="8" TopLine="115"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="132" Column="12" TopLine="114"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="136" Column="48" TopLine="118"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="141" Column="17" TopLine="124"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="145" Column="48" TopLine="128"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="151" Column="17" TopLine="131"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="144" Column="46" TopLine="125"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="145" Column="46" TopLine="126"/>
-      </Position>
       <Position>
         <Filename Value="anasayfafrm.pas"/>
         <Caret Line="146" Column="46" TopLine="127"/>
@@ -156,6 +109,54 @@
       <Position>
         <Filename Value="anasayfafrm.pas"/>
         <Caret Line="181" Column="54" TopLine="158"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="155" Column="37" TopLine="128"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="28" Column="15" TopLine="10"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="142" Column="26" TopLine="126"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="19" Column="45"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="213" Column="57" TopLine="191"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="118" TopLine="105"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="117" TopLine="104"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="173" Column="35" TopLine="145"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="169" Column="33" TopLine="149"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="27" Column="15" TopLine="9"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="243" Column="21" TopLine="211"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="223" Column="15" TopLine="173"/>
       </Position>
     </JumpHistory>
     <RunParams>

@@ -15,7 +15,6 @@ type
   TForm1 = class(TForm)
     Button1: TButton;
     Label1: TLabel;
-    Label2: TLabel;
     Memo1: TMemo;
     Panel1: TPanel;
     Panel2: TPanel;
@@ -47,36 +46,50 @@ var
   F: File of Byte;
 begin
 
-  YazmaclariSifirla;
-
-  IP := 0;
-
-  DosyaU := 0;
-  SetLength(Bellek, DosyaU);
-
-  Memo1.Lines.Clear;
-  StatusBar1.Panels[0].Text := Format('Toplam Uzunluk: %d', [DosyaU]);
-  StatusBar1.Repaint;
-  Application.ProcessMessages;
-
-  AssignFile(F, 'disket_fat12.bin');
-  {$I-} Reset(F); {$I+}
-
-  if(IOResult = 0) then
+  if not(ISLEMCI_CALISIYOR) then
   begin
 
-    DosyaU := FileSize(F);
+    YazmaclariSifirla;
 
+    IP := 0;
+
+    DosyaU := 0;
     SetLength(Bellek, DosyaU);
 
-    BlockRead(F, Bellek[0], DosyaU);
+    Memo1.Lines.Clear;
+    StatusBar1.Panels[0].Text := Format('Toplam Uzunluk: %d', [DosyaU]);
+    StatusBar1.Repaint;
+    Application.ProcessMessages;
 
-    CloseFile(F);
+    //AssignFile(F, 'disket_fat12.bin');
+    AssignFile(F, 'yazmaçlar.bin');
+    {$I-} Reset(F); {$I+}
+
+    if(IOResult = 0) then
+    begin
+
+      DosyaU := FileSize(F);
+
+      SetLength(Bellek, DosyaU);
+
+      BlockRead(F, Bellek[0], DosyaU);
+
+      CloseFile(F);
+    end;
+
+    StatusBar1.Panels[0].Text := Format('Toplam Uzunluk: %d', [DosyaU]);
+
+    ISLEMCI_CALISIYOR := True;
+    Button1.Caption := 'Durdur';
+
+    Yorumla;
+  end
+  else
+  begin
+
+    ISLEMCI_CALISIYOR := False;
+    Button1.Caption := 'Çalıştır';
   end;
-
-  StatusBar1.Panels[0].Text := Format('Toplam Uzunluk: %d', [DosyaU]);
-
-  Yorumla;
 end;
 
 procedure TForm1.Yorumla;
@@ -95,18 +108,24 @@ begin
 
   repeat
 
-    Deger := Bellek[DosyaIP];
-    Islendi := Isle(DosyaIP);
-
-    Label2.Caption := Format('Komut İşaretçisi: $07C0:$%.4x', [DosyaIP]);
-
-    if(Islendi) then
+    if(ISLEMCI_CALISIYOR) then
     begin
 
-      Inc(Islenen);
-    end else HataVar := True;
+      Deger := Bellek[DosyaIP];
+      Islendi := Isle(DosyaIP);
 
-    Application.ProcessMessages;
+      YazmacDegistir(YZMC16_CS, $07C0);
+      YazmacDegistir(YZMC16_EIP, DosyaIP);
+
+      if(Islendi) then
+      begin
+
+        Inc(Islenen);
+      end else HataVar := True;
+
+      Application.ProcessMessages;
+
+    end else DosyaIP := DosyaU + 1;
 
   until (DosyaIP >= DosyaU) or (HataVar = True);
 
@@ -130,8 +149,34 @@ begin
 
   Komut := Bellek[AAdres];
 
+  // 40+ rw - INC r16 - Increment word register by 1
+  if(Komut >= $40 + YZMC16_AX) and (Komut <= $40 + YZMC16_DI) then
+  begin
+
+    if(ISLEMCI_CM = ICM_BIT16) then
+    begin
+
+      YazmacDegistir(Komut - $40, 1, True);
+      Memo1.Lines.Add('$%.2x - inc', [Komut]);
+      Inc(DosyaIP, 1);     // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
+      Result := True;
+    end else Result := False;
+  end
+  // 48+rw - DEC r16 - Decrement r16 by 1
+  else if(Komut >= $48 + YZMC16_AX) and (Komut <= $48 + YZMC16_DI) then
+  begin
+
+    if(ISLEMCI_CM = ICM_BIT16) then
+    begin
+
+      YazmacDegistir(Komut - $48, -1, True);
+      Memo1.Lines.Add('$%.2x - dec', [Komut]);
+      Inc(DosyaIP, 1);     // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
+      Result := True;
+    end else Result := False;
+  end
   // B8+ rw - MOV r16,imm16 - Move imm16 to r16
-  if(Komut >= $B8 + YZMC16_AX) and (Komut <= $B8 + YZMC16_DI) then
+  else if(Komut >= $B8 + YZMC16_AX) and (Komut <= $B8 + YZMC16_DI) then
   begin
 
     if(ISLEMCI_CM = ICM_BIT16) then
@@ -171,14 +216,29 @@ end;
 
 procedure TForm1.YazmacDegistir(AYazmacSN, ADeger: Integer; AArtir: Boolean = False);
 var
-  i: Integer;
+  i, j: Integer;
 begin
 
-  i := StrToInt(ValueListEditor1.Cells[1, 1 + AYazmacSN]);
-  if(AArtir) then
-    i := i + ADeger
-  else i := ADeger;
-  ValueListEditor1.Cells[1, 1 + AYazmacSN] := '$' + HexStr(i, 8);
+  i := YZMC_DEGERSN[AYazmacSN];
+  case ISLEMCI_CM of
+    ICM_BIT16:
+    begin
+
+      j := i and $FFFF;
+      if(AArtir) then
+        j := j + ADeger
+      else j := ADeger;
+      j := j and $FFFF;
+
+      i := i and $FFFF0000;
+      i := i or j;
+    end else i := -1; { TODO - 32/64 bit kodlama yapılacak }
+  end;
+  YZMC_DEGERSN[AYazmacSN] := i;
+
+  ValueListEditor1.Cells[1, 1 + YZMC_GORSELSN[AYazmacSN]] := '$' + HexStr(i, 8);
+
+  Application.ProcessMessages;
 end;
 
 procedure TForm1.YazmaclariSifirla;
@@ -186,8 +246,8 @@ var
   i: Integer;
 begin
 
-  for i := YZMC16_AX to YZMC16_DI do
-    ValueListEditor1.Cells[1, 1 + i] := '$00000000';
+  for i := 1 to 15 do
+    ValueListEditor1.Cells[1, i] := '$00000000';
 end;
 
 end.

@@ -33,13 +33,6 @@ object Form1: TForm1
       Width = 120
       Caption = 'İşlenen Komut Sayısı: 0'
     end
-    object Label2: TLabel
-      Left = 242
-      Height = 15
-      Top = 12
-      Width = 96
-      Caption = 'Komut İşaretçisi: 0'
-    end
   end
   object Memo1: TMemo
     Left = 0
@@ -87,7 +80,7 @@ object Form1: TForm1
       Width = 153
       Align = alClient
       AutoEdit = False
-      RowCount = 9
+      RowCount = 16
       TabOrder = 0
       Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goAlwaysShowEditor, goThumbTracking]
       Strings.Strings = (
@@ -99,6 +92,13 @@ object Form1: TForm1
         'EDI=$00000000'
         'EBP=$00000000'
         'ESP=$00000000'
+        'CS=$00000000'
+        'DS=$00000000'
+        'ES=$00000000'
+        'SS=$00000000'
+        'FS=$00000000'
+        'GS=$00000000'
+        'EIP=$00000000'
       )
       TitleCaptions.Strings = (
         'Yazmaç'
