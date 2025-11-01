@@ -22,7 +22,7 @@ begin
   Application.MainFormOnTaskbar:=True;
   {$POP}
   Application.Initialize;
-  Application.CreateForm(TForm1, Form1);
+  Application.CreateForm(TfrmAnaSayfa, frmAnaSayfa);
   Application.Run;
 end.
 

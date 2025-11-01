@@ -9,30 +9,33 @@ uses
   ComCtrls, Grids, ValEdit;
 
 type
-
-  { TForm1 }
-
-  TForm1 = class(TForm)
-    Button1: TButton;
-    Label1: TLabel;
-    Memo1: TMemo;
-    Panel1: TPanel;
-    Panel2: TPanel;
-    StatusBar1: TStatusBar;
+  TfrmAnaSayfa = class(TForm)
+    btnCalistir: TButton;
+    edtIslenecekDosya: TEdit;
+    lblIskenenKomutSayisi: TLabel;
+    lblIslenecekDosya: TLabel;
+    mmCikti: TMemo;
+    pnlUst: TPanel;
+    pnlYazmaclar: TPanel;
+    sbDurum: TStatusBar;
     ValueListEditor1: TValueListEditor;
-    procedure Button1Click(Sender: TObject);
+    procedure btnCalistirClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
   private
     procedure Yorumla;
-    function Isle(AAdres: Integer): Boolean;
+    function Isle(ACS, AIP: Integer): Boolean;
     procedure YazmacDegistir(AYazmacSN, ADeger: Integer; AArtir: Boolean = False);
     procedure YazmaclariSifirla;
+    procedure BellegeKopyala(AKaynak, AHedef: Pointer; AHedefBellekBaslangic,
+      AUzunluk: Integer);
   public
 
   end;
 
 var
-  Form1: TForm1;
-  Bellek: array of Byte;
+  frmAnaSayfa: TfrmAnaSayfa;
+  Bellek1MB: array of Byte;
   DosyaU: Int64;
   DosyaIP, IP: Integer;
 
@@ -41,9 +44,22 @@ implementation
 {$R *.lfm}
 uses islevler;
 
-procedure TForm1.Button1Click(Sender: TObject);
+procedure TfrmAnaSayfa.FormCreate(Sender: TObject);
+begin
+
+  SetLength(Bellek1MB, 1 * 1024 * 1024);
+end;
+
+procedure TfrmAnaSayfa.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+begin
+
+  SetLength(Bellek1MB, 0);
+end;
+
+procedure TfrmAnaSayfa.btnCalistirClick(Sender: TObject);
 var
   F: File of Byte;
+  Bellek: array of Byte;
 begin
 
   if not(ISLEMCI_CALISIYOR) then
@@ -54,15 +70,14 @@ begin
     IP := 0;
 
     DosyaU := 0;
-    SetLength(Bellek, DosyaU);
 
-    Memo1.Lines.Clear;
-    StatusBar1.Panels[0].Text := Format('Toplam Uzunluk: %d', [DosyaU]);
-    StatusBar1.Repaint;
+    mmCikti.Lines.Clear;
+    sbDurum.Panels[0].Text := Format('Toplam Uzunluk: %d', [DosyaU]);
+    sbDurum.Repaint;
     Application.ProcessMessages;
 
     //AssignFile(F, 'disket_fat12.bin');
-    AssignFile(F, 'yazmaçlar.bin');
+    AssignFile(F, edtIslenecekDosya.Text);
     {$I-} Reset(F); {$I+}
 
     if(IOResult = 0) then
@@ -71,16 +86,17 @@ begin
       DosyaU := FileSize(F);
 
       SetLength(Bellek, DosyaU);
-
       BlockRead(F, Bellek[0], DosyaU);
+      BellegeKopyala(@Bellek[0], @Bellek1MB[0], $07C0 * 16, DosyaU);
+      SetLength(Bellek, 0);
 
       CloseFile(F);
     end;
 
-    StatusBar1.Panels[0].Text := Format('Toplam Uzunluk: %d', [DosyaU]);
+    sbDurum.Panels[0].Text := Format('Toplam Uzunluk: %d', [DosyaU]);
 
     ISLEMCI_CALISIYOR := True;
-    Button1.Caption := 'Durdur';
+    btnCalistir.Caption := 'Durdur';
 
     Yorumla;
   end
@@ -88,11 +104,11 @@ begin
   begin
 
     ISLEMCI_CALISIYOR := False;
-    Button1.Caption := 'Çalıştır';
+    btnCalistir.Caption := 'Çalıştır';
   end;
 end;
 
-procedure TForm1.Yorumla;
+procedure TfrmAnaSayfa.Yorumla;
 var
   Islenen: Integer;
   HataVar, Islendi: Boolean;
@@ -102,19 +118,23 @@ begin
   Islenen := 0;
   HataVar := False;
 
-  Label1.Caption := Format('İşlenen Komut Sayısı: %d', [Islenen]);
+  lblIskenenKomutSayisi.Caption := Format('İşlenen Komut Sayısı: %d', [Islenen]);
 
   DosyaIP := 0;
+
+  YZMC_DEGERSN[YZMC16_CS] := $07C0;
 
   repeat
 
     if(ISLEMCI_CALISIYOR) then
     begin
 
-      Deger := Bellek[DosyaIP];
-      Islendi := Isle(DosyaIP);
+      YZMC_DEGERSN[YZMC16_EIP] := DosyaIP;
 
-      YazmacDegistir(YZMC16_CS, $07C0);
+      Deger := Bellek1MB[DosyaIP];
+      Islendi := Isle(YZMC_DEGERSN[YZMC16_CS], YZMC_DEGERSN[YZMC16_EIP]);
+
+      //YazmacDegistir(YZMC16_CS, $07C0);
       YazmacDegistir(YZMC16_EIP, DosyaIP);
 
       if(Islendi) then
@@ -129,25 +149,28 @@ begin
 
   until (DosyaIP >= DosyaU) or (HataVar = True);
 
-  Label1.Caption := Format('İşlenen Komut Sayısı: %d', [Islenen]);
+  lblIskenenKomutSayisi.Caption := Format('İşlenen Komut Sayısı: %d', [Islenen]);
 
   if(HataVar) then
   begin
 
-    Memo1.Lines.Add('Yürütme iptal edildi. Hatalı komut: $%.2x', [Deger]);
+    mmCikti.Lines.Add('Yürütme iptal edildi. Hatalı komut: $%.2x', [Deger]);
   end;
 end;
 
-function TForm1.Isle(AAdres: Integer): Boolean;
+function TfrmAnaSayfa.Isle(ACS, AIP: Integer): Boolean;
 type
   PSmallInt = ^SmallInt;
 var
+  Adres: Integer;
   Komut: Byte;
   D1: ShortInt;     // işaretli 8 bit
   D2: SmallInt;     // işaretli 16 bit
 begin
 
-  Komut := Bellek[AAdres];
+  Adres := (ACS * 16) + AIP;
+
+  Komut := Bellek1MB[Adres];
 
   // 40+ rw - INC r16 - Increment word register by 1
   if(Komut >= $40 + YZMC16_AX) and (Komut <= $40 + YZMC16_DI) then
@@ -157,7 +180,7 @@ begin
     begin
 
       YazmacDegistir(Komut - $40, 1, True);
-      Memo1.Lines.Add('$%.2x - inc', [Komut]);
+      mmCikti.Lines.Add('$%.2x - inc', [Komut]);
       Inc(DosyaIP, 1);     // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
       Result := True;
     end else Result := False;
@@ -170,7 +193,7 @@ begin
     begin
 
       YazmacDegistir(Komut - $48, -1, True);
-      Memo1.Lines.Add('$%.2x - dec', [Komut]);
+      mmCikti.Lines.Add('$%.2x - dec', [Komut]);
       Inc(DosyaIP, 1);     // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
       Result := True;
     end else Result := False;
@@ -182,9 +205,9 @@ begin
     if(ISLEMCI_CM = ICM_BIT16) then
     begin
 
-      D2 := PSmallInt(@Bellek[AAdres + 1])^;
+      D2 := PSmallInt(@Bellek1MB[Adres + 1])^;
       YazmacDegistir(Komut - $B8, D2);
-      Memo1.Lines.Add('$%.2x-$%.4x - mov', [Komut, D2]);
+      mmCikti.Lines.Add('$%.2x-$%.4x - mov', [Komut, D2]);
       Inc(DosyaIP, 3);     // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
       Result := True;
     end else Result := False;
@@ -193,8 +216,8 @@ begin
   else if(Komut = $EB) then
   begin
 
-    D1 := Bellek[AAdres + 1];
-    Memo1.Lines.Add('$%.2x-$%.2x - jmp', [Komut, D1]);
+    D1 := Bellek1MB[Adres + 1];
+    mmCikti.Lines.Add('$%.2x-$%.2x - jmp', [Komut, D1]);
     Inc(DosyaIP, 2);
     Inc(DosyaIP, D1);     // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
     Result := True;
@@ -203,7 +226,7 @@ begin
   else if(Komut = $90) then
   begin
 
-    Memo1.Lines.Add('$%.2x - nop', [Komut]);
+    mmCikti.Lines.Add('$%.2x - nop', [Komut]);
     Inc(DosyaIP, 1);
     Result := True;
   end
@@ -214,7 +237,7 @@ begin
   end;
 end;
 
-procedure TForm1.YazmacDegistir(AYazmacSN, ADeger: Integer; AArtir: Boolean = False);
+procedure TfrmAnaSayfa.YazmacDegistir(AYazmacSN, ADeger: Integer; AArtir: Boolean = False);
 var
   i, j: Integer;
 begin
@@ -241,13 +264,39 @@ begin
   Application.ProcessMessages;
 end;
 
-procedure TForm1.YazmaclariSifirla;
+procedure TfrmAnaSayfa.YazmaclariSifirla;
 var
   i: Integer;
 begin
 
   for i := 1 to 15 do
     ValueListEditor1.Cells[1, i] := '$00000000';
+end;
+
+procedure TfrmAnaSayfa.BellegeKopyala(AKaynak, AHedef: Pointer; AHedefBellekBaslangic,
+  AUzunluk: Integer);
+var
+  A, B: PChar;
+  i: Integer;
+begin
+
+{  A := PChar(AKaynak);
+  B := PChar(AHedef); // + ABellekBaslangic);
+  Move(A, B, AUzunluk);
+
+  Exit;
+
+}
+
+  A := PChar(AKaynak);
+  B := PChar(AHedef + AHedefBellekBaslangic);
+
+  for i := 0 to AUzunluk - 1 do
+  begin
+    B^ := A^;
+    Inc(A);
+    Inc(B);
+  end;
 end;
 
 end.

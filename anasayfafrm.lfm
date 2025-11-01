@@ -1,4 +1,4 @@
-object Form1: TForm1
+object frmAnaSayfa: TfrmAnaSayfa
   Left = 362
   Height = 469
   Top = 252
@@ -7,7 +7,9 @@ object Form1: TForm1
   ClientHeight = 469
   ClientWidth = 658
   LCLVersion = '4.2.0.0'
-  object Panel1: TPanel
+  OnClose = FormClose
+  OnCreate = FormCreate
+  object pnlUst: TPanel
     Left = 0
     Height = 40
     Top = 0
@@ -16,7 +18,7 @@ object Form1: TForm1
     ClientHeight = 40
     ClientWidth = 658
     TabOrder = 0
-    object Button1: TButton
+    object btnCalistir: TButton
       Left = 573
       Height = 25
       Top = 7
@@ -24,17 +26,32 @@ object Form1: TForm1
       Anchors = [akTop, akRight]
       Caption = 'Çalıştır'
       TabOrder = 0
-      OnClick = Button1Click
+      OnClick = btnCalistirClick
     end
-    object Label1: TLabel
-      Left = 8
+    object lblIskenenKomutSayisi: TLabel
+      Left = 412
       Height = 15
       Top = 12
       Width = 120
       Caption = 'İşlenen Komut Sayısı: 0'
     end
+    object lblIslenecekDosya: TLabel
+      Left = 8
+      Height = 15
+      Top = 12
+      Width = 86
+      Caption = 'İşlenecek Dosya:'
+    end
+    object edtIslenecekDosya: TEdit
+      Left = 102
+      Height = 23
+      Top = 9
+      Width = 298
+      TabOrder = 1
+      Text = 'yazmaçlar.bin'
+    end
   end
-  object Memo1: TMemo
+  object mmCikti: TMemo
     Left = 0
     Height = 406
     Top = 40
@@ -43,7 +60,7 @@ object Form1: TForm1
     ScrollBars = ssBoth
     TabOrder = 1
   end
-  object StatusBar1: TStatusBar
+  object sbDurum: TStatusBar
     Left = 0
     Height = 23
     Top = 446
@@ -64,7 +81,7 @@ object Form1: TForm1
     SimpleText = 'Toplam Uzunluk: 0'
     SimplePanel = False
   end
-  object Panel2: TPanel
+  object pnlYazmaclar: TPanel
     Left = 503
     Height = 406
     Top = 40
