@@ -37,7 +37,6 @@ var
   frmAnaSayfa: TfrmAnaSayfa;
   Bellek1MB: array of Byte;
   DosyaU: Int64;
-  DosyaIP, IP: Integer;
 
 implementation
 
@@ -53,6 +52,9 @@ end;
 procedure TfrmAnaSayfa.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
 
+  // sanal bilgisayar çalışıyorsa, durdur
+  if(SB_CALISIYOR) then btnCalistirClick(Self);
+
   SetLength(Bellek1MB, 0);
 end;
 
@@ -62,12 +64,10 @@ var
   Bellek: array of Byte;
 begin
 
-  if not(ISLEMCI_CALISIYOR) then
+  if not(SB_CALISIYOR) then
   begin
 
     YazmaclariSifirla;
-
-    IP := 0;
 
     DosyaU := 0;
 
@@ -76,7 +76,6 @@ begin
     sbDurum.Repaint;
     Application.ProcessMessages;
 
-    //AssignFile(F, 'disket_fat12.bin');
     AssignFile(F, edtIslenecekDosya.Text);
     {$I-} Reset(F); {$I+}
 
@@ -95,7 +94,7 @@ begin
 
     sbDurum.Panels[0].Text := Format('Toplam Uzunluk: %d', [DosyaU]);
 
-    ISLEMCI_CALISIYOR := True;
+    SB_CALISIYOR := True;
     btnCalistir.Caption := 'Durdur';
 
     Yorumla;
@@ -103,16 +102,16 @@ begin
   else
   begin
 
-    ISLEMCI_CALISIYOR := False;
+    SB_CALISIYOR := False;
     btnCalistir.Caption := 'Çalıştır';
   end;
 end;
 
 procedure TfrmAnaSayfa.Yorumla;
 var
-  Islenen: Integer;
+  Islenen, Adres: Integer;
   HataVar, Islendi: Boolean;
-  Deger: Byte;
+  Komut: Byte;
 begin
 
   Islenen := 0;
@@ -120,22 +119,18 @@ begin
 
   lblIskenenKomutSayisi.Caption := Format('İşlenen Komut Sayısı: %d', [Islenen]);
 
-  DosyaIP := 0;
-
   YZMC_DEGERSN[YZMC16_CS] := $07C0;
+  YZMC_DEGERSN[YZMC16_EIP] := 0;
 
   repeat
 
-    if(ISLEMCI_CALISIYOR) then
+    if(SB_CALISIYOR) then
     begin
 
-      YZMC_DEGERSN[YZMC16_EIP] := DosyaIP;
-
-      Deger := Bellek1MB[DosyaIP];
       Islendi := Isle(YZMC_DEGERSN[YZMC16_CS], YZMC_DEGERSN[YZMC16_EIP]);
 
-      //YazmacDegistir(YZMC16_CS, $07C0);
-      YazmacDegistir(YZMC16_EIP, DosyaIP);
+      YazmacDegistir(YZMC16_CS, YZMC_DEGERSN[YZMC16_CS]);
+      YazmacDegistir(YZMC16_EIP, YZMC_DEGERSN[YZMC16_EIP]);
 
       if(Islendi) then
       begin
@@ -143,18 +138,20 @@ begin
         Inc(Islenen);
       end else HataVar := True;
 
-      Application.ProcessMessages;
+    end; // else DosyaIP := DosyaU + 1;
 
-    end else DosyaIP := DosyaU + 1;
+    Application.ProcessMessages;
 
-  until (DosyaIP >= DosyaU) or (HataVar = True);
+  until (SB_CALISIYOR = False) or (HataVar = True);
 
   lblIskenenKomutSayisi.Caption := Format('İşlenen Komut Sayısı: %d', [Islenen]);
 
   if(HataVar) then
   begin
 
-    mmCikti.Lines.Add('Yürütme iptal edildi. Hatalı komut: $%.2x', [Deger]);
+    Adres := (YZMC_DEGERSN[YZMC16_CS] * 16) + YZMC_DEGERSN[YZMC16_EIP];
+    Komut := Bellek1MB[Adres];
+    mmCikti.Lines.Add('Yürütme iptal edildi. Hatalı komut: $%.2x', [Komut]);
   end;
 end;
 
@@ -164,9 +161,23 @@ type
 var
   Adres: Integer;
   Komut: Byte;
-  D1: ShortInt;     // işaretli 8 bit
-  D2: SmallInt;     // işaretli 16 bit
+  D11, D12,
+  D13, D14,
+  D15: ShortInt;        // işaretli 8 bit
+  D21: SmallInt;        // işaretli 16 bit
+
+  procedure IPDegeriniArtir(AArtir: Integer = 1);
+  var
+    EIP: Integer;
+  begin
+
+    EIP := YZMC_DEGERSN[YZMC16_EIP];
+    EIP += AArtir;
+    YZMC_DEGERSN[YZMC16_EIP] := EIP;
+  end;
 begin
+
+  Result := True;
 
   Adres := (ACS * 16) + AIP;
 
@@ -181,8 +192,7 @@ begin
 
       YazmacDegistir(Komut - $40, 1, True);
       mmCikti.Lines.Add('$%.2x - inc', [Komut]);
-      Inc(DosyaIP, 1);     // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
-      Result := True;
+      IPDegeriniArtir;          // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
     end else Result := False;
   end
   // 48+rw - DEC r16 - Decrement r16 by 1
@@ -194,8 +204,37 @@ begin
 
       YazmacDegistir(Komut - $48, -1, True);
       mmCikti.Lines.Add('$%.2x - dec', [Komut]);
-      Inc(DosyaIP, 1);     // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
-      Result := True;
+      IPDegeriniArtir;          // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
+    end else Result := False;
+  end
+  // 8E /r - MOV Sreg,r/m16** - Move r/m16 to segment register
+  else if(Komut = $8E) then
+  begin
+
+    D11 := PSmallInt(@Bellek1MB[Adres + 1])^;
+    D12 := (D11 shr 6) and %11;   // alt komut
+    D13 := (D11 shr 3) and %111;  // hedef segment
+    D14 := (D11 and %111);        // kaynak yazmaç
+    if(D12 = %11) then
+    begin
+
+      case D13 of
+        0: D15 := 10;
+        1: D15 := 8;
+        2: D15 := 11;
+        3: D15 := 9;
+        4: D15 := 12;
+        5: D15 := 13;
+        else Result := False;
+      end;
+
+      if(Result) then
+      begin
+
+        YZMC_DEGERSN[D15] := YZMC_DEGERSN[D14];
+        YazmacDegistir(D15, YZMC_DEGERSN[D14]);
+        IPDegeriniArtir(2);         // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
+      end;
     end else Result := False;
   end
   // B8+ rw - MOV r16,imm16 - Move imm16 to r16
@@ -205,36 +244,30 @@ begin
     if(ISLEMCI_CM = ICM_BIT16) then
     begin
 
-      D2 := PSmallInt(@Bellek1MB[Adres + 1])^;
-      YazmacDegistir(Komut - $B8, D2);
-      mmCikti.Lines.Add('$%.2x-$%.4x - mov', [Komut, D2]);
-      Inc(DosyaIP, 3);     // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
-      Result := True;
+      D21 := PSmallInt(@Bellek1MB[Adres + 1])^;
+      YazmacDegistir(Komut - $B8, D21);
+      mmCikti.Lines.Add('$%.2x-$%.4x - mov', [Komut, D21]);
+      IPDegeriniArtir(3);       // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
     end else Result := False;
   end
   // EB cb - JMP rel8
   else if(Komut = $EB) then
   begin
 
-    D1 := Bellek1MB[Adres + 1];
-    mmCikti.Lines.Add('$%.2x-$%.2x - jmp', [Komut, D1]);
-    Inc(DosyaIP, 2);
-    Inc(DosyaIP, D1);     // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
-    Result := True;
+    D11 := Bellek1MB[Adres + 1];
+    mmCikti.Lines.Add('jmp (yakın) %.2d', [D11]);
+    IPDegeriniArtir(2);
+    IPDegeriniArtir(D11);       // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
   end
   // nop komutu - tamamlandı
   else if(Komut = $90) then
   begin
 
-    mmCikti.Lines.Add('$%.2x - nop', [Komut]);
-    Inc(DosyaIP, 1);
-    Result := True;
+    mmCikti.Lines.Add('nop');
+    IPDegeriniArtir;
   end
-  else
-  begin
 
-    Result := False;
-  end;
+  else Result := False;
 end;
 
 procedure TfrmAnaSayfa.YazmacDegistir(AYazmacSN, ADeger: Integer; AArtir: Boolean = False);
@@ -269,8 +302,9 @@ var
   i: Integer;
 begin
 
-  for i := 1 to 15 do
-    ValueListEditor1.Cells[1, i] := '$00000000';
+  for i := 0 to 14 do YZMC_DEGERSN[i] := 0;
+
+  for i := 1 to 15 do ValueListEditor1.Cells[1, i] := '$00000000';
 end;
 
 procedure TfrmAnaSayfa.BellegeKopyala(AKaynak, AHedef: Pointer; AHedefBellekBaslangic,

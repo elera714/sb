@@ -40,7 +40,7 @@ var
 
 var
   ISLEMCI_CM: Integer = ICM_BIT16;
-  ISLEMCI_CALISIYOR: Boolean = False;
+  SB_CALISIYOR: Boolean = False;        // sanal bilgisayar çalışıyor mu?
 
 implementation
 
