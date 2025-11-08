@@ -6,6 +6,11 @@ interface
 
 uses Classes, SysUtils;
 
+type
+  PShortInt = ^ShortInt;        // işaretli 8 bit
+  PSmallInt = ^SmallInt;        // işaretli 16 bit
+  PLongInt = ^LongInt;          // işaretli 32 bit
+
 const
   // işlemci çalışma modları
   ICM_BIT16   = 1;
@@ -13,7 +18,7 @@ const
   ICM_BIT64   = 3;
 
 const
-  YZMC16_AX   = 0;
+  YZMC16_AX   = $00;
   YZMC16_CX   = 1;
   YZMC16_DX   = 2;
   YZMC16_BX   = 3;
@@ -21,6 +26,11 @@ const
   YZMC16_BP   = 5;
   YZMC16_SI   = 6;
   YZMC16_DI   = 7;
+
+  YZMC_AL     = ($01 shl 8) or YZMC16_AX;
+  YZMC_AH     = ($02 shl 8) or YZMC16_AX;
+  YZMC_AX     = ($03 shl 8) or YZMC16_AX;
+  YZMC_EAX    = ($04 shl 8) or YZMC16_AX;
 
   YZMC16_CS   = 8;
   YZMC16_DS   = 9;
@@ -33,7 +43,7 @@ const
 
 const
   // yazmaç değerlerinin form üzerindeki sıra numaraları
-  YZMC_GORSELSN: array of Integer = (0, 2, 3, 1, 7, 6, 4, 5, 8, 9, 10, 11, 12, 13, 14);
+  YZMC_GORSELSN: array of Integer = (0, 3, 1, 2, 6, 7, 5, 4, 8, 9, 10, 11, 12, 13, 14);
 
 var
   YZMC_DEGERSN: array of Integer = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);

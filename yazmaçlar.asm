@@ -1,5 +1,6 @@
 basla:
-        mov     ax,0x10
+
+;        mov     ax,0x10
         mov     bx,0x11
         mov     cx,0x12
         mov     dx,0x13
@@ -16,7 +17,7 @@ basla2:
         mov     fs,sp
         mov     gs,di
 
-        inc     ax
+;        inc     ax
         inc     bx
         inc     cx
         inc     dx
@@ -24,5 +25,7 @@ basla2:
         inc     di
         inc     bp
         inc     sp
+
+        in      al,0x60
 
         jmp     basla2
