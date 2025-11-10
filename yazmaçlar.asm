@@ -1,13 +1,12 @@
 basla:
-
-;        mov     ax,0x10
-        mov     bx,0x11
-        mov     cx,0x12
-        mov     dx,0x13
-        mov     si,0x14
-        mov     di,0x15
-        mov     bp,0x16
-        mov     sp,0x17
+        mov     ax,0x100
+        mov     bx,0x100
+        mov     cx,0x100
+        mov     dx,0x100
+        mov     si,0x100
+        mov     di,0x100
+        mov     bp,0x100
+        mov     sp,0x100
 
 basla2:
         ;mov     cs,ax
@@ -17,17 +16,19 @@ basla2:
         mov     fs,sp
         mov     gs,di
 
-        inc     ax
-        inc     bx
-        inc     cx
-        inc     dx
-        inc     si
-        inc     di
-        inc     bp
-        inc     sp
 
-        mov     dx,0x50
-        out     dx,ax
-        in      ax,dx
+        dec     eax
+        dec     ebx
+        dec     ecx
+        dec     edx
+        dec     esi
+        dec     edi
+        dec     ebp
+        dec     esp
+
+
+;        mov     dx,0x50
+;        out     dx,ax
+;        in      ax,dx
 
         jmp     basla2

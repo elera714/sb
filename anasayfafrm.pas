@@ -132,18 +132,18 @@ begin
 
   lblIskenenKomutSayisi.Caption := Format('İşlenen Komut Sayısı: %d', [Islenen]);
 
-  YZMC_DEGERSN[YZMC16_CS] := $07C0;
-  YZMC_DEGERSN[YZMC16_EIP] := 0;
+  YZMC_DEGERSN[YZMC0_CS] := $07C0;
+  YZMC_DEGERSN[YZMC0_EIP] := 0;
 
   repeat
 
     if(SB_CALISIYOR) then
     begin
 
-      Islendi := Isle(YZMC_DEGERSN[YZMC16_CS], YZMC_DEGERSN[YZMC16_EIP]);
+      Islendi := Isle(YZMC_DEGERSN[YZMC0_CS], YZMC_DEGERSN[YZMC0_EIP]);
 
-      YazmacDegistir(YZMC16_CS, YZMC_DEGERSN[YZMC16_CS]);
-      YazmacDegistir(YZMC16_EIP, YZMC_DEGERSN[YZMC16_EIP]);
+      YazmacDegistir(YZMC0_CS, YZMC_DEGERSN[YZMC0_CS]);
+      YazmacDegistir(YZMC0_EIP, YZMC_DEGERSN[YZMC0_EIP]);
 
       if(Islendi) then
       begin
@@ -165,7 +165,7 @@ begin
   if(HataVar) then
   begin
 
-    Adres := (YZMC_DEGERSN[YZMC16_CS] * 16) + YZMC_DEGERSN[YZMC16_EIP];
+    Adres := (YZMC_DEGERSN[YZMC0_CS] * 16) + YZMC_DEGERSN[YZMC0_EIP];
     Komut := Bellek1MB[Adres];
     {$IFDEF DEBUG} mmCikti.Lines.Add('Yürütme iptal edildi. Hatalı komut: $%.2x', [Komut]); {$ENDIF}
   end;
@@ -180,14 +180,15 @@ var
   D21: SmallInt;        // işaretli 16 bit
   D41: LongInt;         // işaretli 32 bit
 
+  // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
   procedure IPDegeriniArtir(AArtir: Integer = 1);
   var
-    EIP: Integer;
+    IP: Integer;
   begin
 
-    EIP := YZMC_DEGERSN[YZMC16_EIP];
-    EIP += AArtir;
-    YZMC_DEGERSN[YZMC16_EIP] := EIP;
+    IP := YZMC_DEGERSN[YZMC0_EIP];
+    IP += AArtir;
+    YZMC_DEGERSN[YZMC0_EIP] := IP;
   end;
 begin
 
@@ -201,7 +202,7 @@ begin
   if(IslenenKomut = $66) then
   begin
 
-    {$IFDEF DEBUG} mmCikti.Lines.Add('ön ek - $66'); {$ENDIF}
+    {$IFDEF DEBUG} {mmCikti.Lines.Add('ön ek - $66');} {$ENDIF}
     IPDegeriniArtir;
 
     // işlemci komutunun 16/32 bit değişimini gerçekleştirir
@@ -340,28 +341,44 @@ begin
     end else Result := False;
   end
   // 48+rw - DEC r16 - Decrement r16 by 1
-  else if(IslenenKomut >= $48 + YZMC16_AX) and (IslenenKomut <= $48 + YZMC16_DI) then
+  // 48+rd - DEC r32 - Decrement r32 by 1
+  else if(IslenenKomut >= $48 + YZMC0_EAX) and (IslenenKomut <= $48 + YZMC0_EDI) then
   begin
 
-    if(ISLEMCI_CM = ICM_BIT16) then
+    if(KomutModDegistir) then
     begin
 
-      YazmacDegistir(IslenenKomut - $48, -1, True);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('$%.2x - dec', [IslenenKomut]); {$ENDIF}
-      IPDegeriniArtir;          // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
-    end else Result := False;
+      YazmacDegistir2(($04 shl 8) or (IslenenKomut - $48), -1, True);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('dec %s', [Yazmaclar32[IslenenKomut - $48]]); {$ENDIF}
+      IPDegeriniArtir;
+    end
+    else
+    begin
+
+      YazmacDegistir2(($03 shl 8) or (IslenenKomut - $48), -1, True);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('dec %s', [Yazmaclar16[IslenenKomut - $48]]); {$ENDIF}
+      IPDegeriniArtir;
+    end;
   end
   // 40+ rw - INC r16 - Increment word register by 1
-  else if(IslenenKomut >= $40 + YZMC16_AX) and (IslenenKomut <= $40 + YZMC16_DI) then
+  // 40+ rd - INC r32 - Increment doubleword register by 1
+  else if(IslenenKomut >= $40 + YZMC0_EAX) and (IslenenKomut <= $40 + YZMC0_EDI) then
   begin
 
-    if(ISLEMCI_CM = ICM_BIT16) then
+    if(KomutModDegistir) then
     begin
 
-      YazmacDegistir(IslenenKomut - $40, 1, True);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('$%.2x - inc', [IslenenKomut]); {$ENDIF}
-      IPDegeriniArtir;          // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
-    end else Result := False;
+      YazmacDegistir2(($04 shl 8) or (IslenenKomut - $40), 1, True);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('inc %s', [Yazmaclar32[IslenenKomut - $40]]); {$ENDIF}
+      IPDegeriniArtir;
+    end
+    else
+    begin
+
+      YazmacDegistir2(($03 shl 8) or (IslenenKomut - $40), 1, True);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('inc %s', [Yazmaclar16[IslenenKomut - $40]]); {$ENDIF}
+      IPDegeriniArtir;
+    end;
   end
   // EB cb - JMP rel8
   else if(IslenenKomut = $EB) then
@@ -370,7 +387,7 @@ begin
     D11 := Bellek1MB[Adres + 1];
     {$IFDEF DEBUG} mmCikti.Lines.Add('jmp (yakın) %.2d', [D11]); {$ENDIF}
     IPDegeriniArtir(2);
-    IPDegeriniArtir(D11);       // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
+    IPDegeriniArtir(D11);
   end
   // 8E /r - MOV Sreg,r/m16** - Move r/m16 to segment register
   else if(IslenenKomut = $8E) then
@@ -398,12 +415,12 @@ begin
 
         YZMC_DEGERSN[D15] := YZMC_DEGERSN[D14];
         YazmacDegistir(D15, YZMC_DEGERSN[D14]);
-        IPDegeriniArtir(2);         // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
+        IPDegeriniArtir(2);
       end;
     end else Result := False;
   end
   // B8+ rw - MOV r16,imm16 - Move imm16 to r16
-  else if(IslenenKomut >= $B8 + YZMC16_AX) and (IslenenKomut <= $B8 + YZMC16_DI) then
+  else if(IslenenKomut >= $B8 + YZMC0_EAX) and (IslenenKomut <= $B8 + YZMC0_EDI) then
   begin
 
     if(ISLEMCI_CM = ICM_BIT16) then
@@ -412,7 +429,7 @@ begin
       D21 := PSmallInt(@Bellek1MB[Adres + 1])^;
       YazmacDegistir(IslenenKomut - $B8, D21);
       {$IFDEF DEBUG} mmCikti.Lines.Add('$%.2x-$%.4x - mov', [IslenenKomut, D21]); {$ENDIF}
-      IPDegeriniArtir(3);       // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
+      IPDegeriniArtir(3);
     end else Result := False;
   end
   // nop komutu - tamamlandı
@@ -482,7 +499,7 @@ begin
       else D11 := (ADeger and $FF);
       PShortInt(@YZMC_DEGERSN[DegerSN] + 1)^ := D11;
     end;
-    YZMC_AX:
+    YZMC_AX, YZMC_CX, YZMC_DX, YZMC_BX, YZMC_SP, YZMC_BP, YZMC_SI, YZMC_DI:
     begin
 
       D21 := PSmallInt(@YZMC_DEGERSN[DegerSN] + 0)^;
@@ -491,7 +508,7 @@ begin
       else D21 := (ADeger and $FFFF);
       PSmallInt(@YZMC_DEGERSN[DegerSN] + 0)^ := D21;
     end;
-    YZMC_EAX:
+    YZMC_EAX, YZMC_ECX, YZMC_EDX, YZMC_EBX, YZMC_ESP, YZMC_EBP, YZMC_ESI, YZMC_EDI:
     begin
 
       D31 := PLongInt(@YZMC_DEGERSN[DegerSN] + 0)^;
@@ -581,7 +598,7 @@ var
   KaynakDeger: Integer;
 begin
 
-  KaynakPort := YZMC_DEGERSN[YZMC16_DX] and $FFFF;
+  KaynakPort := YZMC_DEGERSN[YZMC0_EDX] and $FFFF;
   KaynakDeger := Portlar[KaynakPort];
 
   case AHedefYazmacSN of
@@ -611,7 +628,7 @@ var
   KaynakDeger: Integer;
 begin
 
-  KaynakDeger := YZMC_DEGERSN[YZMC16_AX];
+  KaynakDeger := YZMC_DEGERSN[YZMC0_EAX];
   HedefPortNo := (AHedefPortNo and $FFFF);
 
   case AKaynakYazmacSN of
@@ -641,8 +658,8 @@ var
   KaynakDeger: Integer;
 begin
 
-  KaynakDeger := YZMC_DEGERSN[YZMC16_AX];
-  HedefPortNo := YZMC_DEGERSN[YZMC16_DX] and $FFFF;
+  KaynakDeger := YZMC_DEGERSN[YZMC0_EAX];
+  HedefPortNo := YZMC_DEGERSN[YZMC0_EDX] and $FFFF;
 
   case AKaynakYazmacSN of
     YZMC_AL:
