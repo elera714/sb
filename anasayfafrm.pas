@@ -1,6 +1,7 @@
 unit anasayfafrm;
 
 {$mode objfpc}{$H+}
+{$DEFINE DEBUG}
 
 interface
 
@@ -22,20 +23,20 @@ type
     procedure btnCalistirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
-    procedure ValueListEditor1Click(Sender: TObject);
   private
     IslenenKomut: Byte;
     KomutModDegistir: Boolean;      // $66 öneki
-    PortDeger: Integer;
-    Port60: Integer;
     procedure Yorumla;
     function Isle(ACS, AIP: Integer): Boolean;
     procedure YazmacDegistir(AYazmacSN, ADeger: Integer; AArtir: Boolean = False);
-    procedure YazmacDegistir2(AYazmacSN, ADeger: LongInt; AArtir: Boolean = False);
+    procedure YazmacDegistir2(AHedefYazmacSN, ADeger: LongInt; AArtir: Boolean = False);
     procedure YazmaclariSifirla;
     procedure BellegeKopyala(AKaynak, AHedef: Pointer; AHedefBellekBaslangic,
       AUzunluk: Integer);
-    function IOPortDegeriOku(AIOPortNo: Integer): Integer;
+    procedure IOPortOku(AHedefYazmacSN, AKaynakPortNo: Integer);
+    procedure IOPortOku2(AHedefYazmacSN: Integer);
+    procedure IOPortYaz(AHedefPortNo, AKaynakYazmacSN: Integer);
+    procedure IOPortYaz2(AKaynakYazmacSN: Integer);
   public
 
   end;
@@ -51,12 +52,13 @@ implementation
 uses islevler;
 
 procedure TfrmAnaSayfa.FormCreate(Sender: TObject);
+var
+  i: Integer;
 begin
 
   SetLength(Bellek1MB, 1 * 1024 * 1024);
 
-  PortDeger := 0;
-  Port60 := 0;
+  for i := 0 to 65535 do Portlar[i] := 0;
 end;
 
 procedure TfrmAnaSayfa.FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -66,12 +68,6 @@ begin
   if(SB_CALISIYOR) then btnCalistirClick(Self);
 
   SetLength(Bellek1MB, 0);
-end;
-
-procedure TfrmAnaSayfa.ValueListEditor1Click(Sender: TObject);
-begin
-
-  Port60 := 1;    // test amaçlı
 end;
 
 procedure TfrmAnaSayfa.btnCalistirClick(Sender: TObject);
@@ -87,7 +83,7 @@ begin
 
     DosyaU := 0;
 
-    mmCikti.Lines.Clear;
+    {$IFDEF DEBUG} mmCikti.Lines.Clear; {$ENDIF}
     sbDurum.Panels[0].Text := Format('Toplam Uzunluk: %d', [DosyaU]);
     sbDurum.Repaint;
     Application.ProcessMessages;
@@ -171,7 +167,7 @@ begin
 
     Adres := (YZMC_DEGERSN[YZMC16_CS] * 16) + YZMC_DEGERSN[YZMC16_EIP];
     Komut := Bellek1MB[Adres];
-    mmCikti.Lines.Add('Yürütme iptal edildi. Hatalı komut: $%.2x', [Komut]);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('Yürütme iptal edildi. Hatalı komut: $%.2x', [Komut]); {$ENDIF}
   end;
 end;
 
@@ -205,7 +201,7 @@ begin
   if(IslenenKomut = $66) then
   begin
 
-    mmCikti.Lines.Add('ön ek - $66');
+    {$IFDEF DEBUG} mmCikti.Lines.Add('ön ek - $66'); {$ENDIF}
     IPDegeriniArtir;
 
     // işlemci komutunun 16/32 bit değişimini gerçekleştirir
@@ -222,9 +218,8 @@ begin
     if(IslenenKomut = $E4) then
     begin
 
-      D12 := IOPortDegeriOku(D11);
-      YazmacDegistir2(YZMC_AL, D12);
-      mmCikti.Lines.Add('in al,$%.2x', [D11]);
+      IOPortOku(YZMC_AL, D11);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('in al,$%.2x', [D11 and $FF]); {$ENDIF}
       IPDegeriniArtir(2);
     end
     else if(IslenenKomut = $E5) then
@@ -233,17 +228,15 @@ begin
       if(KomutModDegistir) then
       begin
 
-        D41 := IOPortDegeriOku(D11);
-        YazmacDegistir2(YZMC_EAX, D41);
-        mmCikti.Lines.Add('in eax,$%.2x', [D11]);
+        IOPortOku(YZMC_EAX, D11);
+        {$IFDEF DEBUG} mmCikti.Lines.Add('in eax,$%.2x', [D11 and $FF]); {$ENDIF}
         IPDegeriniArtir(2);
       end
       else
       begin
 
-        D21 := IOPortDegeriOku(D11);
-        YazmacDegistir2(YZMC_AX, D21);
-        mmCikti.Lines.Add('in ax,$%.2x', [D11]);
+        IOPortOku(YZMC_AX, D11);
+        {$IFDEF DEBUG} mmCikti.Lines.Add('in ax,$%.2x', [D11 and $FF]); {$ENDIF}
         IPDegeriniArtir(2);
       end;
     end else Result := False;
@@ -257,9 +250,8 @@ begin
     if(IslenenKomut = $EC) then
     begin
 
-      D11 := IOPortDegeriOku(YZMC_DEGERSN[YZMC16_DX]);
-      YazmacDegistir2(YZMC_AL, D11);
-      mmCikti.Lines.Add('in al,dx');
+      IOPortOku2(YZMC_AL);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('in al,dx'); {$ENDIF}
       IPDegeriniArtir;
     end
     else if(IslenenKomut = $ED) then
@@ -268,17 +260,81 @@ begin
       if(KomutModDegistir) then
       begin
 
-        D41 := IOPortDegeriOku(YZMC_DEGERSN[YZMC16_DX]);
-        YazmacDegistir2(YZMC_EAX, D41);
-        mmCikti.Lines.Add('in eax,dx');
+        IOPortOku2(YZMC_EAX);
+        {$IFDEF DEBUG} mmCikti.Lines.Add('in eax,dx'); {$ENDIF}
         IPDegeriniArtir;
       end
       else
       begin
 
-        D21 := IOPortDegeriOku(YZMC_DEGERSN[YZMC16_DX]);
-        YazmacDegistir2(YZMC_AX, D21);
-        mmCikti.Lines.Add('in ax,dx');
+        IOPortOku2(YZMC_AX);
+        {$IFDEF DEBUG} mmCikti.Lines.Add('in ax,dx'); {$ENDIF}
+        IPDegeriniArtir;
+      end;
+    end else Result := False;
+  end
+  // E6 ib - OUT imm8, AL - Output byte in AL to I/O port address imm8
+  // E7 ib - OUT imm8, AX - Output word in AX to I/O port address imm8
+  // E7 ib - OUT imm8, EAX - Output doubleword in EAX to I/O port address imm8
+  else if(IslenenKomut = $E6) or (IslenenKomut = $E7) then
+  begin
+
+    D11 := (Bellek1MB[Adres + 1] and $FF);
+
+    if(IslenenKomut = $E6) then
+    begin
+
+      IOPortYaz(D11, YZMC_AL);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('out $%.2x,al', [D11 and $FF]); {$ENDIF}
+      IPDegeriniArtir(2);
+    end
+    else if(IslenenKomut = $E7) then
+    begin
+
+      if(KomutModDegistir) then
+      begin
+
+        IOPortYaz(D11, YZMC_EAX);
+        {$IFDEF DEBUG} mmCikti.Lines.Add('out $%.2x,eax', [D11 and $FF]); {$ENDIF}
+        IPDegeriniArtir(2);
+      end
+      else
+      begin
+
+        IOPortYaz(D11, YZMC_AX);
+        {$IFDEF DEBUG} mmCikti.Lines.Add('out $%.2x,ax', [D11 and $FF]); {$ENDIF}
+        IPDegeriniArtir(2);
+      end;
+    end else Result := False;
+  end
+  // EE - OUT DX, AL - Output byte in AL to I/O port address in DX
+  // EF - OUT DX, AX - Output word in AX to I/O port address in DX
+  // EF - OUT DX, EAX - Output doubleword in EAX to I/O port address in DX  else if(IslenenKomut = $EC) or (IslenenKomut = $ED) then
+  else if(IslenenKomut = $EE) or (IslenenKomut = $EF) then
+  begin
+
+    if(IslenenKomut = $EE) then
+    begin
+
+      IOPortYaz2(YZMC_AL);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('out dx,al'); {$ENDIF}
+      IPDegeriniArtir;
+    end
+    else if(IslenenKomut = $EF) then
+    begin
+
+      if(KomutModDegistir) then
+      begin
+
+        IOPortYaz2(YZMC_EAX);
+        {$IFDEF DEBUG} mmCikti.Lines.Add('out dx,eax'); {$ENDIF}
+        IPDegeriniArtir;
+      end
+      else
+      begin
+
+        IOPortYaz2(YZMC_AX);
+        {$IFDEF DEBUG} mmCikti.Lines.Add('out dx,ax'); {$ENDIF}
         IPDegeriniArtir;
       end;
     end else Result := False;
@@ -291,7 +347,7 @@ begin
     begin
 
       YazmacDegistir(IslenenKomut - $48, -1, True);
-      mmCikti.Lines.Add('$%.2x - dec', [IslenenKomut]);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('$%.2x - dec', [IslenenKomut]); {$ENDIF}
       IPDegeriniArtir;          // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
     end else Result := False;
   end
@@ -303,7 +359,7 @@ begin
     begin
 
       YazmacDegistir(IslenenKomut - $40, 1, True);
-      mmCikti.Lines.Add('$%.2x - inc', [IslenenKomut]);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('$%.2x - inc', [IslenenKomut]); {$ENDIF}
       IPDegeriniArtir;          // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
     end else Result := False;
   end
@@ -312,7 +368,7 @@ begin
   begin
 
     D11 := Bellek1MB[Adres + 1];
-    mmCikti.Lines.Add('jmp (yakın) %.2d', [D11]);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('jmp (yakın) %.2d', [D11]); {$ENDIF}
     IPDegeriniArtir(2);
     IPDegeriniArtir(D11);       // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
   end
@@ -355,7 +411,7 @@ begin
 
       D21 := PSmallInt(@Bellek1MB[Adres + 1])^;
       YazmacDegistir(IslenenKomut - $B8, D21);
-      mmCikti.Lines.Add('$%.2x-$%.4x - mov', [IslenenKomut, D21]);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('$%.2x-$%.4x - mov', [IslenenKomut, D21]); {$ENDIF}
       IPDegeriniArtir(3);       // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
     end else Result := False;
   end
@@ -363,7 +419,7 @@ begin
   else if(IslenenKomut = $90) then
   begin
 
-    mmCikti.Lines.Add('nop');
+    {$IFDEF DEBUG} mmCikti.Lines.Add('nop'); {$ENDIF}
     IPDegeriniArtir;
   end
 
@@ -397,7 +453,7 @@ begin
   Application.ProcessMessages;
 end;
 
-procedure TfrmAnaSayfa.YazmacDegistir2(AYazmacSN, ADeger: LongInt; AArtir: Boolean = False);
+procedure TfrmAnaSayfa.YazmacDegistir2(AHedefYazmacSN, ADeger: LongInt; AArtir: Boolean = False);
 var
   DegerSN: Integer;
   D11: ShortInt;        // işaretli 8 bit
@@ -405,9 +461,9 @@ var
   D31: LongInt;         // işaretli 32 bit
 begin
 
-  DegerSN := (AYazmacSN and $FF);
+  DegerSN := (AHedefYazmacSN and $FF);
 
-  case AYazmacSN of
+  case AHedefYazmacSN of
     YZMC_AL:
     begin
 
@@ -487,20 +543,123 @@ begin
   end;
 end;
 
-function TfrmAnaSayfa.IOPortDegeriOku(AIOPortNo: Integer): Integer;
+// AKaynakPortNo numaralı porttan belirtilen yazmaca değer okur
+// AHedefYazmacSN = AKaynakPortNo numaralı porttan okunacak değerin yerleştirileceği yazmacın yazmaç sıra numarası
+procedure TfrmAnaSayfa.IOPortOku(AHedefYazmacSN, AKaynakPortNo: Integer);
+var
+  KaynakPortNo,
+  KaynakDeger: Integer;
 begin
 
-  if(AIOPortNo = $60) then
-  begin
+  KaynakPortNo := (AKaynakPortNo and $FFFF);
+  KaynakDeger := Portlar[KaynakPortNo];
 
-    Result := Port60;
-    Port60 := 0;
-  end
-  else
-  begin
+  case AHedefYazmacSN of
+    YZMC_AL:
+    begin
+      KaynakDeger := (KaynakDeger and $FF);
+      YazmacDegistir2(YZMC_AL, KaynakDeger);
+    end;
+    YZMC_AX:
+    begin
+      KaynakDeger := (KaynakDeger and $FFFF);
+      YazmacDegistir2(YZMC_AX, KaynakDeger);
+    end;
+    YZMC_EAX:
+    begin
+      YazmacDegistir2(YZMC_EAX, KaynakDeger);
+    end;
+    else Exit;
+  end;
+end;
 
-    Result := PortDeger;
-    Inc(PortDeger);
+// DX portundan belirtilen yazmaca değer okur
+// AHedefYazmacSN = DX portundan okunacak değerin yerleştirileceği yazmacın yazmaç sıra numarası
+procedure TfrmAnaSayfa.IOPortOku2(AHedefYazmacSN: Integer);
+var
+  KaynakPort,
+  KaynakDeger: Integer;
+begin
+
+  KaynakPort := YZMC_DEGERSN[YZMC16_DX] and $FFFF;
+  KaynakDeger := Portlar[KaynakPort];
+
+  case AHedefYazmacSN of
+    YZMC_AL:
+    begin
+      KaynakDeger := (KaynakDeger and $FF);
+      YazmacDegistir2(YZMC_AL, KaynakDeger);
+    end;
+    YZMC_AX:
+    begin
+      KaynakDeger := (KaynakDeger and $FFFF);
+      YazmacDegistir2(YZMC_AX, KaynakDeger);
+    end;
+    YZMC_EAX:
+    begin
+      YazmacDegistir2(YZMC_EAX, KaynakDeger);
+    end;
+    else Exit;
+  end;
+end;
+
+// AHedefPortNo numaralı porta belirtilen yazmacın değerini yazar
+// AKaynakYazmacSN = AHedefPortNo numaralı porta yazılacak yazmacın yazmaç sıra numarası
+procedure TfrmAnaSayfa.IOPortYaz(AHedefPortNo, AKaynakYazmacSN: Integer);
+var
+  HedefPortNo,
+  KaynakDeger: Integer;
+begin
+
+  KaynakDeger := YZMC_DEGERSN[YZMC16_AX];
+  HedefPortNo := (AHedefPortNo and $FFFF);
+
+  case AKaynakYazmacSN of
+    YZMC_AL:
+    begin
+      KaynakDeger := (KaynakDeger and $FF);
+      Portlar[HedefPortNo] := KaynakDeger;
+    end;
+    YZMC_AX:
+    begin
+      KaynakDeger := (KaynakDeger and $FFFF);
+      Portlar[HedefPortNo] := KaynakDeger;
+    end;
+    YZMC_EAX:
+    begin
+      Portlar[HedefPortNo] := KaynakDeger;
+    end;
+    else Exit;
+  end;
+end;
+
+// DX portuna belirtilen yazmacın değerini yazar
+// AKaynakYazmacSN = DX portuna yazılacak yazmacın yazmaç sıra numarası
+procedure TfrmAnaSayfa.IOPortYaz2(AKaynakYazmacSN: Integer);
+var
+  HedefPortNo,
+  KaynakDeger: Integer;
+begin
+
+  KaynakDeger := YZMC_DEGERSN[YZMC16_AX];
+  HedefPortNo := YZMC_DEGERSN[YZMC16_DX] and $FFFF;
+
+  case AKaynakYazmacSN of
+    YZMC_AL:
+    begin
+      KaynakDeger := (KaynakDeger and $FF);
+      Portlar[HedefPortNo] := KaynakDeger;
+    end;
+    YZMC_AX:
+    begin
+      KaynakDeger := (KaynakDeger and $FFFF);
+      Portlar[HedefPortNo] := KaynakDeger;
+    end;
+    YZMC_EAX:
+    begin
+      Portlar[HedefPortNo] := KaynakDeger;
+    end;
+    else Exit;
   end;
 end;
 

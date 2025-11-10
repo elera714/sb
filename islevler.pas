@@ -52,6 +52,9 @@ var
   ISLEMCI_CM: Integer = ICM_BIT16;
   SB_CALISIYOR: Boolean = False;        // sanal bilgisayar çalışıyor mu?
 
+var
+  Portlar: array[0..65535] of Integer;
+
 implementation
 
 end.

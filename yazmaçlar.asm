@@ -17,7 +17,7 @@ basla2:
         mov     fs,sp
         mov     gs,di
 
-;        inc     ax
+        inc     ax
         inc     bx
         inc     cx
         inc     dx
@@ -26,6 +26,8 @@ basla2:
         inc     bp
         inc     sp
 
-        in      al,0x60
+        mov     dx,0x50
+        out     dx,ax
+        in      ax,dx
 
         jmp     basla2
