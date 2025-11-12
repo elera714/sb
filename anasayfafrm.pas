@@ -12,6 +12,7 @@ uses
 type
   TfrmAnaSayfa = class(TForm)
     btnCalistir: TButton;
+    btnBellek: TButton;
     edtIslenecekDosya: TEdit;
     lblIskenenKomutSayisi: TLabel;
     lblIslenecekDosya: TLabel;
@@ -21,6 +22,7 @@ type
     sbDurum: TStatusBar;
     ValueListEditor1: TValueListEditor;
     procedure btnCalistirClick(Sender: TObject);
+    procedure btnBellekClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
   private
@@ -37,19 +39,20 @@ type
     procedure IOPortOku2(AHedefYazmacSN: Integer);
     procedure IOPortYaz(AHedefPortNo, AKaynakYazmacSN: Integer);
     procedure IOPortYaz2(AKaynakYazmacSN: Integer);
+    procedure YiginaEkle(ADeger, AVeriUzunlugu: LongWord);
+    procedure YiginaEkle2(AHedefYazmacSN: Integer);
   public
 
   end;
 
 var
   frmAnaSayfa: TfrmAnaSayfa;
-  Bellek1MB: array of Byte;
   DosyaU: Int64;
 
 implementation
 
 {$R *.lfm}
-uses islevler;
+uses islevler, bellekfrm;
 
 procedure TfrmAnaSayfa.FormCreate(Sender: TObject);
 var
@@ -119,6 +122,12 @@ begin
   end;
 end;
 
+procedure TfrmAnaSayfa.btnBellekClick(Sender: TObject);
+begin
+
+  frmBellek.Show;
+end;
+
 procedure TfrmAnaSayfa.Yorumla;
 var
   Islenen, Adres: Integer;
@@ -174,6 +183,13 @@ end;
 function TfrmAnaSayfa.Isle(ACS, AIP: Integer): Boolean;
 var
   Adres: Integer;
+  V11, V12,
+  V13, V14,
+  V15: Byte;            // işaretsiz 8 bit
+  V21: Word;            // işaretsiz 16 bit
+  V41: LongWord;        // işaretsiz 32 bit
+
+  {TODO - aşağıdaki değişkenler yukarıdakilerle değiştirilecek}
   D11, D12,
   D13, D14,
   D15: ShortInt;        // işaretli 8 bit
@@ -208,238 +224,14 @@ begin
     // işlemci komutunun 16/32 bit değişimini gerçekleştirir
     KomutModDegistir := True;
   end
-  // E4 - ib IN AL,imm8 - Input byte from imm8 I/O port address into AL
-  // E5 - ib IN AX,imm8 - Input byte from imm8 I/O port address into AX
-  // E5 - ib IN EAX,imm8 - Input byte from imm8 I/O port address into EAX
-  else if(IslenenKomut = $E4) or (IslenenKomut = $E5) then
-  begin
-
-    D11 := Bellek1MB[Adres + 1];
-
-    if(IslenenKomut = $E4) then
-    begin
-
-      IOPortOku(YZMC_AL, D11);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('in al,$%.2x', [D11 and $FF]); {$ENDIF}
-      IPDegeriniArtir(2);
-    end
-    else if(IslenenKomut = $E5) then
-    begin
-
-      if(KomutModDegistir) then
-      begin
-
-        IOPortOku(YZMC_EAX, D11);
-        {$IFDEF DEBUG} mmCikti.Lines.Add('in eax,$%.2x', [D11 and $FF]); {$ENDIF}
-        IPDegeriniArtir(2);
-      end
-      else
-      begin
-
-        IOPortOku(YZMC_AX, D11);
-        {$IFDEF DEBUG} mmCikti.Lines.Add('in ax,$%.2x', [D11 and $FF]); {$ENDIF}
-        IPDegeriniArtir(2);
-      end;
-    end else Result := False;
-  end
-  // EC - IN AL,DX - Input byte from I/O port in DX into AL
-  // ED - IN AX,DX - Input word from I/O port in DX into AX
-  // ED - IN EAX,DX - Input doubleword from I/O port in DX into EAX
-  else if(IslenenKomut = $EC) or (IslenenKomut = $ED) then
-  begin
-
-    if(IslenenKomut = $EC) then
-    begin
-
-      IOPortOku2(YZMC_AL);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('in al,dx'); {$ENDIF}
-      IPDegeriniArtir;
-    end
-    else if(IslenenKomut = $ED) then
-    begin
-
-      if(KomutModDegistir) then
-      begin
-
-        IOPortOku2(YZMC_EAX);
-        {$IFDEF DEBUG} mmCikti.Lines.Add('in eax,dx'); {$ENDIF}
-        IPDegeriniArtir;
-      end
-      else
-      begin
-
-        IOPortOku2(YZMC_AX);
-        {$IFDEF DEBUG} mmCikti.Lines.Add('in ax,dx'); {$ENDIF}
-        IPDegeriniArtir;
-      end;
-    end else Result := False;
-  end
-  // E6 ib - OUT imm8, AL - Output byte in AL to I/O port address imm8
-  // E7 ib - OUT imm8, AX - Output word in AX to I/O port address imm8
-  // E7 ib - OUT imm8, EAX - Output doubleword in EAX to I/O port address imm8
-  else if(IslenenKomut = $E6) or (IslenenKomut = $E7) then
-  begin
-
-    D11 := (Bellek1MB[Adres + 1] and $FF);
-
-    if(IslenenKomut = $E6) then
-    begin
-
-      IOPortYaz(D11, YZMC_AL);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('out $%.2x,al', [D11 and $FF]); {$ENDIF}
-      IPDegeriniArtir(2);
-    end
-    else if(IslenenKomut = $E7) then
-    begin
-
-      if(KomutModDegistir) then
-      begin
-
-        IOPortYaz(D11, YZMC_EAX);
-        {$IFDEF DEBUG} mmCikti.Lines.Add('out $%.2x,eax', [D11 and $FF]); {$ENDIF}
-        IPDegeriniArtir(2);
-      end
-      else
-      begin
-
-        IOPortYaz(D11, YZMC_AX);
-        {$IFDEF DEBUG} mmCikti.Lines.Add('out $%.2x,ax', [D11 and $FF]); {$ENDIF}
-        IPDegeriniArtir(2);
-      end;
-    end else Result := False;
-  end
-  // EE - OUT DX, AL - Output byte in AL to I/O port address in DX
-  // EF - OUT DX, AX - Output word in AX to I/O port address in DX
-  // EF - OUT DX, EAX - Output doubleword in EAX to I/O port address in DX  else if(IslenenKomut = $EC) or (IslenenKomut = $ED) then
-  else if(IslenenKomut = $EE) or (IslenenKomut = $EF) then
-  begin
-
-    if(IslenenKomut = $EE) then
-    begin
-
-      IOPortYaz2(YZMC_AL);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('out dx,al'); {$ENDIF}
-      IPDegeriniArtir;
-    end
-    else if(IslenenKomut = $EF) then
-    begin
-
-      if(KomutModDegistir) then
-      begin
-
-        IOPortYaz2(YZMC_EAX);
-        {$IFDEF DEBUG} mmCikti.Lines.Add('out dx,eax'); {$ENDIF}
-        IPDegeriniArtir;
-      end
-      else
-      begin
-
-        IOPortYaz2(YZMC_AX);
-        {$IFDEF DEBUG} mmCikti.Lines.Add('out dx,ax'); {$ENDIF}
-        IPDegeriniArtir;
-      end;
-    end else Result := False;
-  end
-  // 48+rw - DEC r16 - Decrement r16 by 1
-  // 48+rd - DEC r32 - Decrement r32 by 1
-  else if(IslenenKomut >= $48 + YZMC0_EAX) and (IslenenKomut <= $48 + YZMC0_EDI) then
-  begin
-
-    if(KomutModDegistir) then
-    begin
-
-      YazmacDegistir2(($04 shl 8) or (IslenenKomut - $48), -1, True);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('dec %s', [Yazmaclar32[IslenenKomut - $48]]); {$ENDIF}
-      IPDegeriniArtir;
-    end
-    else
-    begin
-
-      YazmacDegistir2(($03 shl 8) or (IslenenKomut - $48), -1, True);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('dec %s', [Yazmaclar16[IslenenKomut - $48]]); {$ENDIF}
-      IPDegeriniArtir;
-    end;
-  end
-  // 40+ rw - INC r16 - Increment word register by 1
-  // 40+ rd - INC r32 - Increment doubleword register by 1
-  else if(IslenenKomut >= $40 + YZMC0_EAX) and (IslenenKomut <= $40 + YZMC0_EDI) then
-  begin
-
-    if(KomutModDegistir) then
-    begin
-
-      YazmacDegistir2(($04 shl 8) or (IslenenKomut - $40), 1, True);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('inc %s', [Yazmaclar32[IslenenKomut - $40]]); {$ENDIF}
-      IPDegeriniArtir;
-    end
-    else
-    begin
-
-      YazmacDegistir2(($03 shl 8) or (IslenenKomut - $40), 1, True);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('inc %s', [Yazmaclar16[IslenenKomut - $40]]); {$ENDIF}
-      IPDegeriniArtir;
-    end;
-  end
-  // EB cb - JMP rel8
-  else if(IslenenKomut = $EB) then
-  begin
-
-    D11 := Bellek1MB[Adres + 1];
-    {$IFDEF DEBUG} mmCikti.Lines.Add('jmp (yakın) %.2d', [D11]); {$ENDIF}
-    IPDegeriniArtir(2);
-    IPDegeriniArtir(D11);
-  end
-  // 8E /r - MOV Sreg,r/m16** - Move r/m16 to segment register
-  else if(IslenenKomut = $8E) then
-  begin
-
-    D11 := PSmallInt(@Bellek1MB[Adres + 1])^;
-    D12 := (D11 shr 6) and %11;   // alt komut
-    D13 := (D11 shr 3) and %111;  // hedef segment
-    D14 := (D11 and %111);        // kaynak yazmaç
-    if(D12 = %11) then
-    begin
-
-      case D13 of
-        0: D15 := 10;
-        1: D15 := 8;
-        2: D15 := 11;
-        3: D15 := 9;
-        4: D15 := 12;
-        5: D15 := 13;
-        else Result := False;
-      end;
-
-      if(Result) then
-      begin
-
-        YZMC_DEGERSN[D15] := YZMC_DEGERSN[D14];
-        YazmacDegistir(D15, YZMC_DEGERSN[D14]);
-        IPDegeriniArtir(2);
-      end;
-    end else Result := False;
-  end
-  // B8+ rw - MOV r16,imm16 - Move imm16 to r16
-  else if(IslenenKomut >= $B8 + YZMC0_EAX) and (IslenenKomut <= $B8 + YZMC0_EDI) then
-  begin
-
-    if(ISLEMCI_CM = ICM_BIT16) then
-    begin
-
-      D21 := PSmallInt(@Bellek1MB[Adres + 1])^;
-      YazmacDegistir(IslenenKomut - $B8, D21);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('$%.2x-$%.4x - mov', [IslenenKomut, D21]); {$ENDIF}
-      IPDegeriniArtir(3);
-    end else Result := False;
-  end
-  // nop komutu - tamamlandı
-  else if(IslenenKomut = $90) then
-  begin
-
-    {$IFDEF DEBUG} mmCikti.Lines.Add('nop'); {$ENDIF}
-    IPDegeriniArtir;
-  end
-
+  {$i komutlar\dec.inc}
+  {$i komutlar\in.inc}
+  {$i komutlar\inc.inc}
+  {$i komutlar\jmp.inc}
+  {$i komutlar\mov.inc}
+  {$i komutlar\nop.inc}
+  {$i komutlar\out.inc}
+  {$i komutlar\push.inc}
   else Result := False;
 end;
 
@@ -475,7 +267,7 @@ var
   DegerSN: Integer;
   D11: ShortInt;        // işaretli 8 bit
   D21: SmallInt;        // işaretli 16 bit
-  D31: LongInt;         // işaretli 32 bit
+  D41: LongInt;         // işaretli 32 bit
 begin
 
   DegerSN := (AHedefYazmacSN and $FF);
@@ -511,11 +303,11 @@ begin
     YZMC_EAX, YZMC_ECX, YZMC_EDX, YZMC_EBX, YZMC_ESP, YZMC_EBP, YZMC_ESI, YZMC_EDI:
     begin
 
-      D31 := PLongInt(@YZMC_DEGERSN[DegerSN] + 0)^;
+      D41 := PLongInt(@YZMC_DEGERSN[DegerSN] + 0)^;
       if(AArtir) then
-        D31 := D31 + ADeger
-      else D31 := ADeger;
-      PLongInt(@YZMC_DEGERSN[DegerSN] + 0)^ := D31;
+        D41 := D41 + ADeger
+      else D41 := ADeger;
+      PLongInt(@YZMC_DEGERSN[DegerSN] + 0)^ := D41;
     end;
   end;
 
@@ -678,6 +470,106 @@ begin
     end;
     else Exit;
   end;
+end;
+
+procedure TfrmAnaSayfa.YiginaEkle(ADeger, AVeriUzunlugu: LongWord);
+var
+  V41, V42: LongWord;   // işaretsiz 32 bit
+begin
+
+  V41 := YZMC_DEGERSN[YZMC0_SS];
+  V42 := YZMC_DEGERSN[YZMC0_ESP];
+  V42 -= AVeriUzunlugu;
+  YZMC_DEGERSN[YZMC0_ESP] := V42;
+
+  case AVeriUzunlugu of
+    VU1: begin PByte(@Bellek1MB[(V41 * $10) + V42])^ := (ADeger and $FF); end;
+    VU2: begin PWord(@Bellek1MB[(V41 * $10) + V42])^ := (ADeger and $FFFF); end;
+    VU4: begin PLongWord(@Bellek1MB[(V41 * $10) + V42])^ := ADeger; end;
+    else Exit;
+  end;
+
+  ValueListEditor1.Cells[1, 1 + YZMC_GORSELSN[YZMC0_ESP]] := '$' + HexStr(YZMC_DEGERSN[YZMC0_ESP], 8);
+
+  Application.ProcessMessages;
+end;
+
+procedure TfrmAnaSayfa.YiginaEkle2(AHedefYazmacSN: Integer);
+var
+  D11: Byte;              // işaretsiz 8 bit
+  D21: Word;              // işaretsiz 16 bit
+  D41, D42,
+  D43: LongWord;          // işaretsiz 32 bit
+begin
+
+  case AHedefYazmacSN of
+    YZMC_AL:
+    begin
+
+      {D11 := PShortInt(@YZMC_DEGERSN[DegerSN] + 0)^;
+      PShortInt(@YZMC_DEGERSN[DegerSN] + 0)^ := D11;}
+    end;
+    YZMC_AH:
+    begin
+
+      {D11 := PShortInt(@YZMC_DEGERSN[DegerSN] + 1)^;
+      PShortInt(@YZMC_DEGERSN[DegerSN] + 1)^ := D11;}
+    end;
+    YZMC_AX, YZMC_CX, YZMC_DX, YZMC_BX, YZMC_SP, YZMC_BP, YZMC_SI, YZMC_DI,
+    YZMC_CS, YZMC_DS, YZMC_ES, YZMC_SS, YZMC_FS, YZMC_GS:
+    begin
+
+      D41 := PLongWord(@YZMC_DEGERSN[YZMC0_SS] + 0)^;
+      D42 := PLongWord(@YZMC_DEGERSN[YZMC0_ESP] + 0)^;
+      D42 -= 2;
+      PLongWord(@YZMC_DEGERSN[YZMC0_ESP] + 0)^ := D42;
+
+      case AHedefYazmacSN of
+        YZMC_AX: D21 := PWord(@YZMC_DEGERSN[YZMC0_EAX] + 0)^;
+        YZMC_CX: D21 := PWord(@YZMC_DEGERSN[YZMC0_ECX] + 0)^;
+        YZMC_DX: D21 := PWord(@YZMC_DEGERSN[YZMC0_EDX] + 0)^;
+        YZMC_BX: D21 := PWord(@YZMC_DEGERSN[YZMC0_EBX] + 0)^;
+        YZMC_SP: D21 := PWord(@YZMC_DEGERSN[YZMC0_ESP] + 0)^;
+        YZMC_BP: D21 := PWord(@YZMC_DEGERSN[YZMC0_EBP] + 0)^;
+        YZMC_SI: D21 := PWord(@YZMC_DEGERSN[YZMC0_ESI] + 0)^;
+        YZMC_DI: D21 := PWord(@YZMC_DEGERSN[YZMC0_EDI] + 0)^;
+        YZMC_CS: D21 := PWord(@YZMC_DEGERSN[YZMC0_CS] + 0)^;
+        YZMC_DS: D21 := PWord(@YZMC_DEGERSN[YZMC0_DS] + 0)^;
+        YZMC_ES: D21 := PWord(@YZMC_DEGERSN[YZMC0_ES] + 0)^;
+        YZMC_SS: D21 := PWord(@YZMC_DEGERSN[YZMC0_SS] + 0)^;
+        YZMC_FS: D21 := PWord(@YZMC_DEGERSN[YZMC0_FS] + 0)^;
+        YZMC_GS: D21 := PWord(@YZMC_DEGERSN[YZMC0_GS] + 0)^;
+      end;
+
+      PWord(@Bellek1MB[(D41 * $10) + D42])^ := D21;
+    end;
+    YZMC_EAX, YZMC_ECX, YZMC_EDX, YZMC_EBX, YZMC_ESP, YZMC_EBP, YZMC_ESI, YZMC_EDI:
+    begin
+
+      D41 := PLongWord(@YZMC_DEGERSN[YZMC0_SS] + 0)^;
+      D42 := PLongWord(@YZMC_DEGERSN[YZMC0_ESP] + 0)^;
+      D42 -= 4;
+      PLongWord(@YZMC_DEGERSN[YZMC0_ESP] + 0)^ := D42;
+
+      case AHedefYazmacSN of
+        YZMC_EAX: D43 := PLongWord(@YZMC_DEGERSN[YZMC0_EAX] + 0)^;
+        YZMC_ECX: D43 := PLongWord(@YZMC_DEGERSN[YZMC0_ECX] + 0)^;
+        YZMC_EDX: D43 := PLongWord(@YZMC_DEGERSN[YZMC0_EDX] + 0)^;
+        YZMC_EBX: D43 := PLongWord(@YZMC_DEGERSN[YZMC0_EBX] + 0)^;
+        // esp değeri yığına, yığın azaltılmadan önceki değeriyle itilir
+        YZMC_ESP: begin D43 := PLongWord(@YZMC_DEGERSN[YZMC0_ESP] + 0)^; D43 += 4; end;
+        YZMC_EBP: D43 := PLongWord(@YZMC_DEGERSN[YZMC0_EBP] + 0)^;
+        YZMC_ESI: D43 := PLongWord(@YZMC_DEGERSN[YZMC0_ESI] + 0)^;
+        YZMC_EDI: D43 := PLongWord(@YZMC_DEGERSN[YZMC0_EDI] + 0)^;
+      end;
+
+      PLongWord(@Bellek1MB[(D41 * $10) + D42])^ := D43;
+    end;
+  end;
+
+  ValueListEditor1.Cells[1, 1 + YZMC_GORSELSN[YZMC0_ESP]] := '$' + HexStr(YZMC_DEGERSN[YZMC0_ESP], 8);
+
+  Application.ProcessMessages;
 end;
 
 end.

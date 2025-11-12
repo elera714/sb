@@ -7,15 +7,25 @@ interface
 uses Classes, SysUtils;
 
 type
+  PByte = ^Byte;                // işaretli 8 bit
+  PWord = ^Word;                // işaretli 16 bit
+  PLongWord = ^LongWord;        // işaretli 32 bit
+
   PShortInt = ^ShortInt;        // işaretli 8 bit
   PSmallInt = ^SmallInt;        // işaretli 16 bit
   PLongInt = ^LongInt;          // işaretli 32 bit
 
 const
+  // veri uzunlukları
+  VU1         = 1;
+  VU2         = 2;
+  VU4         = 4;
+  VU8         = 8;
+
   // işlemci çalışma modları
-  ICM_BIT16   = 1;
-  ICM_BIT32   = 2;
-  ICM_BIT64   = 3;
+  ICM_BIT16   = VU2;
+  ICM_BIT32   = VU4;
+  ICM_BIT64   = VU8;
 
 const
   // yazmaç sıra numaraları
@@ -74,12 +84,16 @@ const
   YZMC_ESI    = ($04 shl 8) or YZMC0_ESI;
   YZMC_EDI    = ($04 shl 8) or YZMC0_EDI;
 
+var
+  YZMC_DEGERSN: array[0..14] of Integer =
+    {eax ecx edx ebx esp ebp esi edi cs  ds  es  ss  fs  gs  eip}
+    (0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0);
+
 const
   // yazmaç değerlerinin form üzerindeki sıra numaraları
-  YZMC_GORSELSN: array of Integer = (0, 3, 1, 2, 6, 7, 5, 4, 8, 9, 10, 11, 12, 13, 14);
-
-var
-  YZMC_DEGERSN: array of Integer = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+  YZMC_GORSELSN: array[0..14] of Integer =
+    {eax ecx edx ebx esp ebp esi edi cs  ds  es  ss  fs  gs  eip}
+    (0,  2,  3,  1,  7,  6,  4,  5,  8,  9,  10, 11, 12, 13, 14);
 
 const
   Yazmaclar16: array[YZMC0_EAX..YZMC0_EDI] of string =
@@ -92,6 +106,7 @@ var
   SB_CALISIYOR: Boolean = False;        // sanal bilgisayar çalışıyor mu?
 
 var
+  Bellek1MB: array of Byte;
   Portlar: array[0..65535] of Integer;
 
 implementation

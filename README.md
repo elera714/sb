@@ -1,6 +1,7 @@
 # sb - Sanal Bilgisayar
 
-![main](sb.png)
+![anasayfa](sb-1.png)
+![bellek](sb-2.png)
 
 ---
 
