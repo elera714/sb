@@ -1,31 +1,32 @@
 basla:
         mov     ax,0x7c0
-        mov     cx,2
-        mov     dx,3
-        mov     bx,4
-        mov     sp,5
-        mov     bp,6
-        mov     si,7
-        mov     di,8
-
         mov     ds,ax
         mov     es,ax
         mov     ss,ax
         mov     sp,0x1000
 
-;        push    eax
-;        push    ecx
-;        push    edx
-;        push    ebx
-        push    esp
-;        push    ebp
-;        push    esi
-;        push    edi
+        mov     ax,10
+        mov     bx,10
+        mov     cx,10
+        mov     dx,10
+;        mov     sp,10
+        mov     bp,10
+        mov     si,10
+        mov     di,10
 basla2:
         nop
-;        call    ax_artir
+        call    artir
+        nop
         jmp     basla2
-;
-;ax_artir:
-;        inc     ax
-;        ret
+
+        nop
+artir:
+        inc     ax
+        inc     bx
+        inc     cx
+        inc     dx
+;        inc     sp
+        inc     bp
+        inc     si
+        inc     di
+        ret

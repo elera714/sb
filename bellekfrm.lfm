@@ -1,52 +1,74 @@
 object frmBellek: TfrmBellek
-  Left = 487
-  Height = 527
-  Top = 311
-  Width = 567
+  Left = 485
+  Height = 499
+  Top = 299
+  Width = 546
   Caption = 'Bellek İçerik Görüntüleyici'
-  ClientHeight = 527
-  ClientWidth = 567
-  LCLVersion = '4.2.0.0'
+  ClientHeight = 499
+  ClientWidth = 546
+  LCLVersion = '4.4.0.0'
+  OnShow = FormShow
   object Panel1: TPanel
     Left = 0
     Height = 37
     Top = 0
-    Width = 567
+    Width = 546
     Align = alTop
     ClientHeight = 37
-    ClientWidth = 567
+    ClientWidth = 546
     TabOrder = 0
     object Label1: TLabel
       Left = 8
       Height = 15
-      Top = 11
+      Top = 10
       Width = 30
       Caption = 'Adres'
     end
     object Edit1: TEdit
-      Left = 52
+      Left = 48
       Height = 23
       Top = 7
-      Width = 420
+      Width = 336
+      Anchors = [akTop, akLeft, akRight]
       TabOrder = 0
       Text = '$8B00'
     end
     object Button1: TButton
-      Left = 481
+      Left = 452
       Height = 25
       Top = 6
-      Width = 75
+      Width = 76
       Anchors = [akTop, akRight]
       Caption = 'Yenile'
       TabOrder = 1
       OnClick = Button1Click
     end
+    object Button2: TButton
+      Left = 420
+      Height = 25
+      Top = 6
+      Width = 29
+      Anchors = [akTop, akRight]
+      Caption = '>'
+      TabOrder = 2
+      OnClick = Button2Click
+    end
+    object Button3: TButton
+      Left = 389
+      Height = 25
+      Top = 6
+      Width = 29
+      Anchors = [akTop, akRight]
+      Caption = '<'
+      TabOrder = 3
+      OnClick = Button3Click
+    end
   end
   object StringGrid1: TStringGrid
     Left = 0
-    Height = 490
+    Height = 462
     Top = 37
-    Width = 567
+    Width = 546
     Align = alClient
     ColCount = 17
     DefaultColWidth = 28
@@ -73,103 +95,55 @@ object frmBellek: TfrmBellek
       28
     )
     Cells = (
-      32
-      0
-      1
-      '$00008C00'
-      0
-      2
-      '$00000C10'
-      0
-      3
-      '$00008C20'
-      0
-      4
-      '$00008C30'
-      0
-      5
-      '$00008C40'
-      0
-      6
-      '$00008C50'
-      0
-      7
-      '$00008C60'
-      0
-      8
-      '$00008C70'
-      0
-      9
-      '$00008C80'
-      0
-      10
-      '$00008C90'
-      0
-      11
-      '$00008CA0'
-      0
-      12
-      '$00008CB0'
-      0
-      13
-      '$00008CC0'
-      0
-      14
-      '$00008CD0'
-      0
-      15
-      '$00008CE0'
-      0
       16
-      '$00008CF0'
       1
       0
-      '00'
+      '$00'
       2
       0
-      '01'
+      '$01'
       3
       0
-      '02'
+      '$02'
       4
       0
-      '03'
+      '$03'
       5
       0
-      '04'
+      '$04'
       6
       0
-      '05'
+      '$05'
       7
       0
-      '06'
+      '$06'
       8
       0
-      '07'
+      '$07'
       9
       0
-      '08'
+      '$08'
       10
       0
-      '09'
+      '$09'
       11
       0
-      '0A'
+      '$0A'
       12
       0
-      '0B'
+      '$0B'
       13
       0
-      '0C'
+      '$0C'
       14
       0
-      '0D'
+      '$0D'
       15
       0
-      '0E'
+      '$0E'
       16
       0
-      '0F'
+      '$0F'
     )
   end
 end

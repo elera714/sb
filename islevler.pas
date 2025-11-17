@@ -6,6 +6,10 @@ interface
 
 uses Classes, SysUtils;
 
+const
+  // 2 kafa, 80 iz, 18 sektör, her sektörde 512 byte
+  DISKET_BOYUT = LongWord((2 * 80 * 18) * 512);
+
 type
   PByte = ^Byte;                // işaretli 8 bit
   PWord = ^Word;                // işaretli 16 bit
@@ -106,7 +110,7 @@ var
   SB_CALISIYOR: Boolean = False;        // sanal bilgisayar çalışıyor mu?
 
 var
-  Bellek1MB: array of Byte;
+  Bellek144MB: array of Byte;
   Portlar: array[0..65535] of Integer;
 
 implementation

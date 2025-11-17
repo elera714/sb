@@ -22,7 +22,7 @@ end
 else if(IslenenKomut = $6A) then
 begin
 
-  V11 := PByte(@Bellek1MB[Adres + 1])^;
+  V11 := PByte(@Bellek144MB[Adres + 1])^;
 
   YiginaEkle(V11, VU1);
   {$IFDEF DEBUG} mmCikti.Lines.Add('push vu1 $%.2x', [V11]); {$ENDIF}
@@ -35,7 +35,7 @@ begin
   if(KomutModDegistir) then
   begin
 
-    V41 := PLongWord(@Bellek1MB[Adres + 1])^;
+    V41 := PLongWord(@Bellek144MB[Adres + 1])^;
 
     YiginaEkle(V41, VU4);
     {$IFDEF DEBUG} mmCikti.Lines.Add('push vu4 $%.8x', [V41]); {$ENDIF}
@@ -45,7 +45,7 @@ begin
   // 68 - PUSH imm16 - Push imm16
   begin
 
-    V21 := PWord(@Bellek1MB[Adres + 1])^;
+    V21 := PWord(@Bellek144MB[Adres + 1])^;
 
     YiginaEkle(V21, VU2);
     {$IFDEF DEBUG} mmCikti.Lines.Add('push vu2 $%.4x', [V21]); {$ENDIF}
@@ -87,7 +87,7 @@ end
 else if(IslenenKomut = $0F) then
 begin
 
-  V11 := PByte(@Bellek1MB[Adres + 1])^;
+  V11 := PByte(@Bellek144MB[Adres + 1])^;
 
   // 0F A0 - PUSH FS - Push FS
   if(V11 = $A0) then

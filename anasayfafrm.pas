@@ -41,6 +41,7 @@ type
     procedure IOPortYaz2(AKaynakYazmacSN: Integer);
     procedure YiginaEkle(ADeger, AVeriUzunlugu: LongWord);
     procedure YiginaEkle2(AHedefYazmacSN: Integer);
+    function YigindanAl(AVeriUzunlugu: LongWord): LongWord;
   public
 
   end;
@@ -59,7 +60,7 @@ var
   i: Integer;
 begin
 
-  SetLength(Bellek1MB, 1 * 1024 * 1024);
+  SetLength(Bellek144MB, DISKET_BOYUT + ($7C0 * $10));
 
   for i := 0 to 65535 do Portlar[i] := 0;
 end;
@@ -70,13 +71,13 @@ begin
   // sanal bilgisayar çalışıyorsa, durdur
   if(SB_CALISIYOR) then btnCalistirClick(Self);
 
-  SetLength(Bellek1MB, 0);
+  SetLength(Bellek144MB, 0);
 end;
 
 procedure TfrmAnaSayfa.btnCalistirClick(Sender: TObject);
 var
-  F: File of Byte;
-  Bellek: array of Byte;
+  FileStream: TFileStream;
+  Hata: string;
 begin
 
   if not(SB_CALISIYOR) then
@@ -84,6 +85,7 @@ begin
 
     YazmaclariSifirla;
 
+    Hata := '';
     DosyaU := 0;
 
     {$IFDEF DEBUG} mmCikti.Lines.Clear; {$ENDIF}
@@ -91,28 +93,30 @@ begin
     sbDurum.Repaint;
     Application.ProcessMessages;
 
-    AssignFile(F, edtIslenecekDosya.Text);
-    {$I-} Reset(F); {$I+}
+    try
+      FileStream := TFileStream.Create(edtIslenecekDosya.Text, fmOpenRead);
+      FileStream.Position := 0;
+      DosyaU := FileStream.Size;
 
-    if(IOResult = 0) then
-    begin
+      if(DosyaU <= DISKET_BOYUT) then
+        FileStream.Read(Bellek144MB[$07C0 * $10], DosyaU)
+      else Hata := 'dosya 1.44MB''den büyük olamaz!';
 
-      DosyaU := FileSize(F);
-
-      SetLength(Bellek, DosyaU);
-      BlockRead(F, Bellek[0], DosyaU);
-      BellegeKopyala(@Bellek[0], @Bellek1MB[0], $07C0 * 16, DosyaU);
-      SetLength(Bellek, 0);
-
-      CloseFile(F);
+      FileStream.Free;
+    except
+      on E: Exception do Hata := E.Message;
     end;
 
-    sbDurum.Panels[0].Text := Format('Toplam Uzunluk: %d', [DosyaU]);
+    if(Length(Hata) = 0) then
+    begin
 
-    SB_CALISIYOR := True;
-    btnCalistir.Caption := 'Durdur';
+      sbDurum.Panels[0].Text := Format('Toplam Uzunluk: %d', [DosyaU]);
 
-    Yorumla;
+      SB_CALISIYOR := True;
+      btnCalistir.Caption := 'Durdur';
+
+      Yorumla;
+    end else ShowMessage('Hata: ' + Hata);
   end
   else
   begin
@@ -125,6 +129,8 @@ end;
 procedure TfrmAnaSayfa.btnBellekClick(Sender: TObject);
 begin
 
+  frmBellek.Goruntule := True;
+  frmBellek.BellekAdresi := (YZMC_DEGERSN[YZMC0_CS] * $10) + YZMC_DEGERSN[YZMC0_EIP];
   frmBellek.Show;
 end;
 
@@ -158,6 +164,9 @@ begin
       begin
 
         Inc(Islenen);
+        lblIskenenKomutSayisi.Caption := Format('İşlenen Komut Sayısı: %d', [Islenen]);
+        Application.ProcessMessages;
+
       end else HataVar := True;
 
       // komut mod değiştirme işlemi gerçekleştirildikten sonra kapat
@@ -169,14 +178,15 @@ begin
 
   until (SB_CALISIYOR = False) or (HataVar = True);
 
-  lblIskenenKomutSayisi.Caption := Format('İşlenen Komut Sayısı: %d', [Islenen]);
-
   if(HataVar) then
   begin
 
     Adres := (YZMC_DEGERSN[YZMC0_CS] * 16) + YZMC_DEGERSN[YZMC0_EIP];
-    Komut := Bellek1MB[Adres];
+    Komut := Bellek144MB[Adres];
     {$IFDEF DEBUG} mmCikti.Lines.Add('Yürütme iptal edildi. Hatalı komut: $%.2x', [Komut]); {$ENDIF}
+
+    SB_CALISIYOR := False;
+    btnCalistir.Caption := 'Çalıştır';
   end;
 end;
 
@@ -212,7 +222,7 @@ begin
 
   Adres := (ACS * 16) + AIP;
 
-  IslenenKomut := Bellek1MB[Adres];
+  IslenenKomut := Bellek144MB[Adres];
 
   // Operand-size override, 66H
   if(IslenenKomut = $66) then
@@ -223,6 +233,26 @@ begin
 
     // işlemci komutunun 16/32 bit değişimini gerçekleştirir
     KomutModDegistir := True;
+  end
+  // E8 cw - CALL rel16 - Call near, relative, displacement relative to next instruction
+  // E8 cd - CALL rel32 - Call near, relative, displacement relative to next instruction
+  else if(IslenenKomut = $E8) then
+  begin
+
+    V21 := PWord(@Bellek144MB[Adres + 1])^;
+    {$IFDEF DEBUG} mmCikti.Lines.Add('call (yakın) %.4d', [SmallInt(V21)]); {$ENDIF}
+    YiginaEkle(YZMC_DEGERSN[YZMC0_EIP] + 3, VU2);
+    IPDegeriniArtir(3);
+    IPDegeriniArtir(SmallInt(V21));
+  end
+  // C3 - RET - Near return to calling procedure
+  // CB - RET - Far return to calling procedure
+  else if(IslenenKomut = $C3) then
+  begin
+
+    V21 := YigindanAl(VU2);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('ret (yakın) %.4d', [SmallInt(V21)]); {$ENDIF}
+    YZMC_DEGERSN[YZMC0_EIP] := V21;
   end
   {$i komutlar\dec.inc}
   {$i komutlar\in.inc}
@@ -483,9 +513,9 @@ begin
   YZMC_DEGERSN[YZMC0_ESP] := V42;
 
   case AVeriUzunlugu of
-    VU1: begin PByte(@Bellek1MB[(V41 * $10) + V42])^ := (ADeger and $FF); end;
-    VU2: begin PWord(@Bellek1MB[(V41 * $10) + V42])^ := (ADeger and $FFFF); end;
-    VU4: begin PLongWord(@Bellek1MB[(V41 * $10) + V42])^ := ADeger; end;
+    VU1: begin PByte(@Bellek144MB[(V41 * $10) + V42])^ := (ADeger and $FF); end;
+    VU2: begin PWord(@Bellek144MB[(V41 * $10) + V42])^ := (ADeger and $FFFF); end;
+    VU4: begin PLongWord(@Bellek144MB[(V41 * $10) + V42])^ := ADeger; end;
     else Exit;
   end;
 
@@ -541,7 +571,7 @@ begin
         YZMC_GS: D21 := PWord(@YZMC_DEGERSN[YZMC0_GS] + 0)^;
       end;
 
-      PWord(@Bellek1MB[(D41 * $10) + D42])^ := D21;
+      PWord(@Bellek144MB[(D41 * $10) + D42])^ := D21;
     end;
     YZMC_EAX, YZMC_ECX, YZMC_EDX, YZMC_EBX, YZMC_ESP, YZMC_EBP, YZMC_ESI, YZMC_EDI:
     begin
@@ -563,9 +593,32 @@ begin
         YZMC_EDI: D43 := PLongWord(@YZMC_DEGERSN[YZMC0_EDI] + 0)^;
       end;
 
-      PLongWord(@Bellek1MB[(D41 * $10) + D42])^ := D43;
+      PLongWord(@Bellek144MB[(D41 * $10) + D42])^ := D43;
     end;
   end;
+
+  ValueListEditor1.Cells[1, 1 + YZMC_GORSELSN[YZMC0_ESP]] := '$' + HexStr(YZMC_DEGERSN[YZMC0_ESP], 8);
+
+  Application.ProcessMessages;
+end;
+
+function TfrmAnaSayfa.YigindanAl(AVeriUzunlugu: LongWord): LongWord;
+var
+  V41, V42: LongWord;   // işaretsiz 32 bit
+begin
+
+  V41 := YZMC_DEGERSN[YZMC0_SS];
+  V42 := YZMC_DEGERSN[YZMC0_ESP];
+
+  case AVeriUzunlugu of
+    VU1: begin Result := PByte(@Bellek144MB[(V41 * $10) + V42])^; end;
+    VU2: begin Result := PWord(@Bellek144MB[(V41 * $10) + V42])^; end;
+    VU4: begin Result := PLongWord(@Bellek144MB[(V41 * $10) + V42])^; end;
+    else Exit;
+  end;
+
+  V42 += AVeriUzunlugu;
+  YZMC_DEGERSN[YZMC0_ESP] := V42;
 
   ValueListEditor1.Cells[1, 1 + YZMC_GORSELSN[YZMC0_ESP]] := '$' + HexStr(YZMC_DEGERSN[YZMC0_ESP], 8);
 

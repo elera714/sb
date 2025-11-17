@@ -4,7 +4,7 @@
 else if(IslenenKomut = $E4) or (IslenenKomut = $E5) then
 begin
 
-  D11 := Bellek1MB[Adres + 1];
+  D11 := Bellek144MB[Adres + 1];
 
   if(IslenenKomut = $E4) then
   begin

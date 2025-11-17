@@ -2,7 +2,7 @@
 else if(IslenenKomut = $8E) then
 begin
 
-  D11 := PSmallInt(@Bellek1MB[Adres + 1])^;
+  D11 := PSmallInt(@Bellek144MB[Adres + 1])^;
   D12 := (D11 shr 6) and %11;   // alt komut
   D13 := (D11 shr 3) and %111;  // hedef segment
   D14 := (D11 and %111);        // kaynak yazmaç
@@ -35,7 +35,7 @@ begin
   if(KomutModDegistir) then
   begin
 
-    D41 := PLongInt(@Bellek1MB[Adres + 1])^;
+    D41 := PLongInt(@Bellek144MB[Adres + 1])^;
     YazmacDegistir2(($04 shl 8) or (IslenenKomut - $B8), D41);
     {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,$%.8x', [Yazmaclar32[IslenenKomut - $B8], D41]); {$ENDIF}
     IPDegeriniArtir(1 + 4);
@@ -43,7 +43,7 @@ begin
   else
   begin
 
-    D21 := PSmallInt(@Bellek1MB[Adres + 1])^;
+    D21 := PSmallInt(@Bellek144MB[Adres + 1])^;
     YazmacDegistir2(($03 shl 8) or (IslenenKomut - $B8), D21);
     {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,$%.4x', [Yazmaclar16[IslenenKomut - $B8], D21]); {$ENDIF}
     IPDegeriniArtir(1 + 2);
