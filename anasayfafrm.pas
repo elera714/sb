@@ -10,13 +10,28 @@ uses
   ComCtrls, Grids, ValEdit;
 
 type
+
+  { TfrmAnaSayfa }
+
   TfrmAnaSayfa = class(TForm)
     btnCalistir: TButton;
     btnBellek: TButton;
     edtIslenecekDosya: TEdit;
+    lblCF: TLabel;
+    lblIOPL: TLabel;
+    lblNT: TLabel;
+    lblPF: TLabel;
+    lblAF: TLabel;
+    lblZF: TLabel;
+    lblSF: TLabel;
+    lblTF: TLabel;
+    lblIF: TLabel;
+    lblDF: TLabel;
+    lblOF: TLabel;
     lblIskenenKomutSayisi: TLabel;
     lblIslenecekDosya: TLabel;
     mmCikti: TMemo;
+    Panel2: TPanel;
     pnlUst: TPanel;
     pnlYazmaclar: TPanel;
     sbDurum: TStatusBar;
@@ -32,6 +47,7 @@ type
     function Isle(ACS, AIP: Integer): Boolean;
     procedure YazmacDegistir(AYazmacSN, ADeger: Integer; AArtir: Boolean = False);
     procedure YazmacDegistir2(AHedefYazmacSN, ADeger: LongInt; AArtir: Boolean = False);
+    procedure BayrakDegistir(AHedefBayrak: LongWord; ASifirla: Boolean = False);
     procedure YazmaclariSifirla;
     procedure BellegeKopyala(AKaynak, AHedef: Pointer; AHedefBellekBaslangic,
       AUzunluk: Integer);
@@ -254,6 +270,7 @@ begin
     {$IFDEF DEBUG} mmCikti.Lines.Add('ret (yakın) %.4d', [SmallInt(V21)]); {$ENDIF}
     YZMC_DEGERSN[YZMC0_EIP] := V21;
   end
+  {$i komutlar\clc.inc}
   {$i komutlar\dec.inc}
   {$i komutlar\in.inc}
   {$i komutlar\inc.inc}
@@ -262,6 +279,7 @@ begin
   {$i komutlar\nop.inc}
   {$i komutlar\out.inc}
   {$i komutlar\push.inc}
+  {$i komutlar\stc.inc}
   else Result := False;
 end;
 
@@ -346,14 +364,56 @@ begin
   Application.ProcessMessages;
 end;
 
+procedure TfrmAnaSayfa.BayrakDegistir(AHedefBayrak: LongWord; ASifirla: Boolean = False);
+var
+  D41: LongWord;         // işaretsiz 32 bit
+begin
+
+  if(ASifirla) then
+    ClearBit(Bayraklar, AHedefBayrak)
+  else SetBit(Bayraklar, AHedefBayrak);
+
+  D41 := (Bayraklar shr AHedefBayrak) and 1;
+
+  case AHedefBayrak of
+    BAYRAK_CF: lblCF.Caption := Format('CF=%d', [D41]);
+    BAYRAK_PF: lblPF.Caption := Format('PF=%d', [D41]);
+    BAYRAK_AF: lblAF.Caption := Format('AF=%d', [D41]);
+    BAYRAK_ZF: lblZF.Caption := Format('ZF=%d', [D41]);
+    BAYRAK_SF: lblSF.Caption := Format('SF=%d', [D41]);
+    BAYRAK_TF: lblTF.Caption := Format('TF=%d', [D41]);
+    BAYRAK_IF: lblIF.Caption := Format('IF=%d', [D41]);
+    BAYRAK_DF: lblDF.Caption := Format('DF=%d', [D41]);
+    BAYRAK_OF: lblOF.Caption := Format('OF=%d', [D41]);
+    //BAYRAK_IOPL: lblIOPL.Caption := Format('IOPL=%d', [D41]);  { TODO 2 bir olarak ayarlanacak}
+    BAYRAK_NT: lblNT.Caption := Format('NT=%d', [D41]);
+  end;
+
+  Application.ProcessMessages;
+end;
+
 procedure TfrmAnaSayfa.YazmaclariSifirla;
 var
   i: Integer;
 begin
 
+  Bayraklar := 0;
+
   for i := 0 to 14 do YZMC_DEGERSN[i] := 0;
 
   for i := 1 to 15 do ValueListEditor1.Cells[1, i] := '$00000000';
+
+  lblCF.Caption := 'CF=0';
+  lblPF.Caption := 'PF=0';
+  lblAF.Caption := 'AF=0';
+  lblZF.Caption := 'ZF=0';
+  lblSF.Caption := 'SF=0';
+  lblTF.Caption := 'TF=0';
+  lblIF.Caption := 'IF=0';
+  lblDF.Caption := 'DF=0';
+  lblOF.Caption := 'OF=0';
+  lblIOPL.Caption := 'IOPL=0';
+  lblNT.Caption := 'NT=0';
 end;
 
 procedure TfrmAnaSayfa.BellegeKopyala(AKaynak, AHedef: Pointer; AHedefBellekBaslangic,

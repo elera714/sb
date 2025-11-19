@@ -1,21 +1,21 @@
 object frmBellek: TfrmBellek
   Left = 485
-  Height = 499
+  Height = 500
   Top = 299
-  Width = 546
+  Width = 550
   Caption = 'Bellek İçerik Görüntüleyici'
-  ClientHeight = 499
-  ClientWidth = 546
+  ClientHeight = 500
+  ClientWidth = 550
   LCLVersion = '4.4.0.0'
   OnShow = FormShow
   object Panel1: TPanel
     Left = 0
     Height = 37
     Top = 0
-    Width = 546
+    Width = 550
     Align = alTop
     ClientHeight = 37
-    ClientWidth = 546
+    ClientWidth = 550
     TabOrder = 0
     object Label1: TLabel
       Left = 8
@@ -28,13 +28,13 @@ object frmBellek: TfrmBellek
       Left = 48
       Height = 23
       Top = 7
-      Width = 336
+      Width = 340
       Anchors = [akTop, akLeft, akRight]
       TabOrder = 0
       Text = '$8B00'
     end
     object Button1: TButton
-      Left = 452
+      Left = 456
       Height = 25
       Top = 6
       Width = 76
@@ -44,7 +44,7 @@ object frmBellek: TfrmBellek
       OnClick = Button1Click
     end
     object Button2: TButton
-      Left = 420
+      Left = 424
       Height = 25
       Top = 6
       Width = 29
@@ -54,7 +54,7 @@ object frmBellek: TfrmBellek
       OnClick = Button2Click
     end
     object Button3: TButton
-      Left = 389
+      Left = 393
       Height = 25
       Top = 6
       Width = 29
@@ -66,9 +66,9 @@ object frmBellek: TfrmBellek
   end
   object StringGrid1: TStringGrid
     Left = 0
-    Height = 462
+    Height = 463
     Top = 37
-    Width = 546
+    Width = 550
     Align = alClient
     ColCount = 17
     DefaultColWidth = 28

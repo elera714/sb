@@ -14,9 +14,9 @@ basla:
         mov     si,10
         mov     di,10
 basla2:
-        nop
+        stc
         call    artir
-        nop
+        clc
         jmp     basla2
 
         nop

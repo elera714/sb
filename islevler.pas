@@ -107,12 +107,45 @@ const
 
 var
   ISLEMCI_CM: Integer = ICM_BIT16;
-  SB_CALISIYOR: Boolean = False;        // sanal bilgisayar çalışıyor mu?
+  SB_CALISIYOR: Boolean = False;              // sanal bilgisayar çalışıyor mu?
+
+const
+  BAYRAK_CF     = 0;
+  BAYRAK_A1     = 1;
+  BAYRAK_PF     = 2;
+  BAYRAK_A2     = 3;
+  BAYRAK_AF     = 4;
+  BAYRAK_A3     = 5;
+  BAYRAK_ZF     = 6;
+  BAYRAK_SF     = 7;
+  BAYRAK_TF     = 8;
+  BAYRAK_IF     = 9;
+  BAYRAK_DF     = 10;
+  BAYRAK_OF     = 11;
+  BAYRAK_IOPL   = {12ve}13;
+  BAYRAK_NT     = 14;
+  BAYRAK_A4     = 15;
 
 var
   Bellek144MB: array of Byte;
   Portlar: array[0..65535] of Integer;
+  Bayraklar: LongWord = 0;                    // işlemci bayrakları (flags)
+
+procedure ClearBit(var Value: LongWord; Index: Byte);
+procedure SetBit(var Value: LongWord; Index: Byte);
 
 implementation
+
+procedure ClearBit(var Value: LongWord; Index: Byte);
+begin
+
+  Value := Value and ((LongWord(1) shl Index) xor High(LongWord));
+end;
+
+procedure SetBit(var Value: LongWord; Index: Byte);
+begin
+
+  Value:=  Value or (LongWord(1) shl Index);
+end;
 
 end.
