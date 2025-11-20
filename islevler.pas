@@ -111,11 +111,11 @@ var
 
 const
   BAYRAK_CF     = 0;
-  BAYRAK_A1     = 1;
+  BAYRAK_A1     = 1;      // her zaman 1
   BAYRAK_PF     = 2;
-  BAYRAK_A2     = 3;
+  BAYRAK_A2     = 3;      // her zaman 0
   BAYRAK_AF     = 4;
-  BAYRAK_A3     = 5;
+  BAYRAK_A3     = 5;      // her zaman 0
   BAYRAK_ZF     = 6;
   BAYRAK_SF     = 7;
   BAYRAK_TF     = 8;
@@ -124,7 +124,7 @@ const
   BAYRAK_OF     = 11;
   BAYRAK_IOPL   = {12ve}13;
   BAYRAK_NT     = 14;
-  BAYRAK_A4     = 15;
+  BAYRAK_A4     = 15;     // her zaman 0
 
 var
   Bellek144MB: array of Byte;

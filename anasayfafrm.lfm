@@ -42,14 +42,6 @@ object frmAnaSayfa: TfrmAnaSayfa
       Width = 86
       Caption = 'İşlenecek Dosya:'
     end
-    object edtIslenecekDosya: TEdit
-      Left = 102
-      Height = 23
-      Top = 9
-      Width = 194
-      TabOrder = 1
-      Text = 'yazmaçlar.bin'
-    end
     object btnBellek: TButton
       Left = 540
       Height = 25
@@ -57,8 +49,25 @@ object frmAnaSayfa: TfrmAnaSayfa
       Width = 75
       Anchors = [akTop, akRight]
       Caption = 'Bellek'
-      TabOrder = 2
+      TabOrder = 1
       OnClick = btnBellekClick
+    end
+    object cbIslenecekDosya: TComboBox
+      Left = 104
+      Height = 23
+      Top = 9
+      Width = 200
+      ItemHeight = 15
+      ItemIndex = 0
+      Items.Strings = (
+        'yazmaçlar.bin'
+        'disket_fat12.bin'
+        'elera001.bin'
+        'elera001.img'
+        '622c.img'
+      )
+      TabOrder = 2
+      Text = 'yazmaçlar.bin'
     end
   end
   object mmCikti: TMemo

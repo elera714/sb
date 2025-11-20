@@ -18,9 +18,8 @@ basla2:
         call    artir
         clc
         jmp     basla2
-
-        nop
 artir:
+        mov     [0],ax
         inc     ax
         inc     bx
         inc     cx

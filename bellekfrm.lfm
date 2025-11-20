@@ -8,7 +8,7 @@ object frmBellek: TfrmBellek
   ClientWidth = 550
   LCLVersion = '4.4.0.0'
   OnShow = FormShow
-  object Panel1: TPanel
+  object pnlUst: TPanel
     Left = 0
     Height = 37
     Top = 0
@@ -17,23 +17,23 @@ object frmBellek: TfrmBellek
     ClientHeight = 37
     ClientWidth = 550
     TabOrder = 0
-    object Label1: TLabel
+    object lblAdres: TLabel
       Left = 8
       Height = 15
       Top = 10
       Width = 30
       Caption = 'Adres'
     end
-    object Edit1: TEdit
+    object edtAdres: TEdit
       Left = 48
       Height = 23
       Top = 7
       Width = 340
       Anchors = [akTop, akLeft, akRight]
       TabOrder = 0
-      Text = '$8B00'
+      OnKeyDown = edtAdresKeyDown
     end
-    object Button1: TButton
+    object btnYenile: TButton
       Left = 456
       Height = 25
       Top = 6
@@ -41,9 +41,9 @@ object frmBellek: TfrmBellek
       Anchors = [akTop, akRight]
       Caption = 'Yenile'
       TabOrder = 1
-      OnClick = Button1Click
+      OnClick = btnYenileClick
     end
-    object Button2: TButton
+    object btnArtir: TButton
       Left = 424
       Height = 25
       Top = 6
@@ -51,9 +51,9 @@ object frmBellek: TfrmBellek
       Anchors = [akTop, akRight]
       Caption = '>'
       TabOrder = 2
-      OnClick = Button2Click
+      OnClick = btnArtirClick
     end
-    object Button3: TButton
+    object btnAzalt: TButton
       Left = 393
       Height = 25
       Top = 6
@@ -61,10 +61,10 @@ object frmBellek: TfrmBellek
       Anchors = [akTop, akRight]
       Caption = '<'
       TabOrder = 3
-      OnClick = Button3Click
+      OnClick = btnAzaltClick
     end
   end
-  object StringGrid1: TStringGrid
+  object sgBellek: TStringGrid
     Left = 0
     Height = 463
     Top = 37

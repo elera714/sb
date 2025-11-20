@@ -16,7 +16,7 @@ type
   TfrmAnaSayfa = class(TForm)
     btnCalistir: TButton;
     btnBellek: TButton;
-    edtIslenecekDosya: TEdit;
+    cbIslenecekDosya: TComboBox;
     lblCF: TLabel;
     lblIOPL: TLabel;
     lblNT: TLabel;
@@ -110,7 +110,7 @@ begin
     Application.ProcessMessages;
 
     try
-      FileStream := TFileStream.Create(edtIslenecekDosya.Text, fmOpenRead);
+      FileStream := TFileStream.Create(cbIslenecekDosya.Text, fmOpenRead);
       FileStream.Position := 0;
       DosyaU := FileStream.Size;
 
@@ -197,7 +197,7 @@ begin
   if(HataVar) then
   begin
 
-    Adres := (YZMC_DEGERSN[YZMC0_CS] * 16) + YZMC_DEGERSN[YZMC0_EIP];
+    Adres := (YZMC_DEGERSN[YZMC0_CS] * $10) + YZMC_DEGERSN[YZMC0_EIP];
     Komut := Bellek144MB[Adres];
     {$IFDEF DEBUG} mmCikti.Lines.Add('Yürütme iptal edildi. Hatalı komut: $%.2x', [Komut]); {$ENDIF}
 
@@ -236,7 +236,7 @@ begin
 
   Result := True;
 
-  Adres := (ACS * 16) + AIP;
+  Adres := (ACS * $10) + AIP;
 
   IslenenKomut := Bellek144MB[Adres];
 
