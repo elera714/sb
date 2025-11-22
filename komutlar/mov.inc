@@ -24,6 +24,7 @@ begin
 
       YZMC_DEGERSN[D15] := YZMC_DEGERSN[D14];
       YazmacDegistir(D15, YZMC_DEGERSN[D14]);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s', [Yazmaclar16[D15], Yazmaclar16[D14]]); {$ENDIF}
       IPDegeriniArtir(2);
     end;
   end else Result := False;

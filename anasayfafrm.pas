@@ -213,7 +213,7 @@ var
   V13, V14,
   V15: Byte;            // işaretsiz 8 bit
   V21: Word;            // işaretsiz 16 bit
-  V41: LongWord;        // işaretsiz 32 bit
+  V41, V42: LongWord;   // işaretsiz 32 bit
 
   {TODO - aşağıdaki değişkenler yukarıdakilerle değiştirilecek}
   D11, D12,
@@ -275,6 +275,7 @@ begin
   {$i komutlar\in.inc}
   {$i komutlar\inc.inc}
   {$i komutlar\jmp.inc}
+  {$i komutlar\lods.inc}
   {$i komutlar\mov.inc}
   {$i komutlar\nop.inc}
   {$i komutlar\out.inc}

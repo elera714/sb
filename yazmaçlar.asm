@@ -19,13 +19,19 @@ basla2:
         clc
         jmp     basla2
 artir:
+        lodsd
         mov     [0],ax
-        inc     ax
+        ;inc     ax
         inc     bx
         inc     cx
         inc     dx
 ;        inc     sp
         inc     bp
-        inc     si
+        ;inc     si
         inc     di
         ret
+
+arge:
+        nop
+        test [ecx],dl
+        nop

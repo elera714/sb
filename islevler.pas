@@ -100,10 +100,12 @@ const
     (0,  2,  3,  1,  7,  6,  4,  5,  8,  9,  10, 11, 12, 13, 14);
 
 const
-  Yazmaclar16: array[YZMC0_EAX..YZMC0_EDI] of string =
-    ('ax', 'cx', 'dx', 'bx', 'sp', 'bp', 'si', 'di');
-  Yazmaclar32: array[YZMC0_EAX..YZMC0_EDI] of string =
-    ('eax', 'ecx', 'edx', 'ebx', 'esp', 'ebp', 'esi', 'edi');
+  Yazmaclar16: array[YZMC0_EAX..YZMC0_EIP] of string =
+    ('ax', 'cx', 'dx', 'bx', 'sp', 'bp', 'si', 'di',
+     'cs', 'ds', 'es', 'ss', 'fs', 'gs', 'ip');
+  Yazmaclar32: array[YZMC0_EAX..YZMC0_EIP] of string =
+    ('eax', 'ecx', 'edx', 'ebx', 'esp', 'ebp', 'esi', 'edi',
+     'cs', 'ds', 'es', 'ss', 'fs', 'gs', 'eip');
 
 var
   ISLEMCI_CM: Integer = ICM_BIT16;
@@ -133,6 +135,7 @@ var
 
 procedure ClearBit(var Value: LongWord; Index: Byte);
 procedure SetBit(var Value: LongWord; Index: Byte);
+function GetBit(Value: LongWord; Index: Byte): Boolean;
 
 implementation
 
@@ -140,6 +143,12 @@ procedure ClearBit(var Value: LongWord; Index: Byte);
 begin
 
   Value := Value and ((LongWord(1) shl Index) xor High(LongWord));
+end;
+
+function GetBit(Value: LongWord; Index: Byte): Boolean;
+begin
+
+  Result := ((Value shr Index) and 1) = 1;
 end;
 
 procedure SetBit(var Value: LongWord; Index: Byte);
