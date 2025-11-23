@@ -7,7 +7,6 @@ begin
 
     YiginaEkle2(($04 shl 8) or (IslenenKomut - $50));
     {$IFDEF DEBUG} mmCikti.Lines.Add('push %s', [Yazmaclar32[IslenenKomut - $50]]); {$ENDIF}
-    IPDegeriniArtir;
   end
   else
   // 50+rw - PUSH r16 - Push r16
@@ -15,8 +14,9 @@ begin
 
     YiginaEkle2(($03 shl 8) or (IslenenKomut - $50));
     {$IFDEF DEBUG} mmCikti.Lines.Add('push %s', [Yazmaclar16[IslenenKomut - $50]]); {$ENDIF}
-    IPDegeriniArtir;
   end;
+
+  IPDegeriniArtir;
 end
 // 6A - PUSH imm8 - Push imm8
 else if(IslenenKomut = $6A) then
@@ -95,7 +95,6 @@ begin
 
     YiginaEkle2(YZMC_FS);
     {$IFDEF DEBUG} mmCikti.Lines.Add('push fs'); {$ENDIF}
-    IPDegeriniArtir(2);
   end
   // 0F A8 - PUSH GS - Push GS
   else if(V11 = $A8) then
@@ -103,6 +102,7 @@ begin
 
     YiginaEkle2(YZMC_GS);
     {$IFDEF DEBUG} mmCikti.Lines.Add('push gs'); {$ENDIF}
-    IPDegeriniArtir(2);
   end;
+
+  IPDegeriniArtir(2);
 end

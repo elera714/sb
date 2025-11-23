@@ -53,8 +53,6 @@ type
       AUzunluk: Integer);
     procedure IOPortOku(AHedefYazmacSN, AKaynakPortNo: Integer);
     procedure IOPortOku2(AHedefYazmacSN: Integer);
-    procedure IOPortYaz(AHedefPortNo, AKaynakYazmacSN: Integer);
-    procedure IOPortYaz2(AKaynakYazmacSN: Integer);
     procedure YiginaEkle(ADeger, AVeriUzunlugu: LongWord);
     procedure YiginaEkle2(AHedefYazmacSN: Integer);
     function YigindanAl(AVeriUzunlugu: LongWord): LongWord;
@@ -213,14 +211,8 @@ var
   V13, V14,
   V15: Byte;            // işaretsiz 8 bit
   V21: Word;            // işaretsiz 16 bit
-  V41, V42: LongWord;   // işaretsiz 32 bit
-
-  {TODO - aşağıdaki değişkenler yukarıdakilerle değiştirilecek}
-  D11, D12,
-  D13, D14,
-  D15: ShortInt;        // işaretli 8 bit
-  D21: SmallInt;        // işaretli 16 bit
-  D41: LongInt;         // işaretli 32 bit
+  V41, V42,
+  V43, V44: LongWord;   // işaretsiz 32 bit
 
   // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
   procedure IPDegeriniArtir(AArtir: Integer = 1);
@@ -281,6 +273,7 @@ begin
   {$i komutlar\out.inc}
   {$i komutlar\push.inc}
   {$i komutlar\stc.inc}
+  {$i komutlar\test.inc}
   else Result := False;
 end;
 
@@ -320,6 +313,7 @@ var
 begin
 
   DegerSN := (AHedefYazmacSN and $FF);
+  if(DegerSN >= $80) then DegerSN := DegerSN shr 4;
 
   case AHedefYazmacSN of
     YZMC_AL:
@@ -498,66 +492,6 @@ begin
     YZMC_EAX:
     begin
       YazmacDegistir2(YZMC_EAX, KaynakDeger);
-    end;
-    else Exit;
-  end;
-end;
-
-// AHedefPortNo numaralı porta belirtilen yazmacın değerini yazar
-// AKaynakYazmacSN = AHedefPortNo numaralı porta yazılacak yazmacın yazmaç sıra numarası
-procedure TfrmAnaSayfa.IOPortYaz(AHedefPortNo, AKaynakYazmacSN: Integer);
-var
-  HedefPortNo,
-  KaynakDeger: Integer;
-begin
-
-  KaynakDeger := YZMC_DEGERSN[YZMC0_EAX];
-  HedefPortNo := (AHedefPortNo and $FFFF);
-
-  case AKaynakYazmacSN of
-    YZMC_AL:
-    begin
-      KaynakDeger := (KaynakDeger and $FF);
-      Portlar[HedefPortNo] := KaynakDeger;
-    end;
-    YZMC_AX:
-    begin
-      KaynakDeger := (KaynakDeger and $FFFF);
-      Portlar[HedefPortNo] := KaynakDeger;
-    end;
-    YZMC_EAX:
-    begin
-      Portlar[HedefPortNo] := KaynakDeger;
-    end;
-    else Exit;
-  end;
-end;
-
-// DX portuna belirtilen yazmacın değerini yazar
-// AKaynakYazmacSN = DX portuna yazılacak yazmacın yazmaç sıra numarası
-procedure TfrmAnaSayfa.IOPortYaz2(AKaynakYazmacSN: Integer);
-var
-  HedefPortNo,
-  KaynakDeger: Integer;
-begin
-
-  KaynakDeger := YZMC_DEGERSN[YZMC0_EAX];
-  HedefPortNo := YZMC_DEGERSN[YZMC0_EDX] and $FFFF;
-
-  case AKaynakYazmacSN of
-    YZMC_AL:
-    begin
-      KaynakDeger := (KaynakDeger and $FF);
-      Portlar[HedefPortNo] := KaynakDeger;
-    end;
-    YZMC_AX:
-    begin
-      KaynakDeger := (KaynakDeger and $FFFF);
-      Portlar[HedefPortNo] := KaynakDeger;
-    end;
-    YZMC_EAX:
-    begin
-      Portlar[HedefPortNo] := KaynakDeger;
     end;
     else Exit;
   end;

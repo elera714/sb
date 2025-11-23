@@ -33,6 +33,8 @@ const
 
 const
   // yazmaç sıra numaraları
+  { TODO - tablodaki yazmaçlara göre yeniden değer atanacak
+    Instruction Set Reference Manual - tablo 2.1, 2.2, 2.3 değerlerine  }
   YZMC0_EAX   = $00;
   YZMC0_ECX   = $01;
   YZMC0_EDX   = $02;
@@ -41,6 +43,7 @@ const
   YZMC0_EBP   = $05;
   YZMC0_ESI   = $06;
   YZMC0_EDI   = $07;
+
   YZMC0_CS    = $08;
   YZMC0_DS    = $09;
   YZMC0_ES    = $0A;
@@ -49,44 +52,43 @@ const
   YZMC0_GS    = $0D;
   YZMC0_EIP   = $0E;
 
-  // 8 bit yazmaçlar - alt 8 bit
-  YZMC_AL     = ($01 shl 8) or YZMC0_EAX;
-  YZMC_CL     = ($01 shl 8) or YZMC0_ECX;
-  YZMC_DL     = ($01 shl 8) or YZMC0_EDX;
-  YZMC_BL     = ($01 shl 8) or YZMC0_EBX;
-
-  // 8 bit yazmaçlar - üst 8 bit
-  YZMC_AH     = ($02 shl 8) or YZMC0_EAX;
-  YZMC_CH     = ($02 shl 8) or YZMC0_ECX;
-  YZMC_DH     = ($02 shl 8) or YZMC0_EDX;
-  YZMC_BH     = ($02 shl 8) or YZMC0_EBX;
+  // 8 bit yazmaçlar
+  YZMC_AL     = ($01 shl 8) or $00;
+  YZMC_CL     = ($01 shl 8) or $01;
+  YZMC_DL     = ($01 shl 8) or $02;
+  YZMC_BL     = ($01 shl 8) or $03;
+  YZMC_AH     = ($01 shl 8) or ($40 or $0);
+  YZMC_CH     = ($01 shl 8) or ($50 or $1);
+  YZMC_DH     = ($01 shl 8) or ($60 or $2);
+  YZMC_BH     = ($01 shl 8) or ($70 or $3);
 
   // 16 bit yazmaçlar
-  YZMC_AX     = ($03 shl 8) or YZMC0_EAX;
-  YZMC_CX     = ($03 shl 8) or YZMC0_ECX;
-  YZMC_DX     = ($03 shl 8) or YZMC0_EDX;
-  YZMC_BX     = ($03 shl 8) or YZMC0_EBX;
-  YZMC_SP     = ($03 shl 8) or YZMC0_ESP;
-  YZMC_BP     = ($03 shl 8) or YZMC0_EBP;
-  YZMC_SI     = ($03 shl 8) or YZMC0_ESI;
-  YZMC_DI     = ($03 shl 8) or YZMC0_EDI;
-  YZMC_CS     = ($03 shl 8) or YZMC0_CS;
-  YZMC_DS     = ($03 shl 8) or YZMC0_DS;
-  YZMC_ES     = ($03 shl 8) or YZMC0_ES;
-  YZMC_SS     = ($03 shl 8) or YZMC0_SS;
-  YZMC_FS     = ($03 shl 8) or YZMC0_FS;
-  YZMC_GS     = ($03 shl 8) or YZMC0_GS;
-  YZMC_IP     = ($03 shl 8) or YZMC0_EIP;
+  YZMC_AX     = ($02 shl 8) or $00;
+  YZMC_CX     = ($02 shl 8) or $01;
+  YZMC_DX     = ($02 shl 8) or $02;
+  YZMC_BX     = ($02 shl 8) or $03;
+  YZMC_SP     = ($02 shl 8) or $04;
+  YZMC_BP     = ($02 shl 8) or $05;
+  YZMC_SI     = ($02 shl 8) or $06;
+  YZMC_DI     = ($02 shl 8) or $07;
+
+  YZMC_CS     = ($02 shl 8) or $08;
+  YZMC_DS     = ($02 shl 8) or $09;
+  YZMC_ES     = ($02 shl 8) or $0A;
+  YZMC_SS     = ($02 shl 8) or $0B;
+  YZMC_FS     = ($02 shl 8) or $0C;
+  YZMC_GS     = ($02 shl 8) or $0D;
+  YZMC_IP     = ($02 shl 8) or $0E;
 
   // 32 bit yazmaçlar
-  YZMC_EAX    = ($04 shl 8) or YZMC0_EAX;
-  YZMC_ECX    = ($04 shl 8) or YZMC0_ECX;
-  YZMC_EDX    = ($04 shl 8) or YZMC0_EDX;
-  YZMC_EBX    = ($04 shl 8) or YZMC0_EBX;
-  YZMC_ESP    = ($04 shl 8) or YZMC0_ESP;
-  YZMC_EBP    = ($04 shl 8) or YZMC0_EBP;
-  YZMC_ESI    = ($04 shl 8) or YZMC0_ESI;
-  YZMC_EDI    = ($04 shl 8) or YZMC0_EDI;
+  YZMC_EAX    = ($04 shl 8) or $00;
+  YZMC_ECX    = ($04 shl 8) or $01;
+  YZMC_EDX    = ($04 shl 8) or $02;
+  YZMC_EBX    = ($04 shl 8) or $03;
+  YZMC_ESP    = ($04 shl 8) or $04;
+  YZMC_EBP    = ($04 shl 8) or $05;
+  YZMC_ESI    = ($04 shl 8) or $06;
+  YZMC_EDI    = ($04 shl 8) or $07;
 
 var
   YZMC_DEGERSN: array[0..14] of Integer =
@@ -100,6 +102,11 @@ const
     (0,  2,  3,  1,  7,  6,  4,  5,  8,  9,  10, 11, 12, 13, 14);
 
 const
+  // Yazmaclar8, Instruction Set Reference Manual - tablo 2.1, 2.2, 2.3 değerlerine
+  // yapılandırılmıştır
+  Yazmaclar8: array[0..7] of string =
+    ('al', 'cl', 'dl', 'bl', 'ah', 'dh', 'ch', 'bh');
+
   Yazmaclar16: array[YZMC0_EAX..YZMC0_EIP] of string =
     ('ax', 'cx', 'dx', 'bx', 'sp', 'bp', 'si', 'di',
      'cs', 'ds', 'es', 'ss', 'fs', 'gs', 'ip');
@@ -128,14 +135,28 @@ const
   BAYRAK_NT     = 14;
   BAYRAK_A4     = 15;     // her zaman 0
 
+const
+  // mod yazmaç (register) bellek (memory) değerleri
+  // Instruction Set Reference Manual - tablo 2.1, 2.2, 2.3 değerleri
+  // yazmaç değerleri
+  MYB8  : array[0..7] of LongWord = (YZMC_AL, YZMC_CL, YZMC_DL, YZMC_BL,
+    YZMC_AH, YZMC_CH, YZMC_DH, YZMC_BH);
+  MYB16 : array[0..7] of LongWord = (YZMC_AX, YZMC_CX, YZMC_DX, YZMC_BX,
+    YZMC_SP, YZMC_BP, YZMC_SI, YZMC_DI);
+  MYB32 : array[0..7] of LongWord = (YZMC_EAX, YZMC_ECX, YZMC_EDX, YZMC_EBX,
+    YZMC_ESP, YZMC_EBP, YZMC_ESI, YZMC_EDI);
+
 var
   Bellek144MB: array of Byte;
   Portlar: array[0..65535] of Integer;
   Bayraklar: LongWord = 0;                    // işlemci bayrakları (flags)
 
 procedure ClearBit(var Value: LongWord; Index: Byte);
-procedure SetBit(var Value: LongWord; Index: Byte);
 function GetBit(Value: LongWord; Index: Byte): Boolean;
+procedure SetBit(var Value: LongWord; Index: Byte);
+function YazmacDegerAl(AYazmac: LongWord): LongWord;
+procedure IOPortYaz(AHedefPortNo, AKaynakYazmacSN: LongWord);
+procedure IOPortYaz2(AKaynakYazmacSN: LongWord);
 
 implementation
 
@@ -155,6 +176,107 @@ procedure SetBit(var Value: LongWord; Index: Byte);
 begin
 
   Value:=  Value or (LongWord(1) shl Index);
+end;
+
+function YazmacDegerAl(AYazmac: LongWord): LongWord;
+var
+  DegerSN: LongWord;
+  V11: Byte;        // işaretsiz 8 bit
+  V21: Word;        // işaretsiz 16 bit
+  V41: LongWord;    // işaretsiz 32 bit
+begin
+
+  DegerSN := (AYazmac and $FF);
+
+  // yazmaç 16 bitlik değerin üst kısmı olan AH, BH vb. bir yazmaç ise
+  if(DegerSN >= $40) then DegerSN := DegerSN and %1111;
+
+  case AYazmac of
+    YZMC_AL, YZMC_CL, YZMC_DL, YZMC_BL:
+    begin
+
+      V11 := PByte(@YZMC_DEGERSN[DegerSN] + 0)^;
+      Result := (V11 and $FF);
+    end;
+    YZMC_AH, YZMC_CH, YZMC_DH, YZMC_BH:
+    begin
+
+      V11 := PByte(@YZMC_DEGERSN[DegerSN] + 1)^;
+      Result := (V11 and $FF);
+    end;
+    YZMC_AX, YZMC_CX, YZMC_DX, YZMC_BX, YZMC_SP, YZMC_BP, YZMC_SI, YZMC_DI:
+    begin
+
+      V21 := PWord(@YZMC_DEGERSN[DegerSN] + 0)^;
+      Result := (V21 and $FFFF);
+    end;
+    YZMC_EAX, YZMC_ECX, YZMC_EDX, YZMC_EBX, YZMC_ESP, YZMC_EBP, YZMC_ESI, YZMC_EDI:
+    begin
+
+      V41 := PLongWord(@YZMC_DEGERSN[DegerSN] + 0)^;
+      Result := V41;
+    end;
+  end;
+end;
+
+// AHedefPortNo numaralı porta belirtilen yazmacın değerini yazar
+// AKaynakYazmacSN = AHedefPortNo numaralı porta yazılacak yazmacın yazmaç sıra numarası
+procedure IOPortYaz(AHedefPortNo, AKaynakYazmacSN: LongWord);
+var
+  HedefPortNo,
+  KaynakDeger: LongWord;
+begin
+
+  KaynakDeger := YZMC_DEGERSN[YZMC0_EAX];
+  HedefPortNo := (AHedefPortNo and $FFFF);
+
+  case AKaynakYazmacSN of
+    YZMC_AL:
+    begin
+      KaynakDeger := (KaynakDeger and $FF);
+      Portlar[HedefPortNo] := KaynakDeger;
+    end;
+    YZMC_AX:
+    begin
+      KaynakDeger := (KaynakDeger and $FFFF);
+      Portlar[HedefPortNo] := KaynakDeger;
+    end;
+    YZMC_EAX:
+    begin
+      Portlar[HedefPortNo] := KaynakDeger;
+    end;
+    else Exit;
+  end;
+end;
+
+// DX portuna belirtilen yazmacın değerini yazar
+// AKaynakYazmacSN = DX portuna yazılacak yazmacın yazmaç sıra numarası
+procedure IOPortYaz2(AKaynakYazmacSN: LongWord);
+var
+  HedefPortNo,
+  KaynakDeger: LongWord;
+begin
+
+  KaynakDeger := YZMC_DEGERSN[YZMC0_EAX];
+  HedefPortNo := YZMC_DEGERSN[YZMC0_EDX] and $FFFF;
+
+  case AKaynakYazmacSN of
+    YZMC_AL:
+    begin
+      KaynakDeger := (KaynakDeger and $FF);
+      Portlar[HedefPortNo] := KaynakDeger;
+    end;
+    YZMC_AX:
+    begin
+      KaynakDeger := (KaynakDeger and $FFFF);
+      Portlar[HedefPortNo] := KaynakDeger;
+    end;
+    YZMC_EAX:
+    begin
+      Portlar[HedefPortNo] := KaynakDeger;
+    end;
+    else Exit;
+  end;
 end;
 
 end.

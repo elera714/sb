@@ -1,5 +1,5 @@
 basla:
-        mov     ax,0x7c0
+        mov     eax,0x7c0
         mov     ds,ax
         mov     es,ax
         mov     ss,ax
@@ -19,7 +19,10 @@ basla2:
         clc
         jmp     basla2
 artir:
-        lodsd
+        mov     ax,0x0102
+        nop
+        test    ax,bx
+        nop
         mov     [0],ax
         ;inc     ax
         inc     bx
