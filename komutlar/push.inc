@@ -12,7 +12,7 @@ begin
   // 50+rw - PUSH r16 - Push r16
   begin
 
-    YiginaEkle2(($03 shl 8) or (IslenenKomut - $50));
+    YiginaEkle2(($02 shl 8) or (IslenenKomut - $50));
     {$IFDEF DEBUG} mmCikti.Lines.Add('push %s', [Yazmaclar16[IslenenKomut - $50]]); {$ENDIF}
   end;
 

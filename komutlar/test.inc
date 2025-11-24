@@ -1,4 +1,5 @@
 // 84 /r - TEST r/m8,r8 - AND r8 with r/m8; set SF, ZF, PF according to result
+{ TODO - diğer etkilenen bayraklar da aşağıdaki kodlara eklenecek }
 else if(IslenenKomut = $84) then
 begin
 

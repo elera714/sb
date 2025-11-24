@@ -13,28 +13,19 @@ basla:
         mov     bp,10
         mov     si,10
         mov     di,10
-basla2:
-        stc
-        call    artir
-        clc
-        jmp     basla2
-artir:
-        mov     ax,0x0102
-        nop
-        test    ax,bx
-        nop
-        mov     [0],ax
-        ;inc     ax
-        inc     bx
-        inc     cx
-        inc     dx
-;        inc     sp
-        inc     bp
-        ;inc     si
-        inc     di
-        ret
+
+kesme:
+        mov     ax,0x1234
+        int     0x10
+
+        mov     ax,0x99
+bekle:
+        dec     ax
+        test    al,al
+        jz      kesme
+        jmp     bekle
 
 arge:
         nop
-        test [ecx],dl
+        dec     ax
         nop

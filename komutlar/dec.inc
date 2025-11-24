@@ -12,7 +12,7 @@ begin
   else
   begin
 
-    YazmacDegistir2(($03 shl 8) or (IslenenKomut - $48), -1, True);
+    YazmacDegistir2(($02 shl 8) or (IslenenKomut - $48), -1, True);
     {$IFDEF DEBUG} mmCikti.Lines.Add('dec %s', [Yazmaclar16[IslenenKomut - $48]]); {$ENDIF}
   end;
 

@@ -1,7 +1,7 @@
 unit anasayfafrm;
 
 {$mode objfpc}{$H+}
-{$DEFINE DEBUG}
+//{$DEFINE DEBUG}
 
 interface
 
@@ -10,9 +10,6 @@ uses
   ComCtrls, Grids, ValEdit;
 
 type
-
-  { TfrmAnaSayfa }
-
   TfrmAnaSayfa = class(TForm)
     btnCalistir: TButton;
     btnBellek: TButton;
@@ -56,6 +53,7 @@ type
     procedure YiginaEkle(ADeger, AVeriUzunlugu: LongWord);
     procedure YiginaEkle2(AHedefYazmacSN: Integer);
     function YigindanAl(AVeriUzunlugu: LongWord): LongWord;
+    function DosyaYukle(ADosyaAdi: string; ABellekAdresi: LongWord): string;
   public
 
   end;
@@ -90,7 +88,6 @@ end;
 
 procedure TfrmAnaSayfa.btnCalistirClick(Sender: TObject);
 var
-  FileStream: TFileStream;
   Hata: string;
 begin
 
@@ -99,27 +96,16 @@ begin
 
     YazmaclariSifirla;
 
-    Hata := '';
     DosyaU := 0;
 
-    {$IFDEF DEBUG} mmCikti.Lines.Clear; {$ENDIF}
+    mmCikti.Lines.Clear;
     sbDurum.Panels[0].Text := Format('Toplam Uzunluk: %d', [DosyaU]);
     sbDurum.Repaint;
     Application.ProcessMessages;
 
-    try
-      FileStream := TFileStream.Create(cbIslenecekDosya.Text, fmOpenRead);
-      FileStream.Position := 0;
-      DosyaU := FileStream.Size;
+    {Hata := DosyaYukle('bios.bin', 0);
 
-      if(DosyaU <= DISKET_BOYUT) then
-        FileStream.Read(Bellek144MB[$07C0 * $10], DosyaU)
-      else Hata := 'dosya 1.44MB''den büyük olamaz!';
-
-      FileStream.Free;
-    except
-      on E: Exception do Hata := E.Message;
-    end;
+    if(Length(Hata) = 0) then} Hata := DosyaYukle(cbIslenecekDosya.Text, $07C0 * $10);
 
     if(Length(Hata) = 0) then
     begin
@@ -197,7 +183,7 @@ begin
 
     Adres := (YZMC_DEGERSN[YZMC0_CS] * $10) + YZMC_DEGERSN[YZMC0_EIP];
     Komut := Bellek144MB[Adres];
-    {$IFDEF DEBUG} mmCikti.Lines.Add('Yürütme iptal edildi. Hatalı komut: $%.2x', [Komut]); {$ENDIF}
+    mmCikti.Lines.Add('Yürütme iptal edildi. Hatalı komut: $%.2x', [Komut]);
 
     SB_CALISIYOR := False;
     btnCalistir.Caption := 'Çalıştır';
@@ -262,10 +248,21 @@ begin
     {$IFDEF DEBUG} mmCikti.Lines.Add('ret (yakın) %.4d', [SmallInt(V21)]); {$ENDIF}
     YZMC_DEGERSN[YZMC0_EIP] := V21;
   end
+  // CD ib - INT imm8 - Interrupt vector number specified by immediate byte
+  else if(IslenenKomut = $CD) then
+  begin
+
+    V11 := PByte(@Bellek144MB[Adres + 1])^;
+    {$IFDEF DEBUG} mmCikti.Lines.Add('int %.2d', [ShortInt(V11)]); {$ENDIF}
+    IPDegeriniArtir(2);
+
+    mmCikti.Lines.Add('int %.2d', [ShortInt(V11)]);
+  end
   {$i komutlar\clc.inc}
   {$i komutlar\dec.inc}
   {$i komutlar\in.inc}
   {$i komutlar\inc.inc}
+  {$i komutlar\jcc.inc}
   {$i komutlar\jmp.inc}
   {$i komutlar\lods.inc}
   {$i komutlar\mov.inc}
@@ -313,7 +310,7 @@ var
 begin
 
   DegerSN := (AHedefYazmacSN and $FF);
-  if(DegerSN >= $80) then DegerSN := DegerSN shr 4;
+  if(DegerSN >= $40) then DegerSN := DegerSN shr 4;
 
   case AHedefYazmacSN of
     YZMC_AL:
@@ -618,6 +615,28 @@ begin
   ValueListEditor1.Cells[1, 1 + YZMC_GORSELSN[YZMC0_ESP]] := '$' + HexStr(YZMC_DEGERSN[YZMC0_ESP], 8);
 
   Application.ProcessMessages;
+end;
+
+function TfrmAnaSayfa.DosyaYukle(ADosyaAdi: string; ABellekAdresi: LongWord): string;
+var
+  FileStream: TFileStream;
+begin
+
+  Result := '';
+
+  try
+    FileStream := TFileStream.Create(ADosyaAdi, fmOpenRead);
+    FileStream.Position := 0;
+    DosyaU := FileStream.Size;
+
+    if(DosyaU <= DISKET_BOYUT) then
+      FileStream.Read(Bellek144MB[ABellekAdresi], DosyaU)
+    else Result := 'Hata: dosya 1.44MB''den büyük olamaz!';
+
+    FileStream.Free;
+  except
+    on E: Exception do Result := E.Message;
+  end;
 end;
 
 end.

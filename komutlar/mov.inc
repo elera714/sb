@@ -63,6 +63,18 @@ begin
 
   IPDegeriniArtir(1 + 2);
 end
+// B0+ rb - MOV r8,imm8 - Move imm8 to r8
+else if(IslenenKomut >= $B0 + YZMC0_EAX) and (IslenenKomut <= $B0 + YZMC0_EDI) then
+begin
+
+  V11 := PByte(@Bellek144MB[Adres + 1])^;
+  V12 := IslenenKomut - $B0;
+  V13 := V12;
+  if(V12 > 3) then V13 := (V12 * $10) + (V12 - 4);
+  YazmacDegistir2(($01 shl 8) or V13, V11);
+  {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,$%.2x', [Yazmaclar8[V12], V11]); {$ENDIF}
+  IPDegeriniArtir(1 + 1);
+end
 // B8+ rw - MOV r16,imm16 - Move imm16 to r16
 else if(IslenenKomut >= $B8 + YZMC0_EAX) and (IslenenKomut <= $B8 + YZMC0_EDI) then
 begin
