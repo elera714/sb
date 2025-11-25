@@ -28,15 +28,20 @@ type
     lblIskenenKomutSayisi: TLabel;
     lblIslenecekDosya: TLabel;
     mmCikti: TMemo;
+    pnlEkran: TPanel;
+    pnlGovde: TPanel;
     Panel2: TPanel;
     pnlUst: TPanel;
     pnlYazmaclar: TPanel;
     sbDurum: TStatusBar;
+    tmrEkran: TTimer;
     ValueListEditor1: TValueListEditor;
     procedure btnCalistirClick(Sender: TObject);
     procedure btnBellekClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+    procedure FormShow(Sender: TObject);
+    procedure tmrEkranTimer(Sender: TObject);
   private
     IslenenKomut: Byte;
     KomutModDegistir: Boolean;      // $66 öneki
@@ -54,6 +59,7 @@ type
     procedure YiginaEkle2(AHedefYazmacSN: Integer);
     function YigindanAl(AVeriUzunlugu: LongWord): LongWord;
     function DosyaYukle(ADosyaAdi: string; ABellekAdresi: LongWord): string;
+    procedure EkraniKartiniYukle;
   public
 
   end;
@@ -75,6 +81,48 @@ begin
   SetLength(Bellek144MB, DISKET_BOYUT + ($7C0 * $10));
 
   for i := 0 to 65535 do Portlar[i] := 0;
+end;
+
+procedure TfrmAnaSayfa.FormShow(Sender: TObject);
+var
+  Hata: string;
+begin
+
+  // bios işlevlerini 0 adresine yükle
+  Hata := DosyaYukle('bios.bin', 0);
+  if(Length(Hata) = 0) then
+    BiosYuklendi := True
+  else BiosYuklendi := False;
+
+  EkraniKartiniYukle;
+end;
+
+procedure TfrmAnaSayfa.tmrEkranTimer(Sender: TObject);
+var
+  x, y, i: Integer;
+  Kar: Char;
+  Renk: Byte;
+begin
+
+  pnlEkran.Canvas.Clear;
+  i := $B8000;
+
+  for y := 0 to 24 do
+  begin
+
+    for x := 0 to 79 do
+    begin
+
+      Kar := PChar(@Bellek144MB[i + 0])^;
+      Renk := PByte(@Bellek144MB[i + 1])^;
+
+      pnlEkran.Canvas.Brush.Color := RENKLER_YAZI[(Renk shr 4) and %1111];
+      pnlEkran.Canvas.Font.Color := RENKLER_YAZI[Renk and %1111];
+      pnlEkran.Canvas.TextOut(x * 8, y * 16, Kar);
+
+      Inc(i, 2);
+    end;
+  end;
 end;
 
 procedure TfrmAnaSayfa.FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -103,9 +151,13 @@ begin
     sbDurum.Repaint;
     Application.ProcessMessages;
 
-    {Hata := DosyaYukle('bios.bin', 0);
+    // bios işlevlerinin yüklenip yüklenmediğini kontrol et
+    if not(BiosYuklendi) then
+      Hata := 'Hata: bios işlevleri yüklenemedi!'
+    else Hata := '';
 
-    if(Length(Hata) = 0) then} Hata := DosyaYukle(cbIslenecekDosya.Text, $07C0 * $10);
+    // imaj dosyasını $7c0 adresine yükle
+    if(Length(Hata) = 0) then Hata := DosyaYukle(cbIslenecekDosya.Text, $07C0 * $10);
 
     if(Length(Hata) = 0) then
     begin
@@ -192,18 +244,19 @@ end;
 
 function TfrmAnaSayfa.Isle(ACS, AIP: Integer): Boolean;
 var
-  Adres: Integer;
-  V11, V12,
-  V13, V14,
-  V15: Byte;            // işaretsiz 8 bit
-  V21: Word;            // işaretsiz 16 bit
-  V41, V42,
-  V43, V44: LongWord;   // işaretsiz 32 bit
+  Adres: LongWord;
+  D11, D12,
+  D13, D14,
+  D15: Byte;            // işaretsiz 8 bit
+  D21,
+  D22: Word;            // işaretsiz 16 bit
+  D41, D42,
+  D43, D44: LongWord;   // işaretsiz 32 bit
 
   // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
   procedure IPDegeriniArtir(AArtir: Integer = 1);
   var
-    IP: Integer;
+    IP: LongWord;
   begin
 
     IP := YZMC_DEGERSN[YZMC0_EIP];
@@ -228,40 +281,13 @@ begin
     // işlemci komutunun 16/32 bit değişimini gerçekleştirir
     KomutModDegistir := True;
   end
-  // E8 cw - CALL rel16 - Call near, relative, displacement relative to next instruction
-  // E8 cd - CALL rel32 - Call near, relative, displacement relative to next instruction
-  else if(IslenenKomut = $E8) then
-  begin
-
-    V21 := PWord(@Bellek144MB[Adres + 1])^;
-    {$IFDEF DEBUG} mmCikti.Lines.Add('call (yakın) %.4d', [SmallInt(V21)]); {$ENDIF}
-    YiginaEkle(YZMC_DEGERSN[YZMC0_EIP] + 3, VU2);
-    IPDegeriniArtir(3);
-    IPDegeriniArtir(SmallInt(V21));
-  end
-  // C3 - RET - Near return to calling procedure
-  // CB - RET - Far return to calling procedure
-  else if(IslenenKomut = $C3) then
-  begin
-
-    V21 := YigindanAl(VU2);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('ret (yakın) %.4d', [SmallInt(V21)]); {$ENDIF}
-    YZMC_DEGERSN[YZMC0_EIP] := V21;
-  end
-  // CD ib - INT imm8 - Interrupt vector number specified by immediate byte
-  else if(IslenenKomut = $CD) then
-  begin
-
-    V11 := PByte(@Bellek144MB[Adres + 1])^;
-    {$IFDEF DEBUG} mmCikti.Lines.Add('int %.2d', [ShortInt(V11)]); {$ENDIF}
-    IPDegeriniArtir(2);
-
-    mmCikti.Lines.Add('int %.2d', [ShortInt(V11)]);
-  end
+  {$i komutlar\call.inc}
   {$i komutlar\clc.inc}
   {$i komutlar\dec.inc}
   {$i komutlar\in.inc}
   {$i komutlar\inc.inc}
+  {$i komutlar\int.inc}
+  {$i komutlar\iret.inc}
   {$i komutlar\jcc.inc}
   {$i komutlar\jmp.inc}
   {$i komutlar\lods.inc}
@@ -269,6 +295,7 @@ begin
   {$i komutlar\nop.inc}
   {$i komutlar\out.inc}
   {$i komutlar\push.inc}
+  {$i komutlar\ret.inc}
   {$i komutlar\stc.inc}
   {$i komutlar\test.inc}
   else Result := False;
@@ -303,51 +330,50 @@ end;
 
 procedure TfrmAnaSayfa.YazmacDegistir2(AHedefYazmacSN, ADeger: LongInt; AArtir: Boolean = False);
 var
-  DegerSN: Integer;
-  D11: ShortInt;        // işaretli 8 bit
-  D21: SmallInt;        // işaretli 16 bit
-  D41: LongInt;         // işaretli 32 bit
+  DegerSN: LongWord;
+  D11: Byte;            // işaretsiz 8 bit
+  D21: Word;            // işaretsiz 16 bit
+  D41: LongWord;        // işaretsiz 32 bit
 begin
 
-  DegerSN := (AHedefYazmacSN and $FF);
-  if(DegerSN >= $40) then DegerSN := DegerSN shr 4;
+  DegerSN := (AHedefYazmacSN and $F);
 
   case AHedefYazmacSN of
     YZMC_AL:
     begin
 
-      D11 := PShortInt(@YZMC_DEGERSN[DegerSN] + 0)^;
+      D11 := PByte(@YZMC_DEGERSN[DegerSN] + 0)^;
       if(AArtir) then
         D11 := D11 + (ADeger and $FF)
       else D11 := (ADeger and $FF);
-      PShortInt(@YZMC_DEGERSN[DegerSN] + 0)^ := D11;
+      PByte(@YZMC_DEGERSN[DegerSN] + 0)^ := D11;
     end;
     YZMC_AH:
     begin
 
-      D11 := PShortInt(@YZMC_DEGERSN[DegerSN] + 1)^;
+      D11 := PByte(@YZMC_DEGERSN[DegerSN] + 1)^;
       if(AArtir) then
         D11 := D11 + (ADeger and $FF)
       else D11 := (ADeger and $FF);
-      PShortInt(@YZMC_DEGERSN[DegerSN] + 1)^ := D11;
+      PByte(@YZMC_DEGERSN[DegerSN] + 1)^ := D11;
     end;
     YZMC_AX, YZMC_CX, YZMC_DX, YZMC_BX, YZMC_SP, YZMC_BP, YZMC_SI, YZMC_DI:
     begin
 
-      D21 := PSmallInt(@YZMC_DEGERSN[DegerSN] + 0)^;
+      D21 := PWord(@YZMC_DEGERSN[DegerSN] + 0)^;
       if(AArtir) then
         D21 := D21 + (ADeger and $FFFF)
       else D21 := (ADeger and $FFFF);
-      PSmallInt(@YZMC_DEGERSN[DegerSN] + 0)^ := D21;
+      PWord(@YZMC_DEGERSN[DegerSN] + 0)^ := D21;
     end;
     YZMC_EAX, YZMC_ECX, YZMC_EDX, YZMC_EBX, YZMC_ESP, YZMC_EBP, YZMC_ESI, YZMC_EDI:
     begin
 
-      D41 := PLongInt(@YZMC_DEGERSN[DegerSN] + 0)^;
+      D41 := PLongWord(@YZMC_DEGERSN[DegerSN] + 0)^;
       if(AArtir) then
         D41 := D41 + ADeger
       else D41 := ADeger;
-      PLongInt(@YZMC_DEGERSN[DegerSN] + 0)^ := D41;
+      PLongWord(@YZMC_DEGERSN[DegerSN] + 0)^ := D41;
     end;
   end;
 
@@ -358,27 +384,27 @@ end;
 
 procedure TfrmAnaSayfa.BayrakDegistir(AHedefBayrak: LongWord; ASifirla: Boolean = False);
 var
-  D41: LongWord;         // işaretsiz 32 bit
+  V41: LongWord;         // işaretsiz 32 bit
 begin
 
   if(ASifirla) then
     ClearBit(Bayraklar, AHedefBayrak)
   else SetBit(Bayraklar, AHedefBayrak);
 
-  D41 := (Bayraklar shr AHedefBayrak) and 1;
+  V41 := (Bayraklar shr AHedefBayrak) and 1;
 
   case AHedefBayrak of
-    BAYRAK_CF: lblCF.Caption := Format('CF=%d', [D41]);
-    BAYRAK_PF: lblPF.Caption := Format('PF=%d', [D41]);
-    BAYRAK_AF: lblAF.Caption := Format('AF=%d', [D41]);
-    BAYRAK_ZF: lblZF.Caption := Format('ZF=%d', [D41]);
-    BAYRAK_SF: lblSF.Caption := Format('SF=%d', [D41]);
-    BAYRAK_TF: lblTF.Caption := Format('TF=%d', [D41]);
-    BAYRAK_IF: lblIF.Caption := Format('IF=%d', [D41]);
-    BAYRAK_DF: lblDF.Caption := Format('DF=%d', [D41]);
-    BAYRAK_OF: lblOF.Caption := Format('OF=%d', [D41]);
-    //BAYRAK_IOPL: lblIOPL.Caption := Format('IOPL=%d', [D41]);  { TODO 2 bir olarak ayarlanacak}
-    BAYRAK_NT: lblNT.Caption := Format('NT=%d', [D41]);
+    BAYRAK_CF: lblCF.Caption := Format('CF=%d', [V41]);
+    BAYRAK_PF: lblPF.Caption := Format('PF=%d', [V41]);
+    BAYRAK_AF: lblAF.Caption := Format('AF=%d', [V41]);
+    BAYRAK_ZF: lblZF.Caption := Format('ZF=%d', [V41]);
+    BAYRAK_SF: lblSF.Caption := Format('SF=%d', [V41]);
+    BAYRAK_TF: lblTF.Caption := Format('TF=%d', [V41]);
+    BAYRAK_IF: lblIF.Caption := Format('IF=%d', [V41]);
+    BAYRAK_DF: lblDF.Caption := Format('DF=%d', [V41]);
+    BAYRAK_OF: lblOF.Caption := Format('OF=%d', [V41]);
+    //BAYRAK_IOPL: lblIOPL.Caption := Format('IOPL=%d', [V41]);  { TODO 2 bir olarak ayarlanacak}
+    BAYRAK_NT: lblNT.Caption := Format('NT=%d', [V41]);
   end;
 
   Application.ProcessMessages;
@@ -505,9 +531,9 @@ begin
   YZMC_DEGERSN[YZMC0_ESP] := V42;
 
   case AVeriUzunlugu of
-    VU1: begin PByte(@Bellek144MB[(V41 * $10) + V42])^ := (ADeger and $FF); end;
-    VU2: begin PWord(@Bellek144MB[(V41 * $10) + V42])^ := (ADeger and $FFFF); end;
-    VU4: begin PLongWord(@Bellek144MB[(V41 * $10) + V42])^ := ADeger; end;
+    DU1: begin PByte(@Bellek144MB[(V41 * $10) + V42])^ := (ADeger and $FF); end;
+    DU2: begin PWord(@Bellek144MB[(V41 * $10) + V42])^ := (ADeger and $FFFF); end;
+    DU4: begin PLongWord(@Bellek144MB[(V41 * $10) + V42])^ := ADeger; end;
     else Exit;
   end;
 
@@ -603,9 +629,9 @@ begin
   V42 := YZMC_DEGERSN[YZMC0_ESP];
 
   case AVeriUzunlugu of
-    VU1: begin Result := PByte(@Bellek144MB[(V41 * $10) + V42])^; end;
-    VU2: begin Result := PWord(@Bellek144MB[(V41 * $10) + V42])^; end;
-    VU4: begin Result := PLongWord(@Bellek144MB[(V41 * $10) + V42])^; end;
+    DU1: begin Result := PByte(@Bellek144MB[(V41 * $10) + V42])^; end;
+    DU2: begin Result := PWord(@Bellek144MB[(V41 * $10) + V42])^; end;
+    DU4: begin Result := PLongWord(@Bellek144MB[(V41 * $10) + V42])^; end;
     else Exit;
   end;
 
@@ -619,24 +645,65 @@ end;
 
 function TfrmAnaSayfa.DosyaYukle(ADosyaAdi: string; ABellekAdresi: LongWord): string;
 var
-  FileStream: TFileStream;
+  FS: TFileStream;
 begin
 
   Result := '';
 
   try
-    FileStream := TFileStream.Create(ADosyaAdi, fmOpenRead);
-    FileStream.Position := 0;
-    DosyaU := FileStream.Size;
+    FS := TFileStream.Create(ADosyaAdi, fmOpenRead);
+    FS.Position := 0;
+    DosyaU := FS.Size;
 
     if(DosyaU <= DISKET_BOYUT) then
-      FileStream.Read(Bellek144MB[ABellekAdresi], DosyaU)
+      FS.Read(Bellek144MB[ABellekAdresi], DosyaU)
     else Result := 'Hata: dosya 1.44MB''den büyük olamaz!';
 
-    FileStream.Free;
+    FS.Free;
   except
     on E: Exception do Result := E.Message;
   end;
+end;
+
+procedure TfrmAnaSayfa.EkraniKartiniYukle;
+var
+  x, y,
+  i: Integer;
+
+  procedure Yaz(ASatirNo: Integer; ADeger: string);
+  var
+    j: Integer;
+  begin
+
+    i := $B8000 + (ASatirNo * (80 * 2));
+
+    for j := 1 to Length(ADeger) do
+    begin
+
+      PChar(@Bellek144MB[i + 0])^ := ADeger[j];
+      PByte(@Bellek144MB[i + 1])^ := $0E;
+      Inc(i, 2);
+    end;
+  end;
+begin
+
+  i := $B8000;
+
+  for y := 0 to 24 do
+  begin
+
+    for x := 0 to 79 do
+    begin
+
+      PChar(@Bellek144MB[i + 0])^ := ' ';
+      PByte(@Bellek144MB[i + 1])^ := $0F;
+      Inc(i, 2);
+    end;
+  end;
+
+  Yaz(0, ProgramAdi);
+  Yaz(1, 'Surum: ' + SurumNo);
+  Yaz(2, 'Kodlayan: ' + Kodlayan);
 end;
 
 end.

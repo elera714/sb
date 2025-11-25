@@ -4,11 +4,21 @@ unit islevler;
 
 interface
 
-uses Classes, SysUtils;
+uses Classes, SysUtils, Graphics;
+
+const
+  ProgramAdi: string = 'Sanal Bilgisayar';
+  SurumNo: string = '0.0.1';
+  Kodlayan: string = 'Fatih KILIC';
 
 const
   // 2 kafa, 80 iz, 18 sektör, her sektörde 512 byte
   DISKET_BOYUT = LongWord((2 * 80 * 18) * 512);
+
+const
+  RENKLER_YAZI: array[0..15] of LongWord = (
+    clBlack, clBlue, clGreen, clAqua, clRed, clFuchsia, $00004B96, $00D3D3D3,
+    $00636363, $00FFD590, $0088E788, $00FFFFE0, $002B4BEE, $00FF80FF, clYellow, clWhite);
 
 type
   PByte = ^Byte;                // işaretli 8 bit
@@ -20,16 +30,16 @@ type
   PLongInt = ^LongInt;          // işaretli 32 bit
 
 const
-  // veri uzunlukları
-  VU1         = 1;
-  VU2         = 2;
-  VU4         = 4;
-  VU8         = 8;
+  // değişken veri uzunlukları
+  DU1         = 1;
+  DU2         = 2;
+  DU4         = 4;
+  DU8         = 8;
 
   // işlemci çalışma modları
-  ICM_BIT16   = VU2;
-  ICM_BIT32   = VU4;
-  ICM_BIT64   = VU8;
+  ICM_BIT16   = DU2;
+  ICM_BIT32   = DU4;
+  ICM_BIT64   = DU8;
 
 const
   // yazmaç sıra numaraları
@@ -91,13 +101,13 @@ const
   YZMC_EDI    = ($04 shl 8) or $07;
 
 var
-  YZMC_DEGERSN: array[0..14] of Integer =
+  YZMC_DEGERSN: array[0..14] of LongWord =
     {eax ecx edx ebx esp ebp esi edi cs  ds  es  ss  fs  gs  eip}
     (0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0);
 
 const
   // yazmaç değerlerinin form üzerindeki sıra numaraları
-  YZMC_GORSELSN: array[0..14] of Integer =
+  YZMC_GORSELSN: array[0..14] of LongWord =
     {eax ecx edx ebx esp ebp esi edi cs  ds  es  ss  fs  gs  eip}
     (0,  2,  3,  1,  7,  6,  4,  5,  8,  9,  10, 11, 12, 13, 14);
 
@@ -117,6 +127,7 @@ const
 var
   ISLEMCI_CM: Integer = ICM_BIT16;
   SB_CALISIYOR: Boolean = False;              // sanal bilgisayar çalışıyor mu?
+  BiosYuklendi: Boolean;
 
 const
   BAYRAK_CF     = 0;
@@ -181,9 +192,9 @@ end;
 function YazmacDegerAl(AYazmac: LongWord): LongWord;
 var
   DegerSN: LongWord;
-  V11: Byte;        // işaretsiz 8 bit
-  V21: Word;        // işaretsiz 16 bit
-  V41: LongWord;    // işaretsiz 32 bit
+  D11: Byte;        // işaretsiz 8 bit
+  D21: Word;        // işaretsiz 16 bit
+  D41: LongWord;    // işaretsiz 32 bit
 begin
 
   DegerSN := (AYazmac and $FF);
@@ -195,26 +206,26 @@ begin
     YZMC_AL, YZMC_CL, YZMC_DL, YZMC_BL:
     begin
 
-      V11 := PByte(@YZMC_DEGERSN[DegerSN] + 0)^;
-      Result := (V11 and $FF);
+      D11 := PByte(@YZMC_DEGERSN[DegerSN] + 0)^;
+      Result := (D11 and $FF);
     end;
     YZMC_AH, YZMC_CH, YZMC_DH, YZMC_BH:
     begin
 
-      V11 := PByte(@YZMC_DEGERSN[DegerSN] + 1)^;
-      Result := (V11 and $FF);
+      D11 := PByte(@YZMC_DEGERSN[DegerSN] + 1)^;
+      Result := (D11 and $FF);
     end;
     YZMC_AX, YZMC_CX, YZMC_DX, YZMC_BX, YZMC_SP, YZMC_BP, YZMC_SI, YZMC_DI:
     begin
 
-      V21 := PWord(@YZMC_DEGERSN[DegerSN] + 0)^;
-      Result := (V21 and $FFFF);
+      D21 := PWord(@YZMC_DEGERSN[DegerSN] + 0)^;
+      Result := (D21 and $FFFF);
     end;
     YZMC_EAX, YZMC_ECX, YZMC_EDX, YZMC_EBX, YZMC_ESP, YZMC_EBP, YZMC_ESI, YZMC_EDI:
     begin
 
-      V41 := PLongWord(@YZMC_DEGERSN[DegerSN] + 0)^;
-      Result := V41;
+      D41 := PLongWord(@YZMC_DEGERSN[DegerSN] + 0)^;
+      Result := D41;
     end;
   end;
 end;

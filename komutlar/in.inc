@@ -4,13 +4,13 @@
 else if(IslenenKomut = $E4) or (IslenenKomut = $E5) then
 begin
 
-  V11 := Bellek144MB[Adres + 1];
+  D11 := Bellek144MB[Adres + 1];
 
   if(IslenenKomut = $E4) then
   begin
 
-    IOPortOku(YZMC_AL, V11);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('in al,$%.2x', [V11 and $FF]); {$ENDIF}
+    IOPortOku(YZMC_AL, D11);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('in al,$%.2x', [D11 and $FF]); {$ENDIF}
     IPDegeriniArtir(2);
   end
   else if(IslenenKomut = $E5) then
@@ -19,14 +19,14 @@ begin
     if(KomutModDegistir) then
     begin
 
-      IOPortOku(YZMC_EAX, V11);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('in eax,$%.2x', [V11 and $FF]); {$ENDIF}
+      IOPortOku(YZMC_EAX, D11);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('in eax,$%.2x', [D11 and $FF]); {$ENDIF}
     end
     else
     begin
 
-      IOPortOku(YZMC_AX, V11);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('in ax,$%.2x', [V11 and $FF]); {$ENDIF}
+      IOPortOku(YZMC_AX, D11);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('in ax,$%.2x', [D11 and $FF]); {$ENDIF}
     end;
 
     IPDegeriniArtir(2);

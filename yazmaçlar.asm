@@ -13,19 +13,12 @@ basla:
         mov     bp,10
         mov     si,10
         mov     di,10
-
 kesme:
-        mov     ax,0x1234
+;        mov     [di],al
         int     0x10
-
-        mov     ax,0x99
-bekle:
-        dec     ax
-        test    al,al
-        jz      kesme
-        jmp     bekle
+        jmp     kesme
 
 arge:
         nop
-        dec     ax
+        mov     [di],al
         nop

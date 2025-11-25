@@ -2,9 +2,9 @@
 else if(IslenenKomut = $74) then
 begin
 
-  V11 := PByte(@Bellek144MB[Adres + 1])^;
-  {$IFDEF DEBUG} mmCikti.Lines.Add('jz (yakın) %.2d', [ShortInt(V11)]); {$ENDIF}
+  D11 := PByte(@Bellek144MB[Adres + 1])^;
+  {$IFDEF DEBUG} mmCikti.Lines.Add('jz (yakın) %.2d', [ShortInt(D11)]); {$ENDIF}
   IPDegeriniArtir(2);
 
-  if(GetBit(Bayraklar, BAYRAK_ZF)) then IPDegeriniArtir(ShortInt(V11));
+  if(GetBit(Bayraklar, BAYRAK_ZF)) then IPDegeriniArtir(ShortInt(D11));
 end

@@ -1,30 +1,94 @@
+// 88 /r - MOV r/m8,r8 - Move r8 to r/m8
+else if(IslenenKomut = $88) then
+begin
+
+  D11 := PByte(@Bellek144MB[Adres + 1])^;
+
+  // 8 bitlik yazmaç karşılaştırmaları
+  if((D11 and %11000000) = %11000000) then
+  begin
+
+    D41 := MYB8[(D11 and %00000111)];           // hedef yazmaç (1. parametre)
+    D42 := MYB8[(D11 and %00111000) shr 3];     // kaynak yazmaç (2. parametre)
+    D43 := YazmacDegerAl(D41);
+    D44 := YazmacDegerAl(D42);
+
+    YazmacDegistir2(D41, D44);
+
+    if((D41 and $FF) >= $40) then D41 := (D41 shr 4) and $F else D41 := D41 and $F;
+    if((D42 and $FF) >= $40) then D42 := (D42 shr 4) and $F else D42 := D42 and $F;
+
+    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s', [Yazmaclar8[D41], Yazmaclar8[D42]]); {$ENDIF}
+    IPDegeriniArtir(2);
+
+  end else Result := False;
+end
+else if(IslenenKomut = $89) then
+begin
+
+  D11 := PByte(@Bellek144MB[Adres + 1])^;
+
+  if((D11 and %11000000) = %11000000) then
+  begin
+
+    // 89 /r - MOV r/m32,r32 - Move r32 to r/m32
+    if(KomutModDegistir) then
+    begin
+
+      D41 := MYB32[(D11 and %00000111)];          // hedef yazmaç (1. parametre)
+      D42 := MYB32[(D11 and %00111000) shr 3];    // kaynak yazmaç (2. parametre)
+      D43 := YazmacDegerAl(D41);
+      D44 := YazmacDegerAl(D42);
+
+      YazmacDegistir2(D41, D44);
+
+      {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s', [Yazmaclar32[D41 and $FF], Yazmaclar32[D42 and $FF]]); {$ENDIF}
+    end
+    else
+    // 89 /r - MOV r/m16,r16 - Move r16 to r/m16
+    begin
+
+      D41 := MYB16[(D11 and %00000111)];          // hedef yazmaç (1. parametre)
+      D42 := MYB16[(D11 and %00111000) shr 3];    // kaynak yazmaç (2. parametre)
+      D43 := YazmacDegerAl(D41);
+      D44 := YazmacDegerAl(D42);
+
+      YazmacDegistir2(D41, D44);
+
+      {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s', [Yazmaclar16[D41 and $FF], Yazmaclar16[D42 and $FF]]); {$ENDIF}
+    end;
+
+    IPDegeriniArtir(2);
+
+  end else Result := False;
+end
 // 8E /r - MOV Sreg,r/m16** - Move r/m16 to segment register
 else if(IslenenKomut = $8E) then
 begin
 
-  V11 := PByte(@Bellek144MB[Adres + 1])^;
-  V12 := (V11 shr 6) and %11;   // alt komut
-  V13 := (V11 shr 3) and %111;  // hedef segment
-  V14 := (V11 and %111);        // kaynak yazmaç
-  if(V12 = %11) then
+  D11 := PByte(@Bellek144MB[Adres + 1])^;
+  D12 := (D11 shr 6) and %11;   // alt komut
+  D13 := (D11 shr 3) and %111;  // hedef segment
+  D14 := (D11 and %111);        // kaynak yazmaç
+  if(D12 = %11) then
   begin
 
-    case V13 of
-      0: V15 := 10;
-      1: V15 := 8;
-      2: V15 := 11;
-      3: V15 := 9;
-      4: V15 := 12;
-      5: V15 := 13;
+    case D13 of
+      0: D15 := 10;
+      1: D15 := 8;
+      2: D15 := 11;
+      3: D15 := 9;
+      4: D15 := 12;
+      5: D15 := 13;
       else Result := False;
     end;
 
     if(Result) then
     begin
 
-      YZMC_DEGERSN[V15] := YZMC_DEGERSN[V14];
-      YazmacDegistir(V15, YZMC_DEGERSN[V14]);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s', [Yazmaclar16[V15], Yazmaclar16[V14]]); {$ENDIF}
+      YZMC_DEGERSN[D15] := YZMC_DEGERSN[D14];
+      YazmacDegistir(D15, YZMC_DEGERSN[D14]);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s', [Yazmaclar16[D15], Yazmaclar16[D14]]); {$ENDIF}
       IPDegeriniArtir(2);
     end;
   end else Result := False;
@@ -33,10 +97,10 @@ end
 else if(IslenenKomut = $A2) then
 begin
 
-  V21 := PWord(@Bellek144MB[Adres + 1])^;
-  V41 := (YZMC_DEGERSN[YZMC0_DS] * $10) + V21;
-  PByte(@Bellek144MB[V41])^ := Byte((YZMC_DEGERSN[YZMC0_EAX] and $FF));
-  {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.4x],al', [V21]); {$ENDIF}
+  D21 := PWord(@Bellek144MB[Adres + 1])^;
+  D41 := (YZMC_DEGERSN[YZMC0_DS] * $10) + D21;
+  PByte(@Bellek144MB[D41])^ := Byte((YZMC_DEGERSN[YZMC0_EAX] and $FF));
+  {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.4x],al', [D21]); {$ENDIF}
   IPDegeriniArtir(1 + 2);
 end
 else if(IslenenKomut = $A3) then
@@ -46,19 +110,19 @@ begin
   if(KomutModDegistir) then
   begin
 
-    V21 := PWord(@Bellek144MB[Adres + 1])^;
-    V41 := (YZMC_DEGERSN[YZMC0_DS] * $10) + V21;
-    PLongWord(@Bellek144MB[V41])^ := YZMC_DEGERSN[YZMC0_EAX];
-    {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.8x],eax', [V21]); {$ENDIF}
+    D21 := PWord(@Bellek144MB[Adres + 1])^;
+    D41 := (YZMC_DEGERSN[YZMC0_DS] * $10) + D21;
+    PLongWord(@Bellek144MB[D41])^ := YZMC_DEGERSN[YZMC0_EAX];
+    {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.8x],eax', [D21]); {$ENDIF}
   end
   // A3 - MOV moffs16*,AX - Move AX to (seg:offset)
   else
   begin
 
-    V21 := PWord(@Bellek144MB[Adres + 1])^;
-    V41 := (YZMC_DEGERSN[YZMC0_DS] * $10) + V21;
-    PWord(@Bellek144MB[V41])^ := Word((YZMC_DEGERSN[YZMC0_EAX] and $FFFF));
-    {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.4x],ax', [V21]); {$ENDIF}
+    D21 := PWord(@Bellek144MB[Adres + 1])^;
+    D41 := (YZMC_DEGERSN[YZMC0_DS] * $10) + D21;
+    PWord(@Bellek144MB[D41])^ := Word((YZMC_DEGERSN[YZMC0_EAX] and $FFFF));
+    {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.4x],ax', [D21]); {$ENDIF}
   end;
 
   IPDegeriniArtir(1 + 2);
@@ -67,12 +131,12 @@ end
 else if(IslenenKomut >= $B0 + YZMC0_EAX) and (IslenenKomut <= $B0 + YZMC0_EDI) then
 begin
 
-  V11 := PByte(@Bellek144MB[Adres + 1])^;
-  V12 := IslenenKomut - $B0;
-  V13 := V12;
-  if(V12 > 3) then V13 := (V12 * $10) + (V12 - 4);
-  YazmacDegistir2(($01 shl 8) or V13, V11);
-  {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,$%.2x', [Yazmaclar8[V12], V11]); {$ENDIF}
+  D11 := PByte(@Bellek144MB[Adres + 1])^;
+  D12 := IslenenKomut - $B0;
+  D13 := D12;
+  if(D12 > 3) then D13 := (D12 * $10) + (D12 - 4);
+  YazmacDegistir2(($01 shl 8) or D13, D11);
+  {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,$%.2x', [Yazmaclar8[D12], D11]); {$ENDIF}
   IPDegeriniArtir(1 + 1);
 end
 // B8+ rw - MOV r16,imm16 - Move imm16 to r16
@@ -82,17 +146,17 @@ begin
   if(KomutModDegistir) then
   begin
 
-    V41 := PLongWord(@Bellek144MB[Adres + 1])^;
-    YazmacDegistir2(($04 shl 8) or (IslenenKomut - $B8), V41);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,$%.8x', [Yazmaclar32[IslenenKomut - $B8], V41]); {$ENDIF}
+    D41 := PLongWord(@Bellek144MB[Adres + 1])^;
+    YazmacDegistir2(($04 shl 8) or (IslenenKomut - $B8), D41);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,$%.8x', [Yazmaclar32[IslenenKomut - $B8], D41]); {$ENDIF}
     IPDegeriniArtir(1 + 4);
   end
   else
   begin
 
-    V21 := PWord(@Bellek144MB[Adres + 1])^;
-    YazmacDegistir2(($02 shl 8) or (IslenenKomut - $B8), V21);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,$%.4x', [Yazmaclar16[IslenenKomut - $B8], V21]); {$ENDIF}
+    D21 := PWord(@Bellek144MB[Adres + 1])^;
+    YazmacDegistir2(($02 shl 8) or (IslenenKomut - $B8), D21);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,$%.4x', [Yazmaclar16[IslenenKomut - $B8], D21]); {$ENDIF}
     IPDegeriniArtir(1 + 2);
   end;
 end

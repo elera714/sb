@@ -3,10 +3,10 @@
 else if(IslenenKomut = $AC) then
 begin
 
-  V41 := YZMC_DEGERSN[YZMC0_ESI] and $FFFF;
-  V42 := (YZMC_DEGERSN[YZMC0_DS] * $10) + V41;
-  V11 := PByte(@Bellek144MB[V42])^;
-  YazmacDegistir2(YZMC_AL, V11);
+  D41 := YZMC_DEGERSN[YZMC0_ESI] and $FFFF;
+  D42 := (YZMC_DEGERSN[YZMC0_DS] * $10) + D41;
+  D11 := PByte(@Bellek144MB[D42])^;
+  YazmacDegistir2(YZMC_AL, D11);
 
   // df bayrağının durumuna göre (e)si yazmacını bir artır/eksilt
   if(GetBit(Bayraklar, BAYRAK_DF)) then
@@ -24,10 +24,10 @@ begin
   if(KomutModDegistir) then
   begin
 
-    V41 := YZMC_DEGERSN[YZMC0_ESI];
-    V42 := (YZMC_DEGERSN[YZMC0_DS] * $10) + V41;
-    V41 := PLongWord(@Bellek144MB[V42])^;
-    YazmacDegistir2(YZMC_EAX, V41);
+    D41 := YZMC_DEGERSN[YZMC0_ESI];
+    D42 := (YZMC_DEGERSN[YZMC0_DS] * $10) + D41;
+    D41 := PLongWord(@Bellek144MB[D42])^;
+    YazmacDegistir2(YZMC_EAX, D41);
 
     {$IFDEF DEBUG} mmCikti.Lines.Add('lodsd'); {$ENDIF}
   end
@@ -36,10 +36,10 @@ begin
   else
   begin
 
-    V41 := YZMC_DEGERSN[YZMC0_ESI] and $FFFF;
-    V42 := (YZMC_DEGERSN[YZMC0_DS] * $10) + V41;
-    V21 := PWord(@Bellek144MB[V42])^;
-    YazmacDegistir2(YZMC_AX, V21);
+    D41 := YZMC_DEGERSN[YZMC0_ESI] and $FFFF;
+    D42 := (YZMC_DEGERSN[YZMC0_DS] * $10) + D41;
+    D21 := PWord(@Bellek144MB[D42])^;
+    YazmacDegistir2(YZMC_AX, D21);
 
     {$IFDEF DEBUG} mmCikti.Lines.Add('lodsw'); {$ENDIF}
   end;

@@ -22,10 +22,10 @@ end
 else if(IslenenKomut = $6A) then
 begin
 
-  V11 := PByte(@Bellek144MB[Adres + 1])^;
+  D11 := PByte(@Bellek144MB[Adres + 1])^;
 
-  YiginaEkle(V11, VU1);
-  {$IFDEF DEBUG} mmCikti.Lines.Add('push vu1 $%.2x', [V11]); {$ENDIF}
+  YiginaEkle(D11, DU1);
+  {$IFDEF DEBUG} mmCikti.Lines.Add('push vu1 $%.2x', [D11]); {$ENDIF}
   IPDegeriniArtir(1 + 1);
 end
 else if(IslenenKomut = $68) then
@@ -35,20 +35,20 @@ begin
   if(KomutModDegistir) then
   begin
 
-    V41 := PLongWord(@Bellek144MB[Adres + 1])^;
+    D41 := PLongWord(@Bellek144MB[Adres + 1])^;
 
-    YiginaEkle(V41, VU4);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('push vu4 $%.8x', [V41]); {$ENDIF}
+    YiginaEkle(D41, DU4);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('push vu4 $%.8x', [D41]); {$ENDIF}
     IPDegeriniArtir(1 + 4);
   end
   else
   // 68 - PUSH imm16 - Push imm16
   begin
 
-    V21 := PWord(@Bellek144MB[Adres + 1])^;
+    D21 := PWord(@Bellek144MB[Adres + 1])^;
 
-    YiginaEkle(V21, VU2);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('push vu2 $%.4x', [V21]); {$ENDIF}
+    YiginaEkle(D21, DU2);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('push vu2 $%.4x', [D21]); {$ENDIF}
     IPDegeriniArtir(1 + 2);
   end;
 end
@@ -87,17 +87,17 @@ end
 else if(IslenenKomut = $0F) then
 begin
 
-  V11 := PByte(@Bellek144MB[Adres + 1])^;
+  D11 := PByte(@Bellek144MB[Adres + 1])^;
 
   // 0F A0 - PUSH FS - Push FS
-  if(V11 = $A0) then
+  if(D11 = $A0) then
   begin
 
     YiginaEkle2(YZMC_FS);
     {$IFDEF DEBUG} mmCikti.Lines.Add('push fs'); {$ENDIF}
   end
   // 0F A8 - PUSH GS - Push GS
-  else if(V11 = $A8) then
+  else if(D11 = $A8) then
   begin
 
     YiginaEkle2(YZMC_GS);

@@ -1,25 +1,26 @@
 object frmAnaSayfa: TfrmAnaSayfa
-  Left = 362
-  Height = 528
-  Top = 252
-  Width = 706
+  Left = 211
+  Height = 535
+  Top = 128
+  Width = 833
   Caption = 'Sanal Bilgisayar'
-  ClientHeight = 528
-  ClientWidth = 706
+  ClientHeight = 535
+  ClientWidth = 833
   LCLVersion = '4.4.0.0'
   OnClose = FormClose
   OnCreate = FormCreate
+  OnShow = FormShow
   object pnlUst: TPanel
     Left = 0
     Height = 40
     Top = 0
-    Width = 706
+    Width = 833
     Align = alTop
     ClientHeight = 40
-    ClientWidth = 706
+    ClientWidth = 833
     TabOrder = 0
     object btnCalistir: TButton
-      Left = 621
+      Left = 748
       Height = 25
       Top = 7
       Width = 75
@@ -43,7 +44,7 @@ object frmAnaSayfa: TfrmAnaSayfa
       Caption = 'İşlenecek Dosya:'
     end
     object btnBellek: TButton
-      Left = 540
+      Left = 667
       Height = 25
       Top = 7
       Width = 75
@@ -70,26 +71,11 @@ object frmAnaSayfa: TfrmAnaSayfa
       Text = 'yazmaçlar.bin'
     end
   end
-  object mmCikti: TMemo
-    Left = 0
-    Height = 465
-    Top = 40
-    Width = 522
-    Align = alClient
-    Font.CharSet = TURKISH_CHARSET
-    Font.Height = -13
-    Font.Name = 'Courier New'
-    Font.Pitch = fpFixed
-    Font.Quality = fqDraft
-    ParentFont = False
-    ScrollBars = ssBoth
-    TabOrder = 1
-  end
   object sbDurum: TStatusBar
     Left = 0
     Height = 23
-    Top = 505
-    Width = 706
+    Top = 512
+    Width = 833
     Panels = <    
       item
         Text = 'Toplam Uzunluk: 0'
@@ -107,17 +93,17 @@ object frmAnaSayfa: TfrmAnaSayfa
     SimplePanel = False
   end
   object pnlYazmaclar: TPanel
-    Left = 522
-    Height = 465
+    Left = 649
+    Height = 472
     Top = 40
     Width = 184
     Align = alRight
-    ClientHeight = 465
+    ClientHeight = 472
     ClientWidth = 184
-    TabOrder = 3
+    TabOrder = 2
     object ValueListEditor1: TValueListEditor
       Left = 1
-      Height = 383
+      Height = 390
       Top = 1
       Width = 182
       Align = alClient
@@ -154,7 +140,7 @@ object frmAnaSayfa: TfrmAnaSayfa
     object Panel2: TPanel
       Left = 1
       Height = 80
-      Top = 384
+      Top = 391
       Width = 182
       Align = alBottom
       BevelInner = bvLowered
@@ -239,5 +225,50 @@ object frmAnaSayfa: TfrmAnaSayfa
         Caption = 'NT=0'
       end
     end
+  end
+  object pnlGovde: TPanel
+    Left = 0
+    Height = 472
+    Top = 40
+    Width = 649
+    Align = alClient
+    ClientHeight = 472
+    ClientWidth = 649
+    TabOrder = 3
+    object mmCikti: TMemo
+      Left = 1
+      Height = 67
+      Top = 404
+      Width = 647
+      Align = alBottom
+      Font.CharSet = TURKISH_CHARSET
+      Font.Height = -13
+      Font.Name = 'Courier New'
+      Font.Pitch = fpFixed
+      Font.Quality = fqDraft
+      ParentFont = False
+      ScrollBars = ssBoth
+      TabOrder = 0
+    end
+    object pnlEkran: TPanel
+      Left = 1
+      Height = 403
+      Top = 1
+      Width = 647
+      Align = alClient
+      BevelInner = bvLowered
+      Font.CharSet = TURKISH_CHARSET
+      Font.Height = -13
+      Font.Name = 'Courier New'
+      Font.Pitch = fpFixed
+      Font.Quality = fqDraft
+      ParentFont = False
+      TabOrder = 1
+    end
+  end
+  object tmrEkran: TTimer
+    OnTimer = tmrEkranTimer
+    Left = 40
+    Top = 120
   end
 end
