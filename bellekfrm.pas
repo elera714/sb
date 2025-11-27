@@ -9,9 +9,6 @@ uses
   Grids;
 
 type
-
-  { TfrmBellek }
-
   TfrmBellek = class(TForm)
     btnYenile: TButton;
     btnArtir: TButton;
@@ -51,11 +48,16 @@ end;
 
 procedure TfrmBellek.btnYenileClick(Sender: TObject);
 var
+  Adres: string;
   x, y, i: LongWord;
   B1: PByte;
 begin
 
-  BellekAdresi := StrToInt(edtAdres.Text);
+  Adres := Trim(edtAdres.Text);
+  if(Length(Adres) = 0) then Adres := '$00000000';
+  if(Adres[1] <> '$') then Adres := '$' + Adres;
+
+  BellekAdresi := StrToInt(Adres);
   edtAdres.Text := '$' + HexStr(BellekAdresi, 8);
 
   i := BellekAdresi;

@@ -10,6 +10,16 @@ uses
   ComCtrls, Grids, ValEdit;
 
 type
+  TEkran = class(TThread)
+  protected
+    procedure Execute; override;
+    procedure Yenile;
+  public
+    constructor Create(CreateSuspended : Boolean);
+  end;
+
+  { TfrmAnaSayfa }
+
   TfrmAnaSayfa = class(TForm)
     btnCalistir: TButton;
     btnBellek: TButton;
@@ -34,14 +44,12 @@ type
     pnlUst: TPanel;
     pnlYazmaclar: TPanel;
     sbDurum: TStatusBar;
-    tmrEkran: TTimer;
     ValueListEditor1: TValueListEditor;
     procedure btnCalistirClick(Sender: TObject);
     procedure btnBellekClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormShow(Sender: TObject);
-    procedure tmrEkranTimer(Sender: TObject);
   private
     IslenenKomut: Byte;
     KomutModDegistir: Boolean;      // $66 öneki
@@ -60,6 +68,7 @@ type
     function YigindanAl(AVeriUzunlugu: LongWord): LongWord;
     function DosyaYukle(ADosyaAdi: string; ABellekAdresi: LongWord): string;
     procedure EkraniKartiniYukle;
+    procedure BiosYukle;
   public
 
   end;
@@ -67,44 +76,40 @@ type
 var
   frmAnaSayfa: TfrmAnaSayfa;
   DosyaU: Int64;
+  Ekran : TEkran;
 
 implementation
 
 {$R *.lfm}
 uses islevler, bellekfrm;
 
-procedure TfrmAnaSayfa.FormCreate(Sender: TObject);
-var
-  i: Integer;
+constructor TEkran.Create(CreateSuspended: Boolean);
 begin
 
-  SetLength(Bellek144MB, DISKET_BOYUT + ($7C0 * $10));
-
-  for i := 0 to 65535 do Portlar[i] := 0;
+  inherited Create(CreateSuspended);
+  FreeOnTerminate := True;
 end;
 
-procedure TfrmAnaSayfa.FormShow(Sender: TObject);
-var
-  Hata: string;
+procedure TEkran.Execute;
 begin
 
-  // bios işlevlerini 0 adresine yükle
-  Hata := DosyaYukle('bios.bin', 0);
-  if(Length(Hata) = 0) then
-    BiosYuklendi := True
-  else BiosYuklendi := False;
+  Synchronize(@Yenile);
+  while (not Terminated) do
+  begin
 
-  EkraniKartiniYukle;
+    Synchronize(@Yenile);
+    Sleep(50);
+  end;
 end;
 
-procedure TfrmAnaSayfa.tmrEkranTimer(Sender: TObject);
+procedure TEkran.Yenile;
 var
   x, y, i: Integer;
   Kar: Char;
   Renk: Byte;
 begin
 
-  pnlEkran.Canvas.Clear;
+  frmAnaSayfa.pnlEkran.Canvas.Clear;
   i := $B8000;
 
   for y := 0 to 24 do
@@ -116,17 +121,42 @@ begin
       Kar := PChar(@Bellek144MB[i + 0])^;
       Renk := PByte(@Bellek144MB[i + 1])^;
 
-      pnlEkran.Canvas.Brush.Color := RENKLER_YAZI[(Renk shr 4) and %1111];
-      pnlEkran.Canvas.Font.Color := RENKLER_YAZI[Renk and %1111];
-      pnlEkran.Canvas.TextOut(x * 8, y * 16, Kar);
+      frmAnaSayfa.pnlEkran.Canvas.Brush.Color := RENKLER_YAZI[(Renk shr 4) and %1111];
+      frmAnaSayfa.pnlEkran.Canvas.Font.Color := RENKLER_YAZI[Renk and %1111];
+      frmAnaSayfa.pnlEkran.Canvas.TextOut(x * 8, y * 16, Kar);
 
       Inc(i, 2);
     end;
   end;
 end;
 
+procedure TfrmAnaSayfa.FormCreate(Sender: TObject);
+var
+  i: Integer;
+begin
+
+  SetLength(Bellek144MB, DISKET_BOYUT + ($7C0 * $10));
+
+  for i := 0 to 65535 do Portlar[i] := 0;
+
+  Ekran := TEkran.Create(True);
+end;
+
+procedure TfrmAnaSayfa.FormShow(Sender: TObject);
+begin
+
+  BiosYukle;
+
+  EkraniKartiniYukle;
+
+  Ekran.Start;
+end;
+
 procedure TfrmAnaSayfa.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
+
+  Ekran.Terminate;
+  Ekran.WaitFor;
 
   // sanal bilgisayar çalışıyorsa, durdur
   if(SB_CALISIYOR) then btnCalistirClick(Self);
@@ -142,6 +172,8 @@ begin
   if not(SB_CALISIYOR) then
   begin
 
+    BiosYukle;
+    EkraniKartiniYukle;
     YazmaclariSifirla;
 
     DosyaU := 0;
@@ -704,6 +736,18 @@ begin
   Yaz(0, ProgramAdi);
   Yaz(1, 'Surum: ' + SurumNo);
   Yaz(2, 'Kodlayan: ' + Kodlayan);
+end;
+
+procedure TfrmAnaSayfa.BiosYukle;
+var
+  Hata: string;
+begin
+
+  // bios işlevlerini 0 adresine yükle
+  Hata := DosyaYukle('bios.bin', 0);
+  if(Length(Hata) = 0) then
+    BiosYuklendi := True
+  else BiosYuklendi := False;
 end;
 
 end.

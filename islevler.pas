@@ -124,6 +124,11 @@ const
     ('eax', 'ecx', 'edx', 'ebx', 'esp', 'ebp', 'esi', 'edi',
      'cs', 'ds', 'es', 'ss', 'fs', 'gs', 'eip');
 
+  // bellek atamaları, tablo 1, mod 0
+  Bellekler10: array[0..7] of string =
+    ('[bx+si]', '[bx+di]', '[bp+si]', '[bp+di]', '[si]', '[di]', '[disp16]', 'bx');
+
+
 var
   ISLEMCI_CM: Integer = ICM_BIT16;
   SB_CALISIYOR: Boolean = False;              // sanal bilgisayar çalışıyor mu?
@@ -215,7 +220,8 @@ begin
       D11 := PByte(@YZMC_DEGERSN[DegerSN] + 1)^;
       Result := (D11 and $FF);
     end;
-    YZMC_AX, YZMC_CX, YZMC_DX, YZMC_BX, YZMC_SP, YZMC_BP, YZMC_SI, YZMC_DI:
+    YZMC_AX, YZMC_CX, YZMC_DX, YZMC_BX, YZMC_SP, YZMC_BP, YZMC_SI, YZMC_DI,
+    YZMC_CS, YZMC_DS, YZMC_ES, YZMC_SS, YZMC_FS, YZMC_GS, YZMC_IP:
     begin
 
       D21 := PWord(@YZMC_DEGERSN[DegerSN] + 0)^;

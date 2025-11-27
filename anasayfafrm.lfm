@@ -266,9 +266,4 @@ object frmAnaSayfa: TfrmAnaSayfa
       TabOrder = 1
     end
   end
-  object tmrEkran: TTimer
-    OnTimer = tmrEkranTimer
-    Left = 40
-    Top = 120
-  end
 end

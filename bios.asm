@@ -69,8 +69,24 @@ islevINT15:
         mov     bx,15
         iret
 islevINT16:
-        mov     di,0xb800
+        mov     bx,ax
+        mov     ax,0xb800
+        mov     es,ax
+        mov     ax,0
+        mov     ax,[adres]
+        mov     di,ax
+        inc     ax
+        inc     ax
+        mov     [adres],ax
+        mov     ax,bx
+        mov     [di],al
+        inc     di
+        mov     al,15
+        mov     [di],al
         iret
+
+adres   dw      0
+
 islevINT17:
         mov     bx,17
         iret

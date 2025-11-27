@@ -12,13 +12,19 @@ basla:
 ;        mov     sp,10
         mov     bp,10
         mov     si,10
-        mov     di,10
+
+;        mov     bx,[0x1000]
 kesme:
-;        mov     [di],al
+        mov     al,'A'
+
+;        mov     [0xb800],byte 5
+;        mov     [0xb800],byte 5
+
+;        mov     ax,[0]
         int     0x10
         jmp     kesme
 
 arge:
         nop
-        mov     [di],al
+        mov     eax,[arge]
         nop
