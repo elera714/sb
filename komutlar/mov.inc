@@ -161,7 +161,7 @@ begin
 
   D21 := PWord(@Bellek144MB[Adres + 1])^;
   YazmacDegistir2(YZMC_AL, PByte(@Bellek144MB[D21])^ and $FF);
-  {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.4x],al', [D21]); {$ENDIF}
+  {$IFDEF DEBUG} mmCikti.Lines.Add('mov al,[$%.4x]', [D21]); {$ENDIF}
   IPDegeriniArtir(1 + 2);
 end
 else if(IslenenKomut = $A1) then
@@ -173,7 +173,7 @@ begin
 
     D21 := PWord(@Bellek144MB[Adres + 1])^;
     YazmacDegistir2(YZMC_EAX, PLongWord(@Bellek144MB[D21])^);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.8x],eax', [D21]); {$ENDIF}
+    {$IFDEF DEBUG} mmCikti.Lines.Add('mov eax,[$%.8x]', [D21]); {$ENDIF}
 
     IPDegeriniArtir(1 + 2);
   end
@@ -222,6 +222,7 @@ begin
   end;
 end
 // B0+ rb - MOV r8,imm8 - Move imm8 to r8
+{ TODO - mov     dl,1 çalışmıyor }
 else if(IslenenKomut >= $B0 + YZMC0_EAX) and (IslenenKomut <= $B0 + YZMC0_EDI) then
 begin
 

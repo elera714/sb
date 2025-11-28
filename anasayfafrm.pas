@@ -51,7 +51,8 @@ type
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormShow(Sender: TObject);
   private
-    IslenenKomut: Byte;
+    IslenenKomut,
+    BirSonrakiKomut: Byte;
     KomutModDegistir: Boolean;      // $66 öneki
     procedure Yorumla;
     function Isle(ACS, AIP: Integer): Boolean;
@@ -301,7 +302,8 @@ begin
 
   Adres := (ACS * $10) + AIP;
 
-  IslenenKomut := Bellek144MB[Adres];
+  IslenenKomut := Bellek144MB[Adres + 0];
+  BirSonrakiKomut := Bellek144MB[Adres + 1];
 
   // Operand-size override, 66H
   if(IslenenKomut = $66) then
@@ -313,6 +315,86 @@ begin
     // işlemci komutunun 16/32 bit değişimini gerçekleştirir
     KomutModDegistir := True;
   end
+
+  // 04 ib - ADD AL,imm8 - Add imm8 to AL
+{  else if(IslenenKomut = $04) then
+  begin
+
+    D11 := PByte(@Bellek144MB[Adres + 1])^;
+    YazmacDegistir2(YZMC_AL, D11, True);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('mov al,[$%.4x]', [D21]); {$ENDIF}
+    IPDegeriniArtir(2);
+  end
+  else if(IslenenKomut = $A1) then
+  begin
+
+    // 05 id - ADD EAX,imm32 - Add imm32 to EAX
+    if(KomutModDegistir) then
+    begin
+
+      D21 := PWord(@Bellek144MB[Adres + 1])^;
+      YazmacDegistir2(YZMC_EAX, PLongWord(@Bellek144MB[D21])^);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('mov eax,[$%.8x]', [D21]); {$ENDIF}
+
+      IPDegeriniArtir(1 + 2);
+    end
+    // 05 iw - ADD AX,imm16 - Add imm16 to AX
+    else
+    begin
+
+      D21 := PWord(@Bellek144MB[Adres + 1])^;
+      YazmacDegistir2(YZMC_AX, PWord(@Bellek144MB[D21])^ and $FFFF);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('mov ax,[$%.4x]', [D21]); {$ENDIF}
+
+      IPDegeriniArtir(1 + 2);
+    end;
+  end
+}
+
+
+
+
+  // FA - CLI - Clear interrupt flag; interrupts disabled when interrupt flag cleared
+  else if(IslenenKomut = $FA) then
+  begin
+
+    BayrakDegistir(BAYRAK_IF, True);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('cli', []); {$ENDIF}
+    IPDegeriniArtir;
+  end
+  // FB - STI - Set interrupt flag; external, maskable interrupts enabled at the end of the next instruction
+  else if(IslenenKomut = $FB) then
+  begin
+
+    BayrakDegistir(BAYRAK_IF);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('sti', []); {$ENDIF}
+    IPDegeriniArtir;
+  end
+
+
+  // 6B /r ib - IMUL r16,imm8 - word register ← word register ∗ sign-extended immediate byte
+  else if(IslenenKomut = $6B) then
+  begin
+
+    D11 := BirSonrakiKomut;
+
+    // yazmaç ataması
+    if((D11 and %11000000) = %11000000) then
+    begin
+
+      D41 := MYB16[(D11 and %00000111)];          // çarpma işlemi yapılacak yazmaç
+      D42 := YazmacDegerAl(D41);
+      D11 := PByte(@Bellek144MB[Adres + 2])^;
+
+      YazmacDegistir2(D41, D42 * D11);
+
+      {$IFDEF DEBUG} mmCikti.Lines.Add('imul %s,%d', [Yazmaclar16[D41 and $FF], D11]); {$ENDIF}
+      IPDegeriniArtir(1 + 2);
+
+    end else Result := False;
+  end
+
+  {$i komutlar\add.inc}
   {$i komutlar\call.inc}
   {$i komutlar\clc.inc}
   {$i komutlar\dec.inc}
@@ -327,6 +409,7 @@ begin
   {$i komutlar\nop.inc}
   {$i komutlar\out.inc}
   {$i komutlar\push.inc}
+  {$i komutlar\pop.inc}
   {$i komutlar\ret.inc}
   {$i komutlar\stc.inc}
   {$i komutlar\test.inc}
@@ -389,7 +472,8 @@ begin
       else D11 := (ADeger and $FF);
       PByte(@YZMC_DEGERSN[DegerSN] + 1)^ := D11;
     end;
-    YZMC_AX, YZMC_CX, YZMC_DX, YZMC_BX, YZMC_SP, YZMC_BP, YZMC_SI, YZMC_DI:
+    YZMC_AX, YZMC_CX, YZMC_DX, YZMC_BX, YZMC_SP, YZMC_BP, YZMC_SI, YZMC_DI,
+    YZMC_CS, YZMC_DS, YZMC_ES, YZMC_SS, YZMC_FS, YZMC_GS:
     begin
 
       D21 := PWord(@YZMC_DEGERSN[DegerSN] + 0)^;

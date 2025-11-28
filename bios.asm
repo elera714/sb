@@ -1,3 +1,5 @@
+YM_EKRAN_ADDR   equ     0xB800          ; yazý mod ekran adresi
+
 ;bios kesmeleri
 dw      islevINT00,0
 dw      islevINT01,0
@@ -69,23 +71,33 @@ islevINT15:
         mov     bx,15
         iret
 islevINT16:
-        mov     bx,ax
-        mov     ax,0xb800
+        push    ax
+        push    dx
+
+        push    ax
+        mov     ax,YM_EKRAN_ADDR
         mov     es,ax
-        mov     ax,0
+
         mov     ax,[adres]
         mov     di,ax
-        inc     ax
-        inc     ax
+
+        mov     dx,2
+        add     ax,dx
         mov     [adres],ax
-        mov     ax,bx
+
+        pop     ax
         mov     [di],al
         inc     di
         mov     al,15
         mov     [di],al
+
+        pop     dx
+        pop     ax
         iret
 
-adres   dw      0
+adres   dw      3 * 80 * 2
+gosterge_x      dw      0
+gosterge_y      dw      4
 
 islevINT17:
         mov     bx,17

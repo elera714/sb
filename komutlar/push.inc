@@ -84,25 +84,19 @@ begin
   {$IFDEF DEBUG} mmCikti.Lines.Add('push es'); {$ENDIF}
   IPDegeriniArtir;
 end
-else if(IslenenKomut = $0F) then
+// 0F A0 - PUSH FS - Push FS
+else if(IslenenKomut = $0F) and (BirSonrakiKomut = $A0) then
 begin
 
-  D11 := PByte(@Bellek144MB[Adres + 1])^;
+  YiginaEkle2(YZMC_FS);
+  {$IFDEF DEBUG} mmCikti.Lines.Add('push fs'); {$ENDIF}
+  IPDegeriniArtir(2);
+end
+// 0F A8 - PUSH GS - Push GS
+else if(IslenenKomut = $0F) and (BirSonrakiKomut = $A8) then
+begin
 
-  // 0F A0 - PUSH FS - Push FS
-  if(D11 = $A0) then
-  begin
-
-    YiginaEkle2(YZMC_FS);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('push fs'); {$ENDIF}
-  end
-  // 0F A8 - PUSH GS - Push GS
-  else if(D11 = $A8) then
-  begin
-
-    YiginaEkle2(YZMC_GS);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('push gs'); {$ENDIF}
-  end;
-
+  YiginaEkle2(YZMC_GS);
+  {$IFDEF DEBUG} mmCikti.Lines.Add('push gs'); {$ENDIF}
   IPDegeriniArtir(2);
 end
