@@ -255,3 +255,58 @@ begin
     IPDegeriniArtir(1 + 2);
   end;
 end
+// C6 /0 - MOV r/m8,imm8 - Move imm8 to r/m8
+else if(IslenenKomut = $C6) then
+begin
+
+  D11 := BirSonrakiKomut;
+
+  // bellek bölgesi ataması
+  if((D11 and %00000110) = %00000110) then
+  begin
+
+    D21 := PWord(@Bellek144MB[Adres + 2])^;
+    D11 := PByte(@Bellek144MB[Adres + 4])^;
+    PByte(@Bellek144MB[D21])^ := D11;
+
+    {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.2x],byte %d', [D21, D11]); {$ENDIF}
+    IPDegeriniArtir(2 + 3);
+
+  end else Result := False;
+end
+else if(IslenenKomut = $C7) then
+begin
+
+  D11 := BirSonrakiKomut;
+
+  // bellek bölgesi ataması
+  if((D11 and %00000110) = %00000110) then
+  begin
+
+    // C7 /0 - MOV r/m32,imm32 - Move imm32 to r/m32
+    if(KomutModDegistir) then
+    begin
+
+      D21 := PWord(@Bellek144MB[Adres + 2])^;
+      D41 := PLongWord(@Bellek144MB[Adres + 4])^;
+      PLongWord(@Bellek144MB[D21])^ := D41;
+
+      {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.8x],dword %d', [D21, D41]); {$ENDIF}
+      IPDegeriniArtir(2 + 6);
+
+      mmCikti.Lines.Add('mov [$%.8x],dword %d', [D21, D41]);
+    end
+    else
+    // C7 /0 - MOV r/m16,imm16 - Move imm16 to r/m16
+    begin
+
+      D21 := PWord(@Bellek144MB[Adres + 2])^;
+      D22 := PWord(@Bellek144MB[Adres + 4])^;
+      PWord(@Bellek144MB[D21])^ := D22;
+
+      {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.4x],word %d', [D21, D22]); {$ENDIF}
+      IPDegeriniArtir(2 + 4);
+    end;
+
+  end else Result := False;
+end

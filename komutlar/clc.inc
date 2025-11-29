@@ -2,7 +2,7 @@
 else if(IslenenKomut = $F8) then
 begin
 
-  BayrakDegistir(BAYRAK_CF, True);
+  BayrakDegistir(BAYRAK_CF, False);
   {$IFDEF DEBUG} mmCikti.Lines.Add('clc', []); {$ENDIF}
   IPDegeriniArtir;
 end

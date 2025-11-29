@@ -78,12 +78,12 @@ islevINT16:
         mov     ax,YM_EKRAN_ADDR
         mov     es,ax
 
-        mov     ax,[adres]
+        mov     ax,[gosterge_y]
+        imul    ax,80
         mov     di,ax
-
-        mov     dx,2
-        add     ax,dx
-        mov     [adres],ax
+        mov     ax,[gosterge_x]
+        add     di,ax
+        imul    di,2
 
         pop     ax
         mov     [di],al
@@ -91,11 +91,27 @@ islevINT16:
         mov     al,15
         mov     [di],al
 
+        mov     ax,[gosterge_y]
+        mov     bx,ax
+        mov     ax,[gosterge_x]
+        inc     ax
+        cmp     al,80
+;        cmp     ax,0x0050      ; 0x83 0xf8 0x50 olarak yorumlanýyor. 0x3d deðil!!
+;        db      0x99
+        jz      i2
+        jmp     i3
+i2:
+        mov     ax,0
+        inc     bx
+i3:
+        mov     [gosterge_x],ax
+        mov     ax,bx
+        mov     [gosterge_y],ax
+
         pop     dx
         pop     ax
         iret
 
-adres   dw      3 * 80 * 2
 gosterge_x      dw      0
 gosterge_y      dw      4
 

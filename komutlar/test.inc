@@ -16,7 +16,7 @@ begin
 
     if((D43 and D44) = 0) then
       BayrakDegistir(BAYRAK_ZF)
-    else BayrakDegistir(BAYRAK_ZF, True);
+    else BayrakDegistir(BAYRAK_ZF, False);
 
     if((D41 and $FF) >= $40) then D41 := (D41 shr 4) and $F else D41 := D41 and $F;
     if((D42 and $FF) >= $40) then D42 := (D42 shr 4) and $F else D42 := D42 and $F;
@@ -45,7 +45,7 @@ begin
 
       if((D43 and D44) = 0) then
         BayrakDegistir(BAYRAK_ZF)
-      else BayrakDegistir(BAYRAK_ZF, True);
+      else BayrakDegistir(BAYRAK_ZF, False);
 
       {$IFDEF DEBUG} mmCikti.Lines.Add('test %s,%s', [Yazmaclar32[D41 and $FF], Yazmaclar32[D42 and $FF]]); {$ENDIF}
     end
@@ -60,7 +60,7 @@ begin
 
       if((D43 and D44) = 0) then
         BayrakDegistir(BAYRAK_ZF)
-      else BayrakDegistir(BAYRAK_ZF, True);
+      else BayrakDegistir(BAYRAK_ZF, False);
 
       {$IFDEF DEBUG} mmCikti.Lines.Add('test %s,%s', [Yazmaclar16[D41 and $FF], Yazmaclar16[D42 and $FF]]); {$ENDIF}
     end;

@@ -58,7 +58,7 @@ type
     function Isle(ACS, AIP: Integer): Boolean;
     procedure YazmacDegistir(AYazmacSN, ADeger: Integer; AArtir: Boolean = False);
     procedure YazmacDegistir2(AHedefYazmacSN, ADeger: LongInt; AArtir: Boolean = False);
-    procedure BayrakDegistir(AHedefBayrak: LongWord; ASifirla: Boolean = False);
+    procedure BayrakDegistir(AHedefBayrak: LongWord; AAktiflestir: Boolean = True);
     procedure YazmaclariSifirla;
     procedure BellegeKopyala(AKaynak, AHedef: Pointer; AHedefBellekBaslangic,
       AUzunluk: Integer);
@@ -286,6 +286,10 @@ var
   D41, D42,
   D43, D44: LongWord;   // işaretsiz 32 bit
 
+  I11: ShortInt;
+  I21: SmallInt;
+  I41: LongInt;
+
   // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
   procedure IPDegeriniArtir(AArtir: Integer = 1);
   var
@@ -358,7 +362,7 @@ begin
   else if(IslenenKomut = $FA) then
   begin
 
-    BayrakDegistir(BAYRAK_IF, True);
+    BayrakDegistir(BAYRAK_IF, False);
     {$IFDEF DEBUG} mmCikti.Lines.Add('cli', []); {$ENDIF}
     IPDegeriniArtir;
   end
@@ -372,32 +376,14 @@ begin
   end
 
 
-  // 6B /r ib - IMUL r16,imm8 - word register ← word register ∗ sign-extended immediate byte
-  else if(IslenenKomut = $6B) then
-  begin
 
-    D11 := BirSonrakiKomut;
-
-    // yazmaç ataması
-    if((D11 and %11000000) = %11000000) then
-    begin
-
-      D41 := MYB16[(D11 and %00000111)];          // çarpma işlemi yapılacak yazmaç
-      D42 := YazmacDegerAl(D41);
-      D11 := PByte(@Bellek144MB[Adres + 2])^;
-
-      YazmacDegistir2(D41, D42 * D11);
-
-      {$IFDEF DEBUG} mmCikti.Lines.Add('imul %s,%d', [Yazmaclar16[D41 and $FF], D11]); {$ENDIF}
-      IPDegeriniArtir(1 + 2);
-
-    end else Result := False;
-  end
 
   {$i komutlar\add.inc}
   {$i komutlar\call.inc}
   {$i komutlar\clc.inc}
+  {$i komutlar\cmp.inc}
   {$i komutlar\dec.inc}
+  {$i komutlar\imul.inc}
   {$i komutlar\in.inc}
   {$i komutlar\inc.inc}
   {$i komutlar\int.inc}
@@ -413,6 +399,7 @@ begin
   {$i komutlar\ret.inc}
   {$i komutlar\stc.inc}
   {$i komutlar\test.inc}
+  {$i komutlar\xor.inc}
   else Result := False;
 end;
 
@@ -498,14 +485,14 @@ begin
   Application.ProcessMessages;
 end;
 
-procedure TfrmAnaSayfa.BayrakDegistir(AHedefBayrak: LongWord; ASifirla: Boolean = False);
+procedure TfrmAnaSayfa.BayrakDegistir(AHedefBayrak: LongWord; AAktiflestir: Boolean = True);
 var
   V41: LongWord;         // işaretsiz 32 bit
 begin
 
-  if(ASifirla) then
-    ClearBit(Bayraklar, AHedefBayrak)
-  else SetBit(Bayraklar, AHedefBayrak);
+  if(AAktiflestir) then
+    SetBit(Bayraklar, AHedefBayrak)
+  else ClearBit(Bayraklar, AHedefBayrak);
 
   V41 := (Bayraklar shr AHedefBayrak) and 1;
 
