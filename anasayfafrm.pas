@@ -67,7 +67,7 @@ type
     procedure YiginaEkle(ADeger, AVeriUzunlugu: LongWord);
     procedure YiginaEkle2(AHedefYazmacSN: Integer);
     function YigindanAl(AVeriUzunlugu: LongWord): LongWord;
-    function DosyaYukle(ADosyaAdi: string; ABellekAdresi: LongWord): string;
+    function DosyaYukle(ADosyaAdi: string; ABellekAdresi, ABoyut: LongWord): string;
     procedure EkraniKartiniYukle;
     procedure BiosYukle;
   public
@@ -189,8 +189,8 @@ begin
       Hata := 'Hata: bios işlevleri yüklenemedi!'
     else Hata := '';
 
-    // imaj dosyasını $7c0 adresine yükle
-    if(Length(Hata) = 0) then Hata := DosyaYukle(cbIslenecekDosya.Text, $07C0 * $10);
+    // imaj dosyasını $7C0 adresine yükle
+    if(Length(Hata) = 0) then Hata := DosyaYukle(cbIslenecekDosya.Text, $07C0 * $10, 512);
 
     if(Length(Hata) = 0) then
     begin
@@ -746,7 +746,7 @@ begin
   Application.ProcessMessages;
 end;
 
-function TfrmAnaSayfa.DosyaYukle(ADosyaAdi: string; ABellekAdresi: LongWord): string;
+function TfrmAnaSayfa.DosyaYukle(ADosyaAdi: string; ABellekAdresi, ABoyut: LongWord): string;
 var
   FS: TFileStream;
 begin
@@ -757,6 +757,8 @@ begin
     FS := TFileStream.Create(ADosyaAdi, fmOpenRead);
     FS.Position := 0;
     DosyaU := FS.Size;
+
+    if(DosyaU > ABoyut) then DosyaU := ABoyut;
 
     if(DosyaU <= DISKET_BOYUT) then
       FS.Read(Bellek144MB[ABellekAdresi], DosyaU)
@@ -815,7 +817,7 @@ var
 begin
 
   // bios işlevlerini 0 adresine yükle
-  Hata := DosyaYukle('bios.bin', 0);
+  Hata := DosyaYukle('bios.bin', 0, 512);
   if(Length(Hata) = 0) then
     BiosYuklendi := True
   else BiosYuklendi := False;

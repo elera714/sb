@@ -19,6 +19,8 @@ i0:
 ;        mov     bx,[0x1000]
         mov     al,'A'
 kesme:
+        use16
+        xor     ax,ax
 
 ;        mov     ax,[0]
 
@@ -34,5 +36,5 @@ kesme:
 
 arge:
         nop
-        mov     [0x1010], dword 1
+        xor     ax,ax
         nop

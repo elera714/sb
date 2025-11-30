@@ -1,5 +1,5 @@
 // 30 /r - XOR r/m8,r8 - r/m8 XOR r8
-else if(IslenenKomut = $30) then
+else if(IslenenKomut = $30) or (IslenenKomut = $32) then
 begin
 
   D11 := BirSonrakiKomut;
@@ -23,7 +23,7 @@ begin
 
   end else Result := False;
 end
-else if(IslenenKomut = $31) then
+else if(IslenenKomut = $31) or (IslenenKomut = $33) then
 begin
 
   D11 := BirSonrakiKomut;
