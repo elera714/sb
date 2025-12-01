@@ -19,13 +19,12 @@ i0:
 ;        mov     bx,[0x1000]
         mov     al,'A'
 kesme:
-        use16
-        xor     ax,ax
-
-;        mov     ax,[0]
 
         int     0x10
         inc     ax
+
+        stc
+        jnc     kesme
 
 ;        inc     al
         cmp     al,'Z'
@@ -36,5 +35,5 @@ kesme:
 
 arge:
         nop
-        xor     ax,ax
+        jnc     arge
         nop

@@ -115,7 +115,7 @@ const
   // Yazmaclar8, Instruction Set Reference Manual - tablo 2.1, 2.2, 2.3 değerlerine
   // yapılandırılmıştır
   Yazmaclar8: array[0..7] of string =
-    ('al', 'cl', 'dl', 'bl', 'ah', 'dh', 'ch', 'bh');
+    ('al', 'cl', 'dl', 'bl', 'ah', 'ch', 'dh', 'bh');
 
   Yazmaclar16: array[YZMC0_EAX..YZMC0_EIP] of string =
     ('ax', 'cx', 'dx', 'bx', 'sp', 'bp', 'si', 'di',

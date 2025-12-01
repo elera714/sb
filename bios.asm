@@ -11,16 +11,16 @@ dw      islevINT06,0
 dw      islevINT07,0
 dw      islevINT08,0
 dw      islevINT09,0
+dw      islevINT0A,0
+dw      islevINT0B,0
+dw      islevINT0C,0
+dw      islevINT0D,0
+dw      islevINT0E,0
+dw      islevINT0F,0
 dw      islevINT10,0
 dw      islevINT11,0
 dw      islevINT12,0
 dw      islevINT13,0
-dw      islevINT14,0
-dw      islevINT15,0
-dw      islevINT16,0
-dw      islevINT17,0
-dw      islevINT18,0
-dw      islevINT19,0
 
 islevINT00:
         mov     bx,0
@@ -52,27 +52,31 @@ islevINT08:
 islevINT09:
         mov     bx,9
         iret
-islevINT10:
+islevINT0A:
         mov     bx,10
         iret
-islevINT11:
+islevINT0B:
         mov     bx,11
         iret
-islevINT12:
+islevINT0C:
         mov     bx,12
         iret
-islevINT13:
+islevINT0D:
         mov     bx,13
         iret
-islevINT14:
+islevINT0E:
         mov     bx,14
         iret
-islevINT15:
+islevINT0F:
         mov     bx,15
         iret
-islevINT16:
+islevINT10:
+        push    es
         push    ax
         push    dx
+        push    di
+        push    ax
+        push    bx
 
         push    ax
         mov     ax,YM_EKRAN_ADDR
@@ -108,19 +112,53 @@ i3:
         mov     ax,bx
         mov     [gosterge_y],ax
 
+        pop     bx
+        pop     ax
+        pop     di
         pop     dx
         pop     ax
+        pop     es
         iret
 
 gosterge_x      dw      0
 gosterge_y      dw      4
 
-islevINT17:
+islevINT11:
         mov     bx,17
         iret
-islevINT18:
+islevINT12:
         mov     bx,18
         iret
-islevINT19:
-        mov     bx,19
+islevINT13:
+        stc
+        iret
+        push    ax
+        push    dx
+
+        mov     ax,YM_EKRAN_ADDR
+        mov     es,ax
+
+        xor     ax,ax
+        xor     di,di
+        xor     cx,cx
+.tekrar:
+        mov     al,'!'
+        mov     [di],al
+        inc     di
+        mov     al,0x4F
+        mov     [di],al
+        inc     di
+;        inc     cx
+;        cmp     cx,10
+;        je      .hata
+;        jmp     .tekrar
+
+.hata:
+;        jmp     .hata
+        pop     dx
+        pop     ax
+
+        stc
+        iret
+
         iret

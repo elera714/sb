@@ -375,6 +375,22 @@ begin
     IPDegeriniArtir;
   end
 
+  // FC - CLD - Clear DF flag
+  else if(IslenenKomut = $FC) then
+  begin
+
+    BayrakDegistir(BAYRAK_DF, False);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('cld', []); {$ENDIF}
+    IPDegeriniArtir;
+  end
+  // FD - STD - Set DF flag
+  else if(IslenenKomut = $FD) then
+  begin
+
+    BayrakDegistir(BAYRAK_DF);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('std', []); {$ENDIF}
+    IPDegeriniArtir;
+  end
 
 
 
