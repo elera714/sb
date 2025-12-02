@@ -35,5 +35,5 @@ kesme:
 
 arge:
         nop
-        jnc     arge
+        dec     byte [0x10]
         nop

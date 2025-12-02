@@ -375,21 +375,31 @@ begin
     IPDegeriniArtir;
   end
 
-  // FC - CLD - Clear DF flag
-  else if(IslenenKomut = $FC) then
+  // FE /1 - DEC r/m8 - Decrement r/m8 by 1
+  else if(IslenenKomut = $FE) then
   begin
 
-    BayrakDegistir(BAYRAK_DF, False);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('cld', []); {$ENDIF}
-    IPDegeriniArtir;
-  end
-  // FD - STD - Set DF flag
-  else if(IslenenKomut = $FD) then
-  begin
+    D11 := PByte(@Bellek144MB[Adres + 1])^;
 
-    BayrakDegistir(BAYRAK_DF);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('std', []); {$ENDIF}
-    IPDegeriniArtir;
+    if((D11 and %00001110) = %00001110) then
+    begin
+
+      D21 := PWord(@Bellek144MB[Adres + 2])^;
+      D11 := PByte(@Bellek144MB[D21])^;
+      D11 := D11 -1;
+      PByte(@Bellek144MB[D21])^ := D11;
+
+      if(D11 = 0) then
+        BayrakDegistir(BAYRAK_ZF)
+      else BayrakDegistir(BAYRAK_ZF, False);
+
+      {$IFDEF DEBUG} mmCikti.Lines.Add('dec [$%.2x]', [D21]); {$ENDIF}
+      IPDegeriniArtir(2 + 2);
+
+      // mmCikti.Lines.Add('dec [$%.2x]', [D21]);
+      // mmCikti.Lines.Add('dec [$%.2x]', [D11]);
+
+    end else Result := False;
   end
 
 
@@ -397,6 +407,7 @@ begin
   {$i komutlar\add.inc}
   {$i komutlar\call.inc}
   {$i komutlar\clc.inc}
+  {$i komutlar\cld.inc}
   {$i komutlar\cmp.inc}
   {$i komutlar\dec.inc}
   {$i komutlar\imul.inc}
@@ -414,6 +425,7 @@ begin
   {$i komutlar\pop.inc}
   {$i komutlar\ret.inc}
   {$i komutlar\stc.inc}
+  {$i komutlar\std.inc}
   {$i komutlar\test.inc}
   {$i komutlar\xor.inc}
   else Result := False;
