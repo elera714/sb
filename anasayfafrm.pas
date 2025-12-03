@@ -56,8 +56,7 @@ type
     KomutModDegistir: Boolean;      // $66 öneki
     procedure Yorumla;
     function Isle(ACS, AIP: Integer): Boolean;
-    procedure YazmacDegistir(AYazmacSN, ADeger: Integer; AArtir: Boolean = False);
-    procedure YazmacDegistir2(AHedefYazmacSN, ADeger: LongInt; AArtir: Boolean = False);
+    procedure YazmacDegistir(AHedefYazmacSN, ADeger: LongInt; AArtir: Boolean = False);
     procedure BayrakDegistir(AHedefBayrak: LongWord; AAktiflestir: Boolean = True);
     procedure YazmaclariSifirla;
     procedure BellegeKopyala(AKaynak, AHedef: Pointer; AHedefBellekBaslangic,
@@ -242,8 +241,8 @@ begin
 
       Islendi := Isle(YZMC_DEGERSN[YZMC0_CS], YZMC_DEGERSN[YZMC0_EIP]);
 
-      YazmacDegistir(YZMC0_CS, YZMC_DEGERSN[YZMC0_CS]);
-      YazmacDegistir(YZMC0_EIP, YZMC_DEGERSN[YZMC0_EIP]);
+      YazmacDegistir(YZMC_CS, YZMC_DEGERSN[YZMC_CS and $FF]);
+      YazmacDegistir(YZMC_IP, YZMC_DEGERSN[YZMC_IP and $FF]);
 
       if(Islendi) then
       begin
@@ -281,8 +280,8 @@ var
   D11, D12,
   D13, D14,
   D15: Byte;            // işaretsiz 8 bit
-  D21,
-  D22: Word;            // işaretsiz 16 bit
+  D21, D22,
+  D23: Word;            // işaretsiz 16 bit
   D41, D42,
   D43, D44: LongWord;   // işaretsiz 32 bit
 
@@ -325,7 +324,7 @@ begin
   begin
 
     D11 := PByte(@Bellek144MB[Adres + 1])^;
-    YazmacDegistir2(YZMC_AL, D11, True);
+    YazmacDegistir(YZMC_AL, D11, True);
     {$IFDEF DEBUG} mmCikti.Lines.Add('mov al,[$%.4x]', [D21]); {$ENDIF}
     IPDegeriniArtir(2);
   end
@@ -337,7 +336,7 @@ begin
     begin
 
       D21 := PWord(@Bellek144MB[Adres + 1])^;
-      YazmacDegistir2(YZMC_EAX, PLongWord(@Bellek144MB[D21])^);
+      YazmacDegistir(YZMC_EAX, PLongWord(@Bellek144MB[D21])^);
       {$IFDEF DEBUG} mmCikti.Lines.Add('mov eax,[$%.8x]', [D21]); {$ENDIF}
 
       IPDegeriniArtir(1 + 2);
@@ -347,7 +346,7 @@ begin
     begin
 
       D21 := PWord(@Bellek144MB[Adres + 1])^;
-      YazmacDegistir2(YZMC_AX, PWord(@Bellek144MB[D21])^ and $FFFF);
+      YazmacDegistir(YZMC_AX, PWord(@Bellek144MB[D21])^ and $FFFF);
       {$IFDEF DEBUG} mmCikti.Lines.Add('mov ax,[$%.4x]', [D21]); {$ENDIF}
 
       IPDegeriniArtir(1 + 2);
@@ -356,24 +355,96 @@ begin
 }
 
 
-
-
-  // FA - CLI - Clear interrupt flag; interrupts disabled when interrupt flag cleared
-  else if(IslenenKomut = $FA) then
+  else if(IslenenKomut = $60) then
   begin
 
-    BayrakDegistir(BAYRAK_IF, False);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('cli', []); {$ENDIF}
+    // 60 - PUSHAD - Push EAX, ECX, EDX, EBX, original ESP, EBP, ESI, and EDI
+    if(KomutModDegistir) then
+    begin
+
+      D41 := YazmacDegerAl(YZMC_ESP);
+      YiginaEkle2(YZMC_EAX);
+      YiginaEkle2(YZMC_ECX);
+      YiginaEkle2(YZMC_EDX);
+      YiginaEkle2(YZMC_EBX);
+      YiginaEkle2(D41); // YZMC_ESP);
+      YiginaEkle2(YZMC_EBP);
+      YiginaEkle2(YZMC_ESI);
+      YiginaEkle2(YZMC_EDI);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('pushad', []); {$ENDIF}
+    end
+    else
+    // 60 - PUSHA - Push AX, CX, DX, BX, original SP, BP, SI, and DI
+    begin
+
+      D21 := YazmacDegerAl(YZMC_SP);
+      YiginaEkle2(YZMC_AX);
+      YiginaEkle2(YZMC_CX);
+      YiginaEkle2(YZMC_DX);
+      YiginaEkle2(YZMC_BX);
+      YiginaEkle2(D21); // YZMC_SP);
+      YiginaEkle2(YZMC_BP);
+      YiginaEkle2(YZMC_SI);
+      YiginaEkle2(YZMC_DI);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('pusha', []); {$ENDIF}
+    end;
+
     IPDegeriniArtir;
   end
-  // FB - STI - Set interrupt flag; external, maskable interrupts enabled at the end of the next instruction
-  else if(IslenenKomut = $FB) then
+
+  { TODO - test edilecek }
+  else if(IslenenKomut = $61) then
   begin
 
-    BayrakDegistir(BAYRAK_IF);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('sti', []); {$ENDIF}
+    // 61 - POPAD - Pop EDI, ESI, EBP, EBX, EDX, ECX, and EAX
+    if(KomutModDegistir) then
+    begin
+
+      D41 := YigindanAl(DU4);
+      YazmacDegistir(YZMC_EDI, D21);
+      D41 := YigindanAl(DU4);
+      YazmacDegistir(YZMC_ESI, D21);
+      D41 := YigindanAl(DU4);
+      YazmacDegistir(YZMC_EBP, D21);
+      D41 := YigindanAl(DU4);
+      //YazmacDegistir(YZMC_ESP, D21);
+      D41 := YigindanAl(DU4);
+      YazmacDegistir(YZMC_EBX, D21);
+      D41 := YigindanAl(DU4);
+      YazmacDegistir(YZMC_EDX, D21);
+      D41 := YigindanAl(DU4);
+      YazmacDegistir(YZMC_ECX, D21);
+      D41 := YigindanAl(DU4);
+      YazmacDegistir(YZMC_EAX, D21);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('popad', []); {$ENDIF}
+    end
+    else
+    // 61 - POPA - Pop DI, SI, BP, BX, DX, CX, and AX
+    begin
+
+      D21 := YigindanAl(DU2);
+      YazmacDegistir(YZMC_DI, D21);
+      D21 := YigindanAl(DU2);
+      YazmacDegistir(YZMC_SI, D21);
+      D21 := YigindanAl(DU2);
+      YazmacDegistir(YZMC_BP, D21);
+      D21 := YigindanAl(DU2);
+      //YazmacDegistir(YZMC_SP, D21);
+      D21 := YigindanAl(DU2);
+      YazmacDegistir(YZMC_BX, D21);
+      D21 := YigindanAl(DU2);
+      YazmacDegistir(YZMC_DX, D21);
+      D21 := YigindanAl(DU2);
+      YazmacDegistir(YZMC_CX, D21);
+      D21 := YigindanAl(DU2);
+      YazmacDegistir(YZMC_AX, D21);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('popa', []); {$ENDIF}
+    end;
+
     IPDegeriniArtir;
   end
+
+
 
   // FE /1 - DEC r/m8 - Decrement r/m8 by 1
   else if(IslenenKomut = $FE) then
@@ -386,7 +457,7 @@ begin
 
       D21 := PWord(@Bellek144MB[Adres + 2])^;
       D11 := PByte(@Bellek144MB[D21])^;
-      D11 := D11 -1;
+      D11 := D11 - 1;
       PByte(@Bellek144MB[D21])^ := D11;
 
       if(D11 = 0) then
@@ -396,7 +467,7 @@ begin
       {$IFDEF DEBUG} mmCikti.Lines.Add('dec [$%.2x]', [D21]); {$ENDIF}
       IPDegeriniArtir(2 + 2);
 
-      // mmCikti.Lines.Add('dec [$%.2x]', [D21]);
+      mmCikti.Lines.Add('dec [$%.2x]', [D21]);
       // mmCikti.Lines.Add('dec [$%.2x]', [D11]);
 
     end else Result := False;
@@ -408,6 +479,7 @@ begin
   {$i komutlar\call.inc}
   {$i komutlar\clc.inc}
   {$i komutlar\cld.inc}
+  {$i komutlar\cli.inc}
   {$i komutlar\cmp.inc}
   {$i komutlar\dec.inc}
   {$i komutlar\imul.inc}
@@ -426,39 +498,13 @@ begin
   {$i komutlar\ret.inc}
   {$i komutlar\stc.inc}
   {$i komutlar\std.inc}
+  {$i komutlar\sti.inc}
   {$i komutlar\test.inc}
   {$i komutlar\xor.inc}
   else Result := False;
 end;
 
-procedure TfrmAnaSayfa.YazmacDegistir(AYazmacSN, ADeger: Integer; AArtir: Boolean = False);
-var
-  i, j: Integer;
-begin
-
-  i := YZMC_DEGERSN[AYazmacSN];
-  case ISLEMCI_CM of
-    ICM_BIT16:
-    begin
-
-      j := i and $FFFF;
-      if(AArtir) then
-        j := j + ADeger
-      else j := ADeger;
-      j := j and $FFFF;
-
-      i := i and $FFFF0000;
-      i := i or j;
-    end else i := -1; { TODO - 32/64 bit kodlama yapılacak }
-  end;
-  YZMC_DEGERSN[AYazmacSN] := i;
-
-  ValueListEditor1.Cells[1, 1 + YZMC_GORSELSN[AYazmacSN]] := '$' + HexStr(i, 8);
-
-  Application.ProcessMessages;
-end;
-
-procedure TfrmAnaSayfa.YazmacDegistir2(AHedefYazmacSN, ADeger: LongInt; AArtir: Boolean = False);
+procedure TfrmAnaSayfa.YazmacDegistir(AHedefYazmacSN, ADeger: LongInt; AArtir: Boolean = False);
 var
   DegerSN: LongWord;
   D11: Byte;            // işaretsiz 8 bit
@@ -488,7 +534,7 @@ begin
       PByte(@YZMC_DEGERSN[DegerSN] + 1)^ := D11;
     end;
     YZMC_AX, YZMC_CX, YZMC_DX, YZMC_BX, YZMC_SP, YZMC_BP, YZMC_SI, YZMC_DI,
-    YZMC_CS, YZMC_DS, YZMC_ES, YZMC_SS, YZMC_FS, YZMC_GS:
+    YZMC_CS, YZMC_DS, YZMC_ES, YZMC_SS, YZMC_FS, YZMC_GS, YZMC_IP:
     begin
 
       D21 := PWord(@YZMC_DEGERSN[DegerSN] + 0)^;
@@ -606,16 +652,16 @@ begin
     YZMC_AL:
     begin
       KaynakDeger := (KaynakDeger and $FF);
-      YazmacDegistir2(YZMC_AL, KaynakDeger);
+      YazmacDegistir(YZMC_AL, KaynakDeger);
     end;
     YZMC_AX:
     begin
       KaynakDeger := (KaynakDeger and $FFFF);
-      YazmacDegistir2(YZMC_AX, KaynakDeger);
+      YazmacDegistir(YZMC_AX, KaynakDeger);
     end;
     YZMC_EAX:
     begin
-      YazmacDegistir2(YZMC_EAX, KaynakDeger);
+      YazmacDegistir(YZMC_EAX, KaynakDeger);
     end;
     else Exit;
   end;
@@ -636,16 +682,16 @@ begin
     YZMC_AL:
     begin
       KaynakDeger := (KaynakDeger and $FF);
-      YazmacDegistir2(YZMC_AL, KaynakDeger);
+      YazmacDegistir(YZMC_AL, KaynakDeger);
     end;
     YZMC_AX:
     begin
       KaynakDeger := (KaynakDeger and $FFFF);
-      YazmacDegistir2(YZMC_AX, KaynakDeger);
+      YazmacDegistir(YZMC_AX, KaynakDeger);
     end;
     YZMC_EAX:
     begin
-      YazmacDegistir2(YZMC_EAX, KaynakDeger);
+      YazmacDegistir(YZMC_EAX, KaynakDeger);
     end;
     else Exit;
   end;

@@ -130,7 +130,7 @@ islevINT12:
         mov     bx,18
         iret
 islevINT13:
-        stc
+        clc
         iret
         push    ax
         push    dx

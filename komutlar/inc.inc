@@ -6,13 +6,13 @@ begin
   if(KomutModDegistir) then
   begin
 
-    YazmacDegistir2(($04 shl 8) or (IslenenKomut - $40), 1, True);
+    YazmacDegistir(($04 shl 8) or (IslenenKomut - $40), 1, True);
     {$IFDEF DEBUG} mmCikti.Lines.Add('inc %s', [Yazmaclar32[IslenenKomut - $40]]); {$ENDIF}
   end
   else
   begin
 
-    YazmacDegistir2(($02 shl 8) or (IslenenKomut - $40), 1, True);
+    YazmacDegistir(($02 shl 8) or (IslenenKomut - $40), 1, True);
     {$IFDEF DEBUG} mmCikti.Lines.Add('inc %s', [Yazmaclar16[IslenenKomut - $40]]); {$ENDIF}
   end;
 

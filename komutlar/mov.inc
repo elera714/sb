@@ -75,7 +75,7 @@ begin
     D43 := YazmacDegerAl(D41);
     D44 := YazmacDegerAl(D42);
 
-    YazmacDegistir2(D41, D44);
+    YazmacDegistir(D41, D44);
 
     if((D41 and $FF) >= $40) then D41 := (D41 shr 4) and $F else D41 := D41 and $F;
     if((D42 and $FF) >= $40) then D42 := (D42 shr 4) and $F else D42 := D42 and $F;
@@ -102,7 +102,7 @@ begin
       D43 := YazmacDegerAl(D41);
       D44 := YazmacDegerAl(D42);
 
-      YazmacDegistir2(D41, D44);
+      YazmacDegistir(D41, D44);
 
       {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s', [Yazmaclar32[D41 and $FF], Yazmaclar32[D42 and $FF]]); {$ENDIF}
     end
@@ -115,7 +115,7 @@ begin
       D43 := YazmacDegerAl(D41);
       D44 := YazmacDegerAl(D42);
 
-      YazmacDegistir2(D41, D44);
+      YazmacDegistir(D41, D44);
 
       {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s', [Yazmaclar16[D41 and $FF], Yazmaclar16[D42 and $FF]]); {$ENDIF}
     end;
@@ -138,7 +138,7 @@ begin
     D12 := PByte(@Bellek144MB[D21])^;
 
     D42 := MYB8[(D11 and %00111000) shr 3];     // hedef yazmaç
-    YazmacDegistir2(D42, D12);
+    YazmacDegistir(D42, D12);
 
     if((D42 and $FF) >= $40) then D42 := (D42 shr 4) and $F else D42 := D42 and $F;
 
@@ -164,7 +164,7 @@ begin
       D42 := PLongWord(@Bellek144MB[D41])^;
 
       D43 := MYB32[(D11 and %00111000) shr 3];     // hedef yazmaç
-      YazmacDegistir2(D43, D42);
+      YazmacDegistir(D43, D42);
 
       {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,[$%.8x]', [Yazmaclar32[D43 and $FF], D41]); {$ENDIF}
       mmCikti.Lines.Add('mov %s,[$%.8x]', [Yazmaclar32[D43 and $FF], D41]);
@@ -179,7 +179,7 @@ begin
       D22 := PWord(@Bellek144MB[D21])^;
 
       D42 := MYB16[(D11 and %00111000) shr 3];     // hedef yazmaç
-      YazmacDegistir2(D42, D22);
+      YazmacDegistir(D42, D22);
 
       {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,[$%.4x]', [Yazmaclar16[D42 and $FF], D21]); {$ENDIF}
 
@@ -195,26 +195,26 @@ begin
   D11 := PByte(@Bellek144MB[Adres + 1])^;
   D12 := (D11 shr 6) and %11;   // alt komut
   D13 := (D11 shr 3) and %111;  // hedef segment
-  D14 := (D11 and %111);        // kaynak yazmaç
   if(D12 = %11) then
   begin
 
     case D13 of
-      0: D15 := 10;
-      1: D15 := 8;
-      2: D15 := 11;
-      3: D15 := 9;
-      4: D15 := 12;
-      5: D15 := 13;
+      0: D21 := ($02 shl 8) or $0A;
+      1: D21 := ($02 shl 8) or $08;
+      2: D21 := ($02 shl 8) or $0B;
+      3: D21 := ($02 shl 8) or $09;
+      4: D21 := ($02 shl 8) or $0C;
+      5: D21 := ($02 shl 8) or $0D;
       else Result := False;
     end;
 
     if(Result) then
     begin
 
-      YZMC_DEGERSN[D15] := YZMC_DEGERSN[D14];
-      YazmacDegistir(D15, YZMC_DEGERSN[D14]);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s', [Yazmaclar16[D15], Yazmaclar16[D14]]); {$ENDIF}
+      D22 := MYB16[D11 and %111];   // kaynak yazmaç
+      D23 := YazmacDegerAl(D22);
+      YazmacDegistir(D21, D23);
+      {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s', [Yazmaclar16[D21 and $F], Yazmaclar16[D22 and $F]]); {$ENDIF}
       IPDegeriniArtir(2);
     end;
   end else Result := False;
@@ -224,7 +224,7 @@ else if(IslenenKomut = $A0) then
 begin
 
   D21 := PWord(@Bellek144MB[Adres + 1])^;
-  YazmacDegistir2(YZMC_AL, PByte(@Bellek144MB[D21])^ and $FF);
+  YazmacDegistir(YZMC_AL, PByte(@Bellek144MB[D21])^ and $FF);
   {$IFDEF DEBUG} mmCikti.Lines.Add('mov al,[$%.4x]', [D21]); {$ENDIF}
   IPDegeriniArtir(1 + 2);
 end
@@ -236,7 +236,7 @@ begin
   begin
 
     D21 := PWord(@Bellek144MB[Adres + 1])^;
-    YazmacDegistir2(YZMC_EAX, PLongWord(@Bellek144MB[D21])^);
+    YazmacDegistir(YZMC_EAX, PLongWord(@Bellek144MB[D21])^);
     {$IFDEF DEBUG} mmCikti.Lines.Add('mov eax,[$%.8x]', [D21]); {$ENDIF}
 
     IPDegeriniArtir(1 + 2);
@@ -246,7 +246,7 @@ begin
   begin
 
     D21 := PWord(@Bellek144MB[Adres + 1])^;
-    YazmacDegistir2(YZMC_AX, PWord(@Bellek144MB[D21])^ and $FFFF);
+    YazmacDegistir(YZMC_AX, PWord(@Bellek144MB[D21])^ and $FFFF);
     {$IFDEF DEBUG} mmCikti.Lines.Add('mov ax,[$%.4x]', [D21]); {$ENDIF}
 
     IPDegeriniArtir(1 + 2);
@@ -294,7 +294,7 @@ begin
   D12 := IslenenKomut - $B0;
   D13 := D12;
   if(D12 > 3) then D13 := (D12 * $10) + (D12 - 4);
-  YazmacDegistir2(($01 shl 8) or D13, D11);
+  YazmacDegistir(($01 shl 8) or D13, D11);
   {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,$%.2x', [Yazmaclar8[D12], D11]); {$ENDIF}
   IPDegeriniArtir(1 + 1);
 end
@@ -306,7 +306,7 @@ begin
   begin
 
     D41 := PLongWord(@Bellek144MB[Adres + 1])^;
-    YazmacDegistir2(($04 shl 8) or (IslenenKomut - $B8), D41);
+    YazmacDegistir(($04 shl 8) or (IslenenKomut - $B8), D41);
     {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,$%.8x', [Yazmaclar32[IslenenKomut - $B8], D41]); {$ENDIF}
     IPDegeriniArtir(1 + 4);
   end
@@ -314,7 +314,7 @@ begin
   begin
 
     D21 := PWord(@Bellek144MB[Adres + 1])^;
-    YazmacDegistir2(($02 shl 8) or (IslenenKomut - $B8), D21);
+    YazmacDegistir(($02 shl 8) or (IslenenKomut - $B8), D21);
     {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,$%.4x', [Yazmaclar16[IslenenKomut - $B8], D21]); {$ENDIF}
     IPDegeriniArtir(1 + 2);
   end;

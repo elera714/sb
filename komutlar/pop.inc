@@ -6,7 +6,7 @@ begin
   begin
 
     D41 := YigindanAl(DU4);
-    YazmacDegistir2(($04 shl 8) or (IslenenKomut - $58), D41);
+    YazmacDegistir(($04 shl 8) or (IslenenKomut - $58), D41);
     {$IFDEF DEBUG} mmCikti.Lines.Add('pop %s', [Yazmaclar32[IslenenKomut - $58]]); {$ENDIF}
   end
   else
@@ -14,7 +14,7 @@ begin
   begin
 
     D21 := YigindanAl(DU2);
-    YazmacDegistir2(($02 shl 8) or (IslenenKomut - $58), D21);
+    YazmacDegistir(($02 shl 8) or (IslenenKomut - $58), D21);
     {$IFDEF DEBUG} mmCikti.Lines.Add('pop %s', [Yazmaclar16[IslenenKomut - $58]]); {$ENDIF}
   end;
 
@@ -25,7 +25,7 @@ else if(IslenenKomut = $1F) then
 begin
 
   D21 := YigindanAl(DU2);
-  YazmacDegistir2(YZMC_DS, D21);
+  YazmacDegistir(YZMC_DS, D21);
   {$IFDEF DEBUG} mmCikti.Lines.Add('pop ds'); {$ENDIF}
   IPDegeriniArtir;
 end
@@ -34,7 +34,7 @@ else if(IslenenKomut = $07) then
 begin
 
   D21 := YigindanAl(DU2);
-  YazmacDegistir2(YZMC_ES, D21);
+  YazmacDegistir(YZMC_ES, D21);
   {$IFDEF DEBUG} mmCikti.Lines.Add('pop es'); {$ENDIF}
   IPDegeriniArtir;
 end
@@ -43,7 +43,7 @@ else if(IslenenKomut = $17) then
 begin
 
   D21 := YigindanAl(DU2);
-  YazmacDegistir2(YZMC_SS, D21);
+  YazmacDegistir(YZMC_SS, D21);
   {$IFDEF DEBUG} mmCikti.Lines.Add('pop ss'); {$ENDIF}
   IPDegeriniArtir;
 end
@@ -52,7 +52,7 @@ else if(IslenenKomut = $0F) and (BirSonrakiKomut = $A1) then
 begin
 
   D21 := YigindanAl(DU2);
-  YazmacDegistir2(YZMC_FS, D21);
+  YazmacDegistir(YZMC_FS, D21);
   {$IFDEF DEBUG} mmCikti.Lines.Add('pop fs'); {$ENDIF}
   IPDegeriniArtir(2);
 end
@@ -61,7 +61,7 @@ else if(IslenenKomut = $0F) and (BirSonrakiKomut = $A9) then
 begin
 
   D21 := YigindanAl(DU2);
-  YazmacDegistir2(YZMC_GS, D21);
+  YazmacDegistir(YZMC_GS, D21);
   {$IFDEF DEBUG} mmCikti.Lines.Add('pop gs'); {$ENDIF}
   IPDegeriniArtir(2);
 end

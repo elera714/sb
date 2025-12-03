@@ -12,7 +12,7 @@ begin
     D42 := YazmacDegerAl(D41);
     D11 := PByte(@Bellek144MB[Adres + 2])^;
 
-    YazmacDegistir2(D41, D42 * D11);
+    YazmacDegistir(D41, D42 * D11);
 
     {$IFDEF DEBUG} mmCikti.Lines.Add('imul %s,%d', [Yazmaclar16[D41 and $FF], D11]); {$ENDIF}
     IPDegeriniArtir(1 + 2);
@@ -36,7 +36,7 @@ begin
       D42 := YazmacDegerAl(D41);
       D43 := PLongWord(@Bellek144MB[Adres + 2])^;
 
-      YazmacDegistir2(D41, D42 * D43);
+      YazmacDegistir(D41, D42 * D43);
 
       {$IFDEF DEBUG} mmCikti.Lines.Add('imul %s,%d', [Yazmaclar32[D41 and $FF], D43]); {$ENDIF}
       IPDegeriniArtir(1 + 5);
@@ -49,7 +49,7 @@ begin
       D42 := YazmacDegerAl(D41);
       D21 := PWord(@Bellek144MB[Adres + 2])^;
 
-      YazmacDegistir2(D41, D42 * D21);
+      YazmacDegistir(D41, D42 * D21);
 
       {$IFDEF DEBUG} mmCikti.Lines.Add('imul %s,%d', [Yazmaclar16[D41 and $FF], D21]); {$ENDIF}
       IPDegeriniArtir(1 + 3);

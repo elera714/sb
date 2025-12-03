@@ -13,7 +13,7 @@ begin
     D43 := YazmacDegerAl(D41);
     D44 := YazmacDegerAl(D42);
 
-    YazmacDegistir2(D41, D43 xor D44);
+    YazmacDegistir(D41, D43 xor D44);
 
     if((D41 and $FF) >= $40) then D41 := (D41 shr 4) and $F else D41 := D41 and $F;
     if((D42 and $FF) >= $40) then D42 := (D42 shr 4) and $F else D42 := D42 and $F;
@@ -41,7 +41,7 @@ begin
       D43 := YazmacDegerAl(D41);
       D44 := YazmacDegerAl(D42);
 
-      YazmacDegistir2(D41, D43 xor D44);
+      YazmacDegistir(D41, D43 xor D44);
 
       {$IFDEF DEBUG} mmCikti.Lines.Add('xor %s,%s', [Yazmaclar32[D41 and $FF], Yazmaclar32[D42 and $FF]]); {$ENDIF}
 
@@ -56,7 +56,7 @@ begin
       D43 := YazmacDegerAl(D41);
       D44 := YazmacDegerAl(D42);
 
-      YazmacDegistir2(D41, D43 xor D44);
+      YazmacDegistir(D41, D43 xor D44);
 
       {$IFDEF DEBUG} mmCikti.Lines.Add('xor %s,%s', [Yazmaclar16[D41 and $FF], Yazmaclar16[D42 and $FF]]); {$ENDIF}
 
