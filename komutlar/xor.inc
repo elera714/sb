@@ -1,15 +1,13 @@
 // 30 /r - XOR r/m8,r8 - r/m8 XOR r8
-else if(IslenenKomut = $30) or (IslenenKomut = $32) then
+else if(Komut = $30) or (Komut = $32) then
 begin
 
-  D11 := BirSonrakiKomut;
-
   // yazmaç ataması
-  if((D11 and %11000000) = %11000000) then
+  if((Komut2 and %11000000) = %11000000) then
   begin
 
-    D41 := MYB8[(D11 and %00000111)];           // hedef yazmaç (1. parametre)
-    D42 := MYB8[(D11 and %00111000) shr 3];     // kaynak yazmaç (2. parametre)
+    D41 := MYB8[(Komut2 and %00000111)];           // hedef yazmaç (1. parametre)
+    D42 := MYB8[(Komut2 and %00111000) shr 3];     // kaynak yazmaç (2. parametre)
     D43 := YazmacDegerAl(D41);
     D44 := YazmacDegerAl(D42);
 
@@ -23,21 +21,19 @@ begin
 
   end else Result := False;
 end
-else if(IslenenKomut = $31) or (IslenenKomut = $33) then
+else if(Komut = $31) or (Komut = $33) then
 begin
 
-  D11 := BirSonrakiKomut;
-
   // yazmaç ataması
-  if((D11 and %11000000) = %11000000) then
+  if((Komut2 and %11000000) = %11000000) then
   begin
 
     // 31 /r - XOR r/m32,r32 - r/m32 XOR r32
     if(KomutModDegistir) then
     begin
 
-      D41 := MYB32[(D11 and %00000111)];           // hedef yazmaç (1. parametre)
-      D42 := MYB32[(D11 and %00111000) shr 3];     // kaynak yazmaç (2. parametre)
+      D41 := MYB32[(Komut2 and %00000111)];           // hedef yazmaç (1. parametre)
+      D42 := MYB32[(Komut2 and %00111000) shr 3];     // kaynak yazmaç (2. parametre)
       D43 := YazmacDegerAl(D41);
       D44 := YazmacDegerAl(D42);
 
@@ -51,8 +47,8 @@ begin
     // 31 /r - XOR r/m16,r16 - r/m16 XOR r16
     begin
 
-      D41 := MYB16[(D11 and %00000111)];           // hedef yazmaç (1. parametre)
-      D42 := MYB16[(D11 and %00111000) shr 3];     // kaynak yazmaç (2. parametre)
+      D41 := MYB16[(Komut2 and %00000111)];           // hedef yazmaç (1. parametre)
+      D42 := MYB16[(Komut2 and %00111000) shr 3];     // kaynak yazmaç (2. parametre)
       D43 := YazmacDegerAl(D41);
       D44 := YazmacDegerAl(D42);
 

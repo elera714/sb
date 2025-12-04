@@ -1,6 +1,7 @@
 unit anasayfafrm;
 
 {$mode objfpc}{$H+}
+//{$DEFINE YAZMACLARI_GUNCELLE}
 //{$DEFINE DEBUG}
 
 interface
@@ -51,8 +52,7 @@ type
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormShow(Sender: TObject);
   private
-    IslenenKomut,
-    BirSonrakiKomut: Byte;
+    Komut, Komut2: Byte;
     KomutModDegistir: Boolean;      // $66 öneki
     procedure Yorumla;
     function Isle(ACS, AIP: Integer): Boolean;
@@ -222,7 +222,6 @@ procedure TfrmAnaSayfa.Yorumla;
 var
   Islenen, Adres: Integer;
   HataVar, Islendi: Boolean;
-  Komut: Byte;
 begin
 
   Islenen := 0;
@@ -254,7 +253,7 @@ begin
       end else HataVar := True;
 
       // komut mod değiştirme işlemi gerçekleştirildikten sonra kapat
-      if(KomutModDegistir) and (IslenenKomut <> $66) then KomutModDegistir := False;
+      if(KomutModDegistir) and (Komut <> $66) then KomutModDegistir := False;
 
     end; // else DosyaIP := DosyaU + 1;
 
@@ -289,6 +288,9 @@ var
   I21: SmallInt;
   I41: LongInt;
 
+  Esit: Boolean;
+  i: Integer;
+
   // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
   procedure IPDegeriniArtir(AArtir: Integer = 1);
   var
@@ -305,11 +307,11 @@ begin
 
   Adres := (ACS * $10) + AIP;
 
-  IslenenKomut := Bellek144MB[Adres + 0];
-  BirSonrakiKomut := Bellek144MB[Adres + 1];
+  Komut := Bellek144MB[Adres + 0];
+  Komut2 := Bellek144MB[Adres + 1];
 
   // Operand-size override, 66H
-  if(IslenenKomut = $66) then
+  if(Komut = $66) then
   begin
 
     {$IFDEF DEBUG} {mmCikti.Lines.Add('ön ek - $66');} {$ENDIF}
@@ -320,15 +322,14 @@ begin
   end
 
   // 04 ib - ADD AL,imm8 - Add imm8 to AL
-{  else if(IslenenKomut = $04) then
+{  else if(Komut = $04) then
   begin
 
-    D11 := PByte(@Bellek144MB[Adres + 1])^;
-    YazmacDegistir(YZMC_AL, D11, True);
+    YazmacDegistir(YZMC_AL, Komut2, True);
     {$IFDEF DEBUG} mmCikti.Lines.Add('mov al,[$%.4x]', [D21]); {$ENDIF}
     IPDegeriniArtir(2);
   end
-  else if(IslenenKomut = $A1) then
+  else if(Komut = $A1) then
   begin
 
     // 05 id - ADD EAX,imm32 - Add imm32 to EAX
@@ -355,7 +356,7 @@ begin
 }
 
 
-  else if(IslenenKomut = $60) then
+  else if(Komut = $60) then
   begin
 
     // 60 - PUSHAD - Push EAX, ECX, EDX, EBX, original ESP, EBP, ESI, and EDI
@@ -367,7 +368,7 @@ begin
       YiginaEkle2(YZMC_ECX);
       YiginaEkle2(YZMC_EDX);
       YiginaEkle2(YZMC_EBX);
-      YiginaEkle2(D41); // YZMC_ESP);
+      YiginaEkle(D41, DU4); // YZMC_ESP);
       YiginaEkle2(YZMC_EBP);
       YiginaEkle2(YZMC_ESI);
       YiginaEkle2(YZMC_EDI);
@@ -382,7 +383,7 @@ begin
       YiginaEkle2(YZMC_CX);
       YiginaEkle2(YZMC_DX);
       YiginaEkle2(YZMC_BX);
-      YiginaEkle2(D21); // YZMC_SP);
+      YiginaEkle(D21, DU2); // YZMC_SP);
       YiginaEkle2(YZMC_BP);
       YiginaEkle2(YZMC_SI);
       YiginaEkle2(YZMC_DI);
@@ -393,7 +394,7 @@ begin
   end
 
   { TODO - test edilecek }
-  else if(IslenenKomut = $61) then
+  else if(Komut = $61) then
   begin
 
     // 61 - POPAD - Pop EDI, ESI, EBP, EBX, EDX, ECX, and EAX
@@ -447,12 +448,10 @@ begin
 
 
   // FE /1 - DEC r/m8 - Decrement r/m8 by 1
-  else if(IslenenKomut = $FE) then
+  else if(Komut = $FE) then
   begin
 
-    D11 := PByte(@Bellek144MB[Adres + 1])^;
-
-    if((D11 and %00001110) = %00001110) then
+    if((Komut2 and %00001110) = %00001110) then
     begin
 
       D21 := PWord(@Bellek144MB[Adres + 2])^;
@@ -467,12 +466,45 @@ begin
       {$IFDEF DEBUG} mmCikti.Lines.Add('dec [$%.2x]', [D21]); {$ENDIF}
       IPDegeriniArtir(2 + 2);
 
-      mmCikti.Lines.Add('dec [$%.2x]', [D21]);
+      //mmCikti.Lines.Add('dec [$%.2x]', [D21]);
       // mmCikti.Lines.Add('dec [$%.2x]', [D11]);
 
     end else Result := False;
   end
 
+
+
+  // F3 A6 - REPE CMPS m8,m8 - Find nonmatching bytes in ES:[(E)DI] and DS:[(E)SI]
+  else if(Komut = $F3) and (Komut2 = $A6) then
+  begin
+
+    D21 := YazmacDegerAl(YZMC_CX);
+    D41 := (YZMC_DEGERSN[YZMC_DS and $F] * $10) + YZMC_DEGERSN[YZMC_SI and $F];
+    D42 := (YZMC_DEGERSN[YZMC_ES and $F] * $10) + YZMC_DEGERSN[YZMC_DI and $F];
+
+    Esit := True;
+    for i := 1 to D21 do
+    begin
+
+      if(PChar(@Bellek144MB[D41])^ <> PChar(@Bellek144MB[D42])^) then
+      begin
+
+        Esit := False;
+        Break;
+      end;
+
+      Inc(D41);
+      Inc(D42);
+    end;
+
+    if(Esit) then
+      BayrakDegistir(BAYRAK_ZF)
+    else BayrakDegistir(BAYRAK_ZF, False);
+
+    {$IFDEF DEBUG} mmCikti.Lines.Add('repe cmpsb', []); {$ENDIF}
+
+    IPDegeriniArtir(2);
+  end
 
 
   {$i komutlar\add.inc}
@@ -554,7 +586,9 @@ begin
     end;
   end;
 
+  {$IFDEF YAZMACLARI_GUNCELLE}
   ValueListEditor1.Cells[1, 1 + YZMC_GORSELSN[DegerSN]] := '$' + HexStr(YZMC_DEGERSN[DegerSN], 8);
+  {$ENDIF}
 
   Application.ProcessMessages;
 end;
@@ -714,7 +748,9 @@ begin
     else Exit;
   end;
 
+  {$IFDEF YAZMACLARI_GUNCELLE}
   ValueListEditor1.Cells[1, 1 + YZMC_GORSELSN[YZMC0_ESP]] := '$' + HexStr(YZMC_DEGERSN[YZMC0_ESP], 8);
+  {$ENDIF}
 
   Application.ProcessMessages;
 end;
@@ -744,11 +780,13 @@ begin
     YZMC_CS, YZMC_DS, YZMC_ES, YZMC_SS, YZMC_FS, YZMC_GS:
     begin
 
+      // esp değerini güncelle
       D41 := PLongWord(@YZMC_DEGERSN[YZMC0_SS] + 0)^;
       D42 := PLongWord(@YZMC_DEGERSN[YZMC0_ESP] + 0)^;
       D42 -= 2;
       PLongWord(@YZMC_DEGERSN[YZMC0_ESP] + 0)^ := D42;
 
+      // yazmacın değerini yığına ekle
       case AHedefYazmacSN of
         YZMC_AX: D21 := PWord(@YZMC_DEGERSN[YZMC0_EAX] + 0)^;
         YZMC_CX: D21 := PWord(@YZMC_DEGERSN[YZMC0_ECX] + 0)^;
@@ -768,7 +806,7 @@ begin
 
       PWord(@Bellek144MB[(D41 * $10) + D42])^ := D21;
     end;
-    YZMC_EAX, YZMC_ECX, YZMC_EDX, YZMC_EBX, YZMC_ESP, YZMC_EBP, YZMC_ESI, YZMC_EDI:
+    {YZMC_EAX, YZMC_ECX, YZMC_EDX, YZMC_EBX, YZMC_ESP, YZMC_EBP, YZMC_ESI, YZMC_EDI:
     begin
 
       D41 := PLongWord(@YZMC_DEGERSN[YZMC0_SS] + 0)^;
@@ -789,10 +827,12 @@ begin
       end;
 
       PLongWord(@Bellek144MB[(D41 * $10) + D42])^ := D43;
-    end;
+    end;}
   end;
 
+  {$IFDEF YAZMACLARI_GUNCELLE}
   ValueListEditor1.Cells[1, 1 + YZMC_GORSELSN[YZMC0_ESP]] := '$' + HexStr(YZMC_DEGERSN[YZMC0_ESP], 8);
+  {$ENDIF}
 
   Application.ProcessMessages;
 end;
@@ -815,7 +855,9 @@ begin
   V42 += AVeriUzunlugu;
   YZMC_DEGERSN[YZMC0_ESP] := V42;
 
+  {$IFDEF YAZMACLARI_GUNCELLE}
   ValueListEditor1.Cells[1, 1 + YZMC_GORSELSN[YZMC0_ESP]] := '$' + HexStr(YZMC_DEGERSN[YZMC0_ESP], 8);
+  {$ENDIF}
 
   Application.ProcessMessages;
 end;

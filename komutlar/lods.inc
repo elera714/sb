@@ -1,6 +1,6 @@
 // AC - LODS m8 - Load byte at address DS:(E)SI into AL
 // AC - LODSB - Load byte at address DS:(E)SI into AL
-else if(IslenenKomut = $AC) then
+else if(Komut = $AC) then
 begin
 
   D41 := YZMC_DEGERSN[YZMC0_ESI] and $FFFF;
@@ -16,7 +16,7 @@ begin
   {$IFDEF DEBUG} mmCikti.Lines.Add('lodsb'); {$ENDIF}
   IPDegeriniArtir;
 end
-else if(IslenenKomut = $AD) then
+else if(Komut = $AD) then
 begin
 
   // AD - LODS m32 - Load doubleword at address DS:(E)SI into EAX

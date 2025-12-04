@@ -1,5 +1,5 @@
 // FC - CLD - Clear DF flag
-else if(IslenenKomut = $FC) then
+else if(Komut = $FC) then
 begin
 
   BayrakDegistir(BAYRAK_DF, False);

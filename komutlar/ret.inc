@@ -1,6 +1,6 @@
 // C3 - RET - Near return to calling procedure
 // CB - RET - Far return to calling procedure
-else if(IslenenKomut = $C3) then
+else if(Komut = $C3) then
 begin
 
   D21 := YigindanAl(DU2);

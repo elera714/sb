@@ -1,5 +1,5 @@
 // FA - CLI - Clear interrupt flag; interrupts disabled when interrupt flag cleared
-else if(IslenenKomut = $FA) then
+else if(Komut = $FA) then
 begin
 
   BayrakDegistir(BAYRAK_IF, False);

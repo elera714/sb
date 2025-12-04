@@ -1,7 +1,7 @@
 // CF - IRET - Interrupt return (16-bit operand size)
 // CF - IRETD - Interrupt return (32-bit operand size)
 { TODO - IRETD uygulanacak }
-else if(IslenenKomut = $CF) then
+else if(Komut = $CF) then
 begin
 
   {$IFDEF DEBUG} mmCikti.Lines.Add('iret'); {$ENDIF}

@@ -1,13 +1,12 @@
 // EB cb - JMP rel8
-else if(IslenenKomut = $EB) then
+else if(Komut = $EB) then
 begin
 
-  D11 := PByte(@Bellek144MB[Adres + 1])^;
-  {$IFDEF DEBUG} mmCikti.Lines.Add('jmp (yakın) %.2d', [ShortInt(D11)]); {$ENDIF}
+  {$IFDEF DEBUG} mmCikti.Lines.Add('jmp (yakın) %.2d', [ShortInt(Komut2)]); {$ENDIF}
   IPDegeriniArtir(1 + 1);
-  IPDegeriniArtir(ShortInt(D11));
+  IPDegeriniArtir(ShortInt(Komut2));
 end
-else if(IslenenKomut = $E9) then
+else if(Komut = $E9) then
 begin
 
   // E9 cd - JMP rel32 - Jump near, relative, displacement relative to next instruction

@@ -1,5 +1,5 @@
 // FD - STD - Set DF flag
-else if(IslenenKomut = $FD) then
+else if(Komut = $FD) then
 begin
 
   BayrakDegistir(BAYRAK_DF);

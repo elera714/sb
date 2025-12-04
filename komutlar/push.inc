@@ -1,34 +1,32 @@
-else if(IslenenKomut >= $50 + YZMC0_EAX) and (IslenenKomut <= $50 + YZMC0_EDI) then
+else if(Komut >= $50 + YZMC0_EAX) and (Komut <= $50 + YZMC0_EDI) then
 begin
 
   // 50+rd - PUSH r32 - Push r32
   if(KomutModDegistir) then
   begin
 
-    YiginaEkle2(($04 shl 8) or (IslenenKomut - $50));
+    YiginaEkle2(($04 shl 8) or (Komut - $50));
     {$IFDEF DEBUG} mmCikti.Lines.Add('push %s', [Yazmaclar32[IslenenKomut - $50]]); {$ENDIF}
   end
   else
   // 50+rw - PUSH r16 - Push r16
   begin
 
-    YiginaEkle2(($02 shl 8) or (IslenenKomut - $50));
+    YiginaEkle2(($02 shl 8) or (Komut - $50));
     {$IFDEF DEBUG} mmCikti.Lines.Add('push %s', [Yazmaclar16[IslenenKomut - $50]]); {$ENDIF}
   end;
 
   IPDegeriniArtir;
 end
 // 6A - PUSH imm8 - Push imm8
-else if(IslenenKomut = $6A) then
+else if(Komut = $6A) then
 begin
 
-  D11 := PByte(@Bellek144MB[Adres + 1])^;
-
-  YiginaEkle(D11, DU1);
-  {$IFDEF DEBUG} mmCikti.Lines.Add('push vu1 $%.2x', [D11]); {$ENDIF}
+  YiginaEkle(Komut2, DU1);
+  {$IFDEF DEBUG} mmCikti.Lines.Add('push vu1 $%.2x', [Komut2]); {$ENDIF}
   IPDegeriniArtir(1 + 1);
 end
-else if(IslenenKomut = $68) then
+else if(Komut = $68) then
 begin
 
   // 68 - PUSH imm32 - Push imm32
@@ -53,7 +51,7 @@ begin
   end;
 end
 // 0E - PUSH CS - Push CS
-else if(IslenenKomut = $0E) then
+else if(Komut = $0E) then
 begin
 
   YiginaEkle2(YZMC_CS);
@@ -61,7 +59,7 @@ begin
   IPDegeriniArtir;
 end
 // 16 - PUSH SS - Push SS
-else if(IslenenKomut = $16) then
+else if(Komut = $16) then
 begin
 
   YiginaEkle2(YZMC_SS);
@@ -69,7 +67,7 @@ begin
   IPDegeriniArtir;
 end
 // 1E - PUSH DS - Push DS
-else if(IslenenKomut = $1E) then
+else if(Komut = $1E) then
 begin
 
   YiginaEkle2(YZMC_DS);
@@ -77,7 +75,7 @@ begin
   IPDegeriniArtir;
 end
 // 06 - PUSH ES - Push ES
-else if(IslenenKomut = $06) then
+else if(Komut = $06) then
 begin
 
   YiginaEkle2(YZMC_ES);
@@ -85,7 +83,7 @@ begin
   IPDegeriniArtir;
 end
 // 0F A0 - PUSH FS - Push FS
-else if(IslenenKomut = $0F) and (BirSonrakiKomut = $A0) then
+else if(Komut = $0F) and (Komut2 = $A0) then
 begin
 
   YiginaEkle2(YZMC_FS);
@@ -93,7 +91,7 @@ begin
   IPDegeriniArtir(2);
 end
 // 0F A8 - PUSH GS - Push GS
-else if(IslenenKomut = $0F) and (BirSonrakiKomut = $A8) then
+else if(Komut = $0F) and (Komut2 = $A8) then
 begin
 
   YiginaEkle2(YZMC_GS);
