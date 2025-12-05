@@ -21,7 +21,9 @@ esit:
 
 kesme:
 
+        pusha
         int     0x10
+        popa
 
 
 dongu:  jmp     kesme
@@ -33,5 +35,6 @@ db4     db      'esit degil'
 
 arge:
         nop
-        popa
+        pushad
+        popad
         nop

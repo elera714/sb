@@ -1,7 +1,7 @@
 unit anasayfafrm;
 
 {$mode objfpc}{$H+}
-//{$DEFINE YAZMACLARI_GUNCELLE}
+{$DEFINE YAZMACLARI_GUNCELLE}
 //{$DEFINE DEBUG}
 
 interface
@@ -278,7 +278,7 @@ var
   Adres: LongWord;
   D11, D12,
   D13, D14,
-  D15: Byte;            // işaretsiz 8 bit
+  D15, D16: Byte;       // işaretsiz 8 bit
   D21, D22,
   D23: Word;            // işaretsiz 16 bit
   D41, D42,
@@ -356,97 +356,6 @@ begin
 }
 
 
-  else if(Komut = $60) then
-  begin
-
-    // 60 - PUSHAD - Push EAX, ECX, EDX, EBX, original ESP, EBP, ESI, and EDI
-    if(KomutModDegistir) then
-    begin
-
-      D41 := YazmacDegerAl(YZMC_ESP);
-      YiginaEkle2(YZMC_EAX);
-      YiginaEkle2(YZMC_ECX);
-      YiginaEkle2(YZMC_EDX);
-      YiginaEkle2(YZMC_EBX);
-      YiginaEkle(D41, DU4); // YZMC_ESP);
-      YiginaEkle2(YZMC_EBP);
-      YiginaEkle2(YZMC_ESI);
-      YiginaEkle2(YZMC_EDI);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('pushad', []); {$ENDIF}
-    end
-    else
-    // 60 - PUSHA - Push AX, CX, DX, BX, original SP, BP, SI, and DI
-    begin
-
-      D21 := YazmacDegerAl(YZMC_SP);
-      YiginaEkle2(YZMC_AX);
-      YiginaEkle2(YZMC_CX);
-      YiginaEkle2(YZMC_DX);
-      YiginaEkle2(YZMC_BX);
-      YiginaEkle(D21, DU2); // YZMC_SP);
-      YiginaEkle2(YZMC_BP);
-      YiginaEkle2(YZMC_SI);
-      YiginaEkle2(YZMC_DI);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('pusha', []); {$ENDIF}
-    end;
-
-    IPDegeriniArtir;
-  end
-
-  { TODO - test edilecek }
-  else if(Komut = $61) then
-  begin
-
-    // 61 - POPAD - Pop EDI, ESI, EBP, EBX, EDX, ECX, and EAX
-    if(KomutModDegistir) then
-    begin
-
-      D41 := YigindanAl(DU4);
-      YazmacDegistir(YZMC_EDI, D21);
-      D41 := YigindanAl(DU4);
-      YazmacDegistir(YZMC_ESI, D21);
-      D41 := YigindanAl(DU4);
-      YazmacDegistir(YZMC_EBP, D21);
-      D41 := YigindanAl(DU4);
-      //YazmacDegistir(YZMC_ESP, D21);
-      D41 := YigindanAl(DU4);
-      YazmacDegistir(YZMC_EBX, D21);
-      D41 := YigindanAl(DU4);
-      YazmacDegistir(YZMC_EDX, D21);
-      D41 := YigindanAl(DU4);
-      YazmacDegistir(YZMC_ECX, D21);
-      D41 := YigindanAl(DU4);
-      YazmacDegistir(YZMC_EAX, D21);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('popad', []); {$ENDIF}
-    end
-    else
-    // 61 - POPA - Pop DI, SI, BP, BX, DX, CX, and AX
-    begin
-
-      D21 := YigindanAl(DU2);
-      YazmacDegistir(YZMC_DI, D21);
-      D21 := YigindanAl(DU2);
-      YazmacDegistir(YZMC_SI, D21);
-      D21 := YigindanAl(DU2);
-      YazmacDegistir(YZMC_BP, D21);
-      D21 := YigindanAl(DU2);
-      //YazmacDegistir(YZMC_SP, D21);
-      D21 := YigindanAl(DU2);
-      YazmacDegistir(YZMC_BX, D21);
-      D21 := YigindanAl(DU2);
-      YazmacDegistir(YZMC_DX, D21);
-      D21 := YigindanAl(DU2);
-      YazmacDegistir(YZMC_CX, D21);
-      D21 := YigindanAl(DU2);
-      YazmacDegistir(YZMC_AX, D21);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('popa', []); {$ENDIF}
-    end;
-
-    IPDegeriniArtir;
-  end
-
-
-
   // FE /1 - DEC r/m8 - Decrement r/m8 by 1
   else if(Komut = $FE) then
   begin
@@ -506,7 +415,6 @@ begin
     IPDegeriniArtir(2);
   end
 
-
   {$i komutlar\add.inc}
   {$i komutlar\call.inc}
   {$i komutlar\clc.inc}
@@ -524,9 +432,12 @@ begin
   {$i komutlar\lods.inc}
   {$i komutlar\mov.inc}
   {$i komutlar\nop.inc}
+  {$i komutlar\or.inc}
   {$i komutlar\out.inc}
   {$i komutlar\push.inc}
+  {$i komutlar\pusha.inc}
   {$i komutlar\pop.inc}
+  {$i komutlar\popa.inc}
   {$i komutlar\ret.inc}
   {$i komutlar\stc.inc}
   {$i komutlar\std.inc}
@@ -792,7 +703,8 @@ begin
         YZMC_CX: D21 := PWord(@YZMC_DEGERSN[YZMC0_ECX] + 0)^;
         YZMC_DX: D21 := PWord(@YZMC_DEGERSN[YZMC0_EDX] + 0)^;
         YZMC_BX: D21 := PWord(@YZMC_DEGERSN[YZMC0_EBX] + 0)^;
-        YZMC_SP: D21 := PWord(@YZMC_DEGERSN[YZMC0_ESP] + 0)^;
+        // esp değeri yığına, yığın azaltılmadan önceki değeriyle itilir
+        YZMC_SP: D21 := D42 + 2;
         YZMC_BP: D21 := PWord(@YZMC_DEGERSN[YZMC0_EBP] + 0)^;
         YZMC_SI: D21 := PWord(@YZMC_DEGERSN[YZMC0_ESI] + 0)^;
         YZMC_DI: D21 := PWord(@YZMC_DEGERSN[YZMC0_EDI] + 0)^;
@@ -806,7 +718,7 @@ begin
 
       PWord(@Bellek144MB[(D41 * $10) + D42])^ := D21;
     end;
-    {YZMC_EAX, YZMC_ECX, YZMC_EDX, YZMC_EBX, YZMC_ESP, YZMC_EBP, YZMC_ESI, YZMC_EDI:
+    YZMC_EAX, YZMC_ECX, YZMC_EDX, YZMC_EBX, YZMC_ESP, YZMC_EBP, YZMC_ESI, YZMC_EDI:
     begin
 
       D41 := PLongWord(@YZMC_DEGERSN[YZMC0_SS] + 0)^;
@@ -820,14 +732,14 @@ begin
         YZMC_EDX: D43 := PLongWord(@YZMC_DEGERSN[YZMC0_EDX] + 0)^;
         YZMC_EBX: D43 := PLongWord(@YZMC_DEGERSN[YZMC0_EBX] + 0)^;
         // esp değeri yığına, yığın azaltılmadan önceki değeriyle itilir
-        YZMC_ESP: begin D43 := PLongWord(@YZMC_DEGERSN[YZMC0_ESP] + 0)^; D43 += 4; end;
+        YZMC_ESP: D43 := D42 + 4;
         YZMC_EBP: D43 := PLongWord(@YZMC_DEGERSN[YZMC0_EBP] + 0)^;
         YZMC_ESI: D43 := PLongWord(@YZMC_DEGERSN[YZMC0_ESI] + 0)^;
         YZMC_EDI: D43 := PLongWord(@YZMC_DEGERSN[YZMC0_EDI] + 0)^;
       end;
 
       PLongWord(@Bellek144MB[(D41 * $10) + D42])^ := D43;
-    end;}
+    end;
   end;
 
   {$IFDEF YAZMACLARI_GUNCELLE}

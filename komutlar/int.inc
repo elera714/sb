@@ -2,21 +2,46 @@
 else if(Komut = $CD) then
 begin
 
-  {$IFDEF DEBUG} mmCikti.Lines.Add('int %.2d', [Komut2]); {$ENDIF}
-  IPDegeriniArtir(2);
+  if(Komut2 = $13) then
+  begin
 
-  // aktif olan bayrak, cs ve ip değerlerini yığına sakla
-  YiginaEkle(Bayraklar, DU2);
-  YiginaEkle(YZMC_DEGERSN[YZMC0_CS], DU2);
-  YiginaEkle(YZMC_DEGERSN[YZMC0_EIP], DU2);
+    mmCikti.Lines.Add('int $13', []);
+    D11 := YazmacDegerAl(YZMC_AH);
+    D12 := YazmacDegerAl(YZMC_AL);
+    D13 := YazmacDegerAl(YZMC_DH);
+    D14 := YazmacDegerAl(YZMC_DL);
+    D15 := YazmacDegerAl(YZMC_CH);
+    D16 := YazmacDegerAl(YZMC_CL);
+    BayrakDegistir(BAYRAK_CF, False);
 
-  { TODO - diğer bayrak değerleri de burada ayarlanacak }
+    mmCikti.Lines.Add('int ah: $%.2x', [D11]);
+    mmCikti.Lines.Add('int al: $%.2x', [D12]);
+    mmCikti.Lines.Add('int dh: $%.2x', [D13]);
+    mmCikti.Lines.Add('int dl: $%.2x', [D14]);
+    mmCikti.Lines.Add('int ch: $%.2x', [D15]);
+    mmCikti.Lines.Add('int cl: $%.2x', [D16]);
 
-  // çalıştırılacak kesme girişini belirle
-  D21 := PWord(@Bellek144MB[(Komut2 * 4) + 0])^;
-  D22 := PWord(@Bellek144MB[(Komut2 * 4) + 2])^;
+    IPDegeriniArtir(2);
+  end
+  else
+  begin
 
-  // kesme işlevini çalıştır
-  YZMC_DEGERSN[YZMC0_EIP] := D21;
-  YZMC_DEGERSN[YZMC0_CS] := D22;
+    {$IFDEF DEBUG} mmCikti.Lines.Add('int %.2d', [Komut2]); {$ENDIF}
+    IPDegeriniArtir(2);
+
+    // aktif olan bayrak, cs ve ip değerlerini yığına sakla
+    YiginaEkle(Bayraklar, DU2);
+    YiginaEkle(YZMC_DEGERSN[YZMC0_CS], DU2);
+    YiginaEkle(YZMC_DEGERSN[YZMC0_EIP], DU2);
+
+    { TODO - diğer bayrak değerleri de burada ayarlanacak }
+
+    // çalıştırılacak kesme girişini belirle
+    D21 := PWord(@Bellek144MB[(Komut2 * 4) + 0])^;
+    D22 := PWord(@Bellek144MB[(Komut2 * 4) + 2])^;
+
+    // kesme işlevini çalıştır
+    YZMC_DEGERSN[YZMC0_EIP] := D21;
+    YZMC_DEGERSN[YZMC0_CS] := D22;
+  end;
 end
