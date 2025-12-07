@@ -381,40 +381,6 @@ begin
     end else Result := False;
   end
 
-
-
-  // F3 A6 - REPE CMPS m8,m8 - Find nonmatching bytes in ES:[(E)DI] and DS:[(E)SI]
-  else if(Komut = $F3) and (Komut2 = $A6) then
-  begin
-
-    D21 := YazmacDegerAl(YZMC_CX);
-    D41 := (YZMC_DEGERSN[YZMC_DS and $F] * $10) + YZMC_DEGERSN[YZMC_SI and $F];
-    D42 := (YZMC_DEGERSN[YZMC_ES and $F] * $10) + YZMC_DEGERSN[YZMC_DI and $F];
-
-    Esit := True;
-    for i := 1 to D21 do
-    begin
-
-      if(PChar(@Bellek144MB[D41])^ <> PChar(@Bellek144MB[D42])^) then
-      begin
-
-        Esit := False;
-        Break;
-      end;
-
-      Inc(D41);
-      Inc(D42);
-    end;
-
-    if(Esit) then
-      BayrakDegistir(BAYRAK_ZF)
-    else BayrakDegistir(BAYRAK_ZF, False);
-
-    {$IFDEF DEBUG} mmCikti.Lines.Add('repe cmpsb', []); {$ENDIF}
-
-    IPDegeriniArtir(2);
-  end
-
   {$i komutlar\add.inc}
   {$i komutlar\call.inc}
   {$i komutlar\clc.inc}
@@ -438,6 +404,7 @@ begin
   {$i komutlar\pusha.inc}
   {$i komutlar\pop.inc}
   {$i komutlar\popa.inc}
+  {$i komutlar\rep.inc}
   {$i komutlar\ret.inc}
   {$i komutlar\stc.inc}
   {$i komutlar\std.inc}
@@ -458,7 +425,7 @@ begin
   DegerSN := (AHedefYazmacSN and $F);
 
   case AHedefYazmacSN of
-    YZMC_AL:
+    YZMC_AL, YZMC_CL, YZMC_DL, YZMC_BL:
     begin
 
       D11 := PByte(@YZMC_DEGERSN[DegerSN] + 0)^;
@@ -467,7 +434,7 @@ begin
       else D11 := (ADeger and $FF);
       PByte(@YZMC_DEGERSN[DegerSN] + 0)^ := D11;
     end;
-    YZMC_AH:
+    YZMC_AH, YZMC_CH, YZMC_DH, YZMC_BH:
     begin
 
       D11 := PByte(@YZMC_DEGERSN[DegerSN] + 1)^;
@@ -480,20 +447,20 @@ begin
     YZMC_CS, YZMC_DS, YZMC_ES, YZMC_SS, YZMC_FS, YZMC_GS, YZMC_IP:
     begin
 
-      D21 := PWord(@YZMC_DEGERSN[DegerSN] + 0)^;
+      D21 := PWord(@YZMC_DEGERSN[DegerSN])^;
       if(AArtir) then
         D21 := D21 + (ADeger and $FFFF)
       else D21 := (ADeger and $FFFF);
-      PWord(@YZMC_DEGERSN[DegerSN] + 0)^ := D21;
+      PWord(@YZMC_DEGERSN[DegerSN])^ := D21;
     end;
     YZMC_EAX, YZMC_ECX, YZMC_EDX, YZMC_EBX, YZMC_ESP, YZMC_EBP, YZMC_ESI, YZMC_EDI:
     begin
 
-      D41 := PLongWord(@YZMC_DEGERSN[DegerSN] + 0)^;
+      D41 := PLongWord(@YZMC_DEGERSN[DegerSN])^;
       if(AArtir) then
         D41 := D41 + ADeger
       else D41 := ADeger;
-      PLongWord(@YZMC_DEGERSN[DegerSN] + 0)^ := D41;
+      PLongWord(@YZMC_DEGERSN[DegerSN])^ := D41;
     end;
   end;
 

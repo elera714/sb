@@ -71,10 +71,12 @@ islevINT0F:
         mov     bx,15
         iret
 islevINT10:
-        push    es
+        push    ds
         pusha
 
         push    ax
+        mov     ax,0
+        mov     ds,ax
         mov     ax,YM_EKRAN_ADDR
         mov     es,ax
 
@@ -109,7 +111,7 @@ i3:
         mov     [gosterge_y],ax
 
         popa
-        pop     es
+        pop     ds
         iret
 
 gosterge_x      dw      0

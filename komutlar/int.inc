@@ -5,21 +5,24 @@ begin
   if(Komut2 = $13) then
   begin
 
-    mmCikti.Lines.Add('int $13', []);
+    // aşağıdaki yazmaç değerleri hatalı geliyor
     D11 := YazmacDegerAl(YZMC_AH);
     D12 := YazmacDegerAl(YZMC_AL);
     D13 := YazmacDegerAl(YZMC_DH);
     D14 := YazmacDegerAl(YZMC_DL);
     D15 := YazmacDegerAl(YZMC_CH);
     D16 := YazmacDegerAl(YZMC_CL);
+    D21 := YazmacDegerAl(YZMC_BX);
     BayrakDegistir(BAYRAK_CF, False);
 
+    mmCikti.Lines.Add('int $13', []);
     mmCikti.Lines.Add('int ah: $%.2x', [D11]);
     mmCikti.Lines.Add('int al: $%.2x', [D12]);
     mmCikti.Lines.Add('int dh: $%.2x', [D13]);
     mmCikti.Lines.Add('int dl: $%.2x', [D14]);
     mmCikti.Lines.Add('int ch: $%.2x', [D15]);
     mmCikti.Lines.Add('int cl: $%.2x', [D16]);
+    mmCikti.Lines.Add('int bx: $%.4x', [D21]);
 
     IPDegeriniArtir(2);
   end
