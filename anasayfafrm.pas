@@ -2,7 +2,7 @@ unit anasayfafrm;
 
 {$mode objfpc}{$H+}
 {$DEFINE YAZMACLARI_GUNCELLE}
-//{$DEFINE DEBUG}
+{$DEFINE DEBUG}
 
 interface
 
@@ -66,7 +66,8 @@ type
     procedure YiginaEkle(ADeger, AVeriUzunlugu: LongWord);
     procedure YiginaEkle2(AHedefYazmacSN: Integer);
     function YigindanAl(AVeriUzunlugu: LongWord): LongWord;
-    function DosyaYukle(ADosyaAdi: string; ABellekAdresi, ABoyut: LongWord): string;
+    function DosyaYukle(ADosyaAdi: string; ABellekAdresi, ABaslangic,
+      ABoyut: LongWord): string;
     procedure EkraniKartiniYukle;
     procedure BiosYukle;
   public
@@ -177,9 +178,11 @@ begin
     YazmaclariSifirla;
 
     DosyaU := 0;
+    FlpOkunanSektorSayisi := 0;
 
     mmCikti.Lines.Clear;
     sbDurum.Panels[0].Text := Format('Toplam Uzunluk: %d', [DosyaU]);
+    sbDurum.Panels[2].Text := Format('Disket [%d]', [FlpOkunanSektorSayisi]);
     sbDurum.Repaint;
     Application.ProcessMessages;
 
@@ -189,7 +192,7 @@ begin
     else Hata := '';
 
     // imaj dosyasını $7C0 adresine yükle
-    if(Length(Hata) = 0) then Hata := DosyaYukle(cbIslenecekDosya.Text, $07C0 * $10, 512);
+    if(Length(Hata) = 0) then Hata := DosyaYukle(cbIslenecekDosya.Text, $07C0 * $10, 0, 512);
 
     if(Length(Hata) = 0) then
     begin
@@ -357,7 +360,7 @@ begin
 
 
   // FE /1 - DEC r/m8 - Decrement r/m8 by 1
-  else if(Komut = $FE) then
+  else if(Komut = $FE) and ((Komut2 and %00001000) = %00001000) then
   begin
 
     if((Komut2 and %00001110) = %00001110) then
@@ -375,11 +378,54 @@ begin
       {$IFDEF DEBUG} mmCikti.Lines.Add('dec [$%.2x]', [D21]); {$ENDIF}
       IPDegeriniArtir(2 + 2);
 
-      //mmCikti.Lines.Add('dec [$%.2x]', [D21]);
-      // mmCikti.Lines.Add('dec [$%.2x]', [D11]);
+    end else Result := False;
+  end
+  // FE /0 - INC r/m8 - Increment r/m byte by 1
+  // FF /0 - INC r/m16 - Increment r/m word by 1
+  // FF /0 - INC r/m32 - Increment r/m doubleword by 1
+  else if(Komut = $FE) and ((Komut2 and %00111000) = %00000000) then
+  begin
+
+    if((Komut2 and %11000000) = %11000000) then
+    begin
+
+      D41 := MYB8[Komut2 and %00000111];
+      YazmacDegistir(D41, +1, True);
+
+      if((D41 and $FF) >= $40) then D41 := (D41 shr 4) and $F else D41 := D41 and $F;
+
+      {$IFDEF DEBUG} mmCikti.Lines.Add('inc %s', [Yazmaclar8[D41]]); {$ENDIF}
+      IPDegeriniArtir(2);
 
     end else Result := False;
   end
+
+  // F6 /6 - DIV r/m8 - Unsigned divide AX by r/m8; AL ← Quotient, AH ← Remainder
+  else if(Komut = $F6) then
+  begin
+
+    if((Komut2 and %11110000) = %11110000) then
+    begin
+
+      D41 := MYB8[Komut2 and %00000111];
+
+      D21 := YazmacDegerAl(YZMC_AX);
+      D22 := YazmacDegerAl(D41);
+      D11 := D21 div D22;
+      D12 := D21 mod D22;
+
+      YazmacDegistir(YZMC_AL, D11);
+      YazmacDegistir(YZMC_AH, D12);
+
+      if((D41 and $FF) >= $40) then D41 := (D41 shr 4) and $F else D41 := D41 and $F;
+
+      {$IFDEF DEBUG} mmCikti.Lines.Add('div %s', [Yazmaclar8[D41]]); {$ENDIF}
+      IPDegeriniArtir(2);
+
+    end else Result := False;
+  end
+
+
 
   {$i komutlar\add.inc}
   {$i komutlar\call.inc}
@@ -741,28 +787,37 @@ begin
   Application.ProcessMessages;
 end;
 
-function TfrmAnaSayfa.DosyaYukle(ADosyaAdi: string; ABellekAdresi, ABoyut: LongWord): string;
+function TfrmAnaSayfa.DosyaYukle(ADosyaAdi: string; ABellekAdresi, ABaslangic,
+  ABoyut: LongWord): string;
 var
   FS: TFileStream;
 begin
+
+  Application.ProcessMessages;
 
   Result := '';
 
   try
     FS := TFileStream.Create(ADosyaAdi, fmOpenRead);
-    FS.Position := 0;
+    FS.Position := ABaslangic;
     DosyaU := FS.Size;
 
     if(DosyaU > ABoyut) then DosyaU := ABoyut;
 
     if(DosyaU <= DISKET_BOYUT) then
-      FS.Read(Bellek144MB[ABellekAdresi], DosyaU)
-    else Result := 'Hata: dosya 1.44MB''den büyük olamaz!';
+    begin
+
+      FS.Read(Bellek144MB[ABellekAdresi], DosyaU);
+      FlpOkunanSektorSayisi += (ABoyut div 512);
+    end else Result := 'Hata: dosya 1.44MB''den büyük olamaz!';
 
     FS.Free;
   except
     on E: Exception do Result := E.Message;
   end;
+
+  sbDurum.Panels[2].Text := Format('Disket [%d]', [FlpOkunanSektorSayisi]);
+  Application.ProcessMessages;
 end;
 
 procedure TfrmAnaSayfa.EkraniKartiniYukle;
@@ -812,7 +867,7 @@ var
 begin
 
   // bios işlevlerini 0 adresine yükle
-  Hata := DosyaYukle('bios.bin', 0, 512);
+  Hata := DosyaYukle('bios.bin', 0, 0, 512);
   if(Length(Hata) = 0) then
     BiosYuklendi := True
   else BiosYuklendi := False;

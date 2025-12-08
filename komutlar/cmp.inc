@@ -13,7 +13,7 @@ begin
     BayrakDegistir(BAYRAK_SF)
   else BayrakDegistir(BAYRAK_SF, False);
 
-  {$IFDEF DEBUG} mmCikti.Lines.Add('cmp al,%d', [ShortInt(BirSonrakiKomut)]); {$ENDIF}
+  {$IFDEF DEBUG} mmCikti.Lines.Add('cmp al,%d', [ShortInt(Komut2)]); {$ENDIF}
 
   IPDegeriniArtir(2);
 end

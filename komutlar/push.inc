@@ -6,14 +6,14 @@ begin
   begin
 
     YiginaEkle2(($04 shl 8) or (Komut - $50));
-    {$IFDEF DEBUG} mmCikti.Lines.Add('push %s', [Yazmaclar32[IslenenKomut - $50]]); {$ENDIF}
+    {$IFDEF DEBUG} mmCikti.Lines.Add('push %s', [Yazmaclar32[Komut - $50]]); {$ENDIF}
   end
   else
   // 50+rw - PUSH r16 - Push r16
   begin
 
     YiginaEkle2(($02 shl 8) or (Komut - $50));
-    {$IFDEF DEBUG} mmCikti.Lines.Add('push %s', [Yazmaclar16[IslenenKomut - $50]]); {$ENDIF}
+    {$IFDEF DEBUG} mmCikti.Lines.Add('push %s', [Yazmaclar16[Komut - $50]]); {$ENDIF}
   end;
 
   IPDegeriniArtir;

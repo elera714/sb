@@ -61,14 +61,13 @@ object frmAnaSayfa: TfrmAnaSayfa
       ItemHeight = 15
       ItemIndex = 0
       Items.Strings = (
+        'disket144.img'
         'yazmaçlar.bin'
-        'disket_fat12.bin'
-        'elera001.bin'
         'elera001.img'
         '622c.img'
       )
       TabOrder = 2
-      Text = 'yazmaçlar.bin'
+      Text = 'disket144.img'
     end
   end
   object sbDurum: TStatusBar
@@ -84,6 +83,11 @@ object frmAnaSayfa: TfrmAnaSayfa
       item
         Alignment = taCenter
         Text = 'Mod: 16 bit'
+        Width = 100
+      end    
+      item
+        Alignment = taCenter
+        Text = 'Disket [0]'
         Width = 100
       end    
       item

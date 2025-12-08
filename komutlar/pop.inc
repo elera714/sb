@@ -7,7 +7,7 @@ begin
 
     D41 := YigindanAl(DU4);
     YazmacDegistir(($04 shl 8) or (Komut - $58), D41);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('pop %s', [Yazmaclar32[IslenenKomut - $58]]); {$ENDIF}
+    {$IFDEF DEBUG} mmCikti.Lines.Add('pop %s', [Yazmaclar32[Komut - $58]]); {$ENDIF}
   end
   else
   // 58+ rw - POP r16 - Pop top of stack into r16; increment stack pointer
@@ -15,7 +15,7 @@ begin
 
     D21 := YigindanAl(DU2);
     YazmacDegistir(($02 shl 8) or (Komut - $58), D21);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('pop %s', [Yazmaclar16[IslenenKomut - $58]]); {$ENDIF}
+    {$IFDEF DEBUG} mmCikti.Lines.Add('pop %s', [Yazmaclar16[Komut - $58]]); {$ENDIF}
   end;
 
   IPDegeriniArtir;

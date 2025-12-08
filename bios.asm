@@ -72,6 +72,7 @@ islevINT0F:
         iret
 islevINT10:
         push    ds
+        push    es
         pusha
 
         push    ax
@@ -111,6 +112,7 @@ i3:
         mov     [gosterge_y],ax
 
         popa
+        pop     es
         pop     ds
         iret
 

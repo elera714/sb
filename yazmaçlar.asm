@@ -63,5 +63,5 @@ db18    db      8
 
 arge:
         nop
-        mov     cl,[arge]
+        mov     [arge],ah
         nop

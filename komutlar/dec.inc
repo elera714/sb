@@ -7,13 +7,13 @@ begin
   begin
 
     YazmacDegistir(($04 shl 8) or (Komut - $48), -1, True);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('dec %s', [Yazmaclar32[IslenenKomut - $48]]); {$ENDIF}
+    {$IFDEF DEBUG} mmCikti.Lines.Add('dec %s', [Yazmaclar32[Komut - $48]]); {$ENDIF}
   end
   else
   begin
 
     YazmacDegistir(($02 shl 8) or (Komut - $48), -1, True);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('dec %s', [Yazmaclar16[IslenenKomut - $48]]); {$ENDIF}
+    {$IFDEF DEBUG} mmCikti.Lines.Add('dec %s', [Yazmaclar16[Komut - $48]]); {$ENDIF}
   end;
 
   IPDegeriniArtir;

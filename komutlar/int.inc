@@ -2,31 +2,7 @@
 else if(Komut = $CD) then
 begin
 
-  if(Komut2 = $13) then
-  begin
-
-    // aşağıdaki yazmaç değerleri hatalı geliyor
-    D11 := YazmacDegerAl(YZMC_AH);
-    D12 := YazmacDegerAl(YZMC_AL);
-    D13 := YazmacDegerAl(YZMC_DH);
-    D14 := YazmacDegerAl(YZMC_DL);
-    D15 := YazmacDegerAl(YZMC_CH);
-    D16 := YazmacDegerAl(YZMC_CL);
-    D21 := YazmacDegerAl(YZMC_BX);
-    BayrakDegistir(BAYRAK_CF, False);
-
-    mmCikti.Lines.Add('int $13', []);
-    mmCikti.Lines.Add('int ah: $%.2x', [D11]);
-    mmCikti.Lines.Add('int al: $%.2x', [D12]);
-    mmCikti.Lines.Add('int dh: $%.2x', [D13]);
-    mmCikti.Lines.Add('int dl: $%.2x', [D14]);
-    mmCikti.Lines.Add('int ch: $%.2x', [D15]);
-    mmCikti.Lines.Add('int cl: $%.2x', [D16]);
-    mmCikti.Lines.Add('int bx: $%.4x', [D21]);
-
-    IPDegeriniArtir(2);
-  end
-  else
+  if(Komut2 = $10) then
   begin
 
     {$IFDEF DEBUG} mmCikti.Lines.Add('int %.2d', [Komut2]); {$ENDIF}
@@ -46,5 +22,47 @@ begin
     // kesme işlevini çalıştır
     YZMC_DEGERSN[YZMC0_EIP] := D21;
     YZMC_DEGERSN[YZMC0_CS] := D22;
+  end
+  else
+  begin
+
+    // 3.5" 1.44MB floppy disket değerleri
+    // silindir sayısı: 80
+    // kafa sayısı: 2
+    // iz başına sektör sayısı: 18
+
+    // aşağıdaki yazmaç değerleri hatalı geliyor
+    D21 := YazmacDegerAl(YZMC_ES);      // es:bx
+
+    D11 := YazmacDegerAl(YZMC_AH);      // ah = 2 = okuma
+    D12 := YazmacDegerAl(YZMC_AL);      // işlem yapılacak sektör sayısı
+    D13 := YazmacDegerAl(YZMC_DH);      // kafa sayısı
+    D14 := YazmacDegerAl(YZMC_DL);      // sürücü numarası: $00=A: $80=C:
+    D15 := YazmacDegerAl(YZMC_CH);      // silindir numarası
+    D16 := YazmacDegerAl(YZMC_CL);      // sektör numarası
+    D22 := YazmacDegerAl(YZMC_BX);
+    BayrakDegistir(BAYRAK_CF, False);
+
+    mmCikti.Lines.Add('int $13', []);
+    mmCikti.Lines.Add('int ah: $%.2x', [D11]);
+    mmCikti.Lines.Add('int al: $%.2x', [D12]);
+    mmCikti.Lines.Add('int dh: $%.2x', [D13]);
+    mmCikti.Lines.Add('int dl: $%.2x', [D14]);
+    mmCikti.Lines.Add('int ch: $%.2x', [D15]);
+    mmCikti.Lines.Add('int cl: $%.2x', [D16]);
+    mmCikti.Lines.Add('int bx: $%.4x', [D22]);
+
+    // ilk sektör
+    D41 := ((D13 * 18) + (D16 - 1)) * 512;
+
+    // ah = hata kodu = 0 = başarılı
+    // al okunan sektör sayısı
+    // cf: 0 = işlem başarılı, 1 = hata
+
+    DosyaYukle('disket144.img', (D21 * $10) + D22, D41, D12 * 512);
+
+    BayrakDegistir(BAYRAK_CF, False);
+
+    IPDegeriniArtir(2);
   end;
 end

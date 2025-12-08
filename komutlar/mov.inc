@@ -10,6 +10,9 @@ begin
     D42 := MYB8[(Komut2 and %00111000) shr 3];     // kaynak yazmaç (2. parametre)
     D43 := YazmacDegerAl(D42);
 
+    // komut uzunluğu öndeğer = 2 byte
+    D11 := 2;
+
     case D41 of
       0:
       begin
@@ -51,9 +54,17 @@ begin
         D44 += YazmacDegerAl(YZMC_DI);
         PByte(@Bellek144MB[D44])^ := D43;
       end;
+      6:
+      begin
+        D44 := YazmacDegerAl(YZMC_DS) * $10;
+        D44 += PWord(@Bellek144MB[Adres + 2])^;
+        PByte(@Bellek144MB[D44])^ := D43;
+        D11 := 4;     // komut uzunluğu 4 byte
+      end;
       7:
       begin
-        D44 := YazmacDegerAl(YZMC_BX);
+        D44 := YazmacDegerAl(YZMC_ES) * $10;
+        D44 += YazmacDegerAl(YZMC_BX);
         PByte(@Bellek144MB[D44])^ := D43;
       end;
       else Result := False;
@@ -61,8 +72,9 @@ begin
 
     if((D42 and $FF) >= $40) then D42 := (D42 shr 4) and $F else D42 := D42 and $F;
 
-    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s', [Bellekler10[D41], Yazmaclar8[D42]]); {$ENDIF}
-    IPDegeriniArtir(2);
+    { TODO - çıkte güncellenecek. bellek ataması değeri de eklenecek }
+    {$IFDEF DEBUG} {mmCikti.Lines.Add('mov %s,%s', [Bellekler10[D41], Yazmaclar8[D42]]);} {$ENDIF}
+    IPDegeriniArtir(D11);
   end
   // 8 bitlik yazmaç ataması
   else if((Komut2 and %11000000) = %11000000) then
@@ -180,7 +192,78 @@ begin
       IPDegeriniArtir(2 + 2);
     end;
 
-  end else Result := False;
+  end
+  // bellek bölgesi ataması
+  else if((Komut2 and %01000000) = %01000000) then
+  begin
+
+    D41 := (Komut2 and %00000111);                  // bellek bölgesi
+    D11 := PByte(@Bellek144MB[Adres + 2])^;
+
+    case D41 of
+      0:
+      begin
+        D42 := YazmacDegerAl(YZMC_DS) * $10;
+        D42 += YazmacDegerAl(YZMC_BX);
+        D42 += YazmacDegerAl(YZMC_SI);
+        D42 += D11;
+      end;
+      1:
+      begin
+        D42 := YazmacDegerAl(YZMC_ES) * $10;
+        D42 += YazmacDegerAl(YZMC_BX);
+        D42 += YazmacDegerAl(YZMC_DI);
+        D42 += D11;
+      end;
+      2:
+      begin
+        D42 := YazmacDegerAl(YZMC_DS) * $10;
+        D42 += YazmacDegerAl(YZMC_BP);
+        D42 += YazmacDegerAl(YZMC_SI);
+        D42 += D11;
+      end;
+      3:
+      begin
+        D42 := YazmacDegerAl(YZMC_ES) * $10;
+        D42 += YazmacDegerAl(YZMC_DI);
+        D42 += YazmacDegerAl(YZMC_BP);
+        D42 += D11;
+      end;
+      4:
+      begin
+        D42 := YazmacDegerAl(YZMC_DS) * $10;
+        D42 += YazmacDegerAl(YZMC_SI);
+        D42 += D11;
+      end;
+      5:
+      begin
+        D42 := YazmacDegerAl(YZMC_ES) * $10;
+        D42 += YazmacDegerAl(YZMC_DI);
+        D42 += D11;
+      end;
+      6:
+      begin
+        D42 := YazmacDegerAl(YZMC_SS) * $10;
+        D42 += YazmacDegerAl(YZMC_BP);
+        D42 += D11;
+      end;
+      7:
+      begin
+        D42 := YazmacDegerAl(YZMC_ES) * $10;
+        D42 := YazmacDegerAl(YZMC_BX);
+        D42 += D11;
+      end;
+    end;
+
+    D42 := MYB16[(Komut2 and %00111000) shr 3];     // hedef yazmaç
+    D21 := PWord(@Bellek144MB[D42])^;
+    YazmacDegistir(D42, D21);
+
+    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s%d', [Yazmaclar16[D42 and $FF], Bellekler01[D41], D11]); {$ENDIF}
+
+    IPDegeriniArtir(2 + 1);
+  end
+  else Result := False;
 end
 // 8E /r - MOV Sreg,r/m16** - Move r/m16 to segment register
 else if(Komut = $8E) then
@@ -305,7 +388,7 @@ begin
 
     D41 := PLongWord(@Bellek144MB[Adres + 1])^;
     YazmacDegistir(($04 shl 8) or (Komut - $B8), D41);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,$%.8x', [Yazmaclar32[IslenenKomut - $B8], D41]); {$ENDIF}
+    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,$%.8x', [Yazmaclar32[Komut - $B8], D41]); {$ENDIF}
     IPDegeriniArtir(1 + 4);
   end
   else
@@ -313,7 +396,7 @@ begin
 
     D21 := PWord(@Bellek144MB[Adres + 1])^;
     YazmacDegistir(($02 shl 8) or (Komut - $B8), D21);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,$%.4x', [Yazmaclar16[IslenenKomut - $B8], D21]); {$ENDIF}
+    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,$%.4x', [Yazmaclar16[Komut - $B8], D21]); {$ENDIF}
     IPDegeriniArtir(1 + 2);
   end;
 end

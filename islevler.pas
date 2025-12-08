@@ -124,14 +124,19 @@ const
     ('eax', 'ecx', 'edx', 'ebx', 'esp', 'ebp', 'esi', 'edi',
      'cs', 'ds', 'es', 'ss', 'fs', 'gs', 'eip');
 
-  // bellek atamaları, tablo 1, mod 0
-  Bellekler10: array[0..7] of string =
-    ('[bx+si]', '[bx+di]', '[bp+si]', '[bp+di]', '[si]', '[di]', '[disp16]', 'bx');
+  // bellek atamaları, tablo 1, mod 00
+  Bellekler00: array[0..7] of string =
+    ('[bx+si]', '[bx+di]', '[bp+si]', '[bp+di]', '[si]', '[di]', '[disp16]', '[bx]');
+
+  // bellek atamaları, tablo 1, mod 01
+  Bellekler01: array[0..7] of string =
+    ('[bx+si]+b', '[bx+di]+b', '[bp+si]+b', '[bp+di]+b', '[si]+b', '[di]+b', '[bp]+b', '[bx]+b');
 
 
 var
   ISLEMCI_CM: Integer = ICM_BIT16;
   SB_CALISIYOR: Boolean = False;              // sanal bilgisayar çalışıyor mu?
+  FlpOkunanSektorSayisi: LongWord;            // floppy okunan sektör sayısı
   BiosYuklendi: Boolean;
 
 const
