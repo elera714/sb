@@ -1,8 +1,8 @@
 unit anasayfafrm;
 
 {$mode objfpc}{$H+}
-{$DEFINE YAZMACLARI_GUNCELLE}
-{$DEFINE DEBUG}
+//{$DEFINE YAZMACLARI_GUNCELLE}
+//{$DEFINE DEBUG}
 
 interface
 
@@ -58,14 +58,15 @@ type
     function Isle(ACS, AIP: Integer): Boolean;
     procedure YazmacDegistir(AHedefYazmacSN, ADeger: LongInt; AArtir: Boolean = False);
     procedure BayrakDegistir(AHedefBayrak: LongWord; AAktiflestir: Boolean = True);
+    procedure BayraklariGuncelle(AHedefBayrak: LongWord = $FFFFFFFF);
     procedure YazmaclariSifirla;
     procedure BellegeKopyala(AKaynak, AHedef: Pointer; AHedefBellekBaslangic,
       AUzunluk: Integer);
     procedure IOPortOku(AHedefYazmacSN, AKaynakPortNo: Integer);
     procedure IOPortOku2(AHedefYazmacSN: Integer);
-    procedure YiginaEkle(ADeger, AVeriUzunlugu: LongWord);
+    procedure YiginaEkle(ADeger, ADegerUzunlugu: LongWord);
     procedure YiginaEkle2(AHedefYazmacSN: Integer);
-    function YigindanAl(AVeriUzunlugu: LongWord): LongWord;
+    function YigindanAl(ADegerUzunlugu: LongWord): LongWord;
     function DosyaYukle(ADosyaAdi: string; ABellekAdresi, ABaslangic,
       ABoyut: LongWord): string;
     procedure EkraniKartiniYukle;
@@ -425,6 +426,23 @@ begin
     end else Result := False;
   end
 
+  // D1 /5 - SHR r/m16,1 - Unsigned divide r/m16 by 2, once
+  else if(Komut = $D1) then
+  begin
+
+    if((Komut2 and %11101000) = %11101000) then
+    begin
+
+      D41 := MYB16[Komut2 and %111];
+      D21 := YazmacDegerAl(D41);
+      D21 := D21 shr 1;
+      YazmacDegistir(D41, D21);
+
+      {$IFDEF DEBUG} mmCikti.Lines.Add('shr %s,1', [Yazmaclar16[D41 and $F]]); {$ENDIF}
+      IPDegeriniArtir(2);
+
+    end else Result := False;
+  end
 
 
   {$i komutlar\add.inc}
@@ -448,8 +466,10 @@ begin
   {$i komutlar\out.inc}
   {$i komutlar\push.inc}
   {$i komutlar\pusha.inc}
+  {$i komutlar\pushf.inc}
   {$i komutlar\pop.inc}
   {$i komutlar\popa.inc}
+  {$i komutlar\popf.inc}
   {$i komutlar\rep.inc}
   {$i komutlar\ret.inc}
   {$i komutlar\stc.inc}
@@ -518,28 +538,55 @@ begin
 end;
 
 procedure TfrmAnaSayfa.BayrakDegistir(AHedefBayrak: LongWord; AAktiflestir: Boolean = True);
-var
-  V41: LongWord;         // işaretsiz 32 bit
 begin
 
   if(AAktiflestir) then
     SetBit(Bayraklar, AHedefBayrak)
   else ClearBit(Bayraklar, AHedefBayrak);
 
-  V41 := (Bayraklar shr AHedefBayrak) and 1;
+  BayraklariGuncelle(AHedefBayrak);
+end;
 
-  case AHedefBayrak of
-    BAYRAK_CF: lblCF.Caption := Format('CF=%d', [V41]);
-    BAYRAK_PF: lblPF.Caption := Format('PF=%d', [V41]);
-    BAYRAK_AF: lblAF.Caption := Format('AF=%d', [V41]);
-    BAYRAK_ZF: lblZF.Caption := Format('ZF=%d', [V41]);
-    BAYRAK_SF: lblSF.Caption := Format('SF=%d', [V41]);
-    BAYRAK_TF: lblTF.Caption := Format('TF=%d', [V41]);
-    BAYRAK_IF: lblIF.Caption := Format('IF=%d', [V41]);
-    BAYRAK_DF: lblDF.Caption := Format('DF=%d', [V41]);
-    BAYRAK_OF: lblOF.Caption := Format('OF=%d', [V41]);
-    //BAYRAK_IOPL: lblIOPL.Caption := Format('IOPL=%d', [V41]);  { TODO 2 bir olarak ayarlanacak}
-    BAYRAK_NT: lblNT.Caption := Format('NT=%d', [V41]);
+procedure TfrmAnaSayfa.BayraklariGuncelle(AHedefBayrak: LongWord = $FFFFFFFF);
+var
+  V41: LongWord;         // işaretsiz 32 bit
+begin
+
+  // tüm bayrakları güncelle
+  if(AHedefBayrak = $FFFFFFFF) then
+  begin
+
+    lblCF.Caption := Format('CF=%d', [(Bayraklar shr BAYRAK_CF) and 1]);
+    lblPF.Caption := Format('PF=%d', [(Bayraklar shr BAYRAK_PF) and 1]);
+    lblAF.Caption := Format('AF=%d', [(Bayraklar shr BAYRAK_AF) and 1]);
+    lblZF.Caption := Format('ZF=%d', [(Bayraklar shr BAYRAK_ZF) and 1]);
+    lblSF.Caption := Format('SF=%d', [(Bayraklar shr BAYRAK_SF) and 1]);
+    lblTF.Caption := Format('TF=%d', [(Bayraklar shr BAYRAK_TF) and 1]);
+    lblIF.Caption := Format('IF=%d', [(Bayraklar shr BAYRAK_IF) and 1]);
+    lblDF.Caption := Format('DF=%d', [(Bayraklar shr BAYRAK_DF) and 1]);
+    lblOF.Caption := Format('OF=%d', [(Bayraklar shr BAYRAK_OF) and 1]);
+    //lblIOPL.Caption := Format('IOPL=%d', [V41]);  { TODO 2 bir olarak ayarlanacak}
+    lblNT.Caption := Format('NT=%d', [(Bayraklar shr BAYRAK_NT) and 1]);
+  end
+  else
+  // belirtilen bayrağı güncelle
+  begin
+
+    V41 := (Bayraklar shr AHedefBayrak) and 1;
+
+    case AHedefBayrak of
+      BAYRAK_CF: lblCF.Caption := Format('CF=%d', [V41]);
+      BAYRAK_PF: lblPF.Caption := Format('PF=%d', [V41]);
+      BAYRAK_AF: lblAF.Caption := Format('AF=%d', [V41]);
+      BAYRAK_ZF: lblZF.Caption := Format('ZF=%d', [V41]);
+      BAYRAK_SF: lblSF.Caption := Format('SF=%d', [V41]);
+      BAYRAK_TF: lblTF.Caption := Format('TF=%d', [V41]);
+      BAYRAK_IF: lblIF.Caption := Format('IF=%d', [V41]);
+      BAYRAK_DF: lblDF.Caption := Format('DF=%d', [V41]);
+      BAYRAK_OF: lblOF.Caption := Format('OF=%d', [V41]);
+      //BAYRAK_IOPL: lblIOPL.Caption := Format('IOPL=%d', [V41]);  { TODO 2 bir olarak ayarlanacak}
+      BAYRAK_NT: lblNT.Caption := Format('NT=%d', [V41]);
+    end;
   end;
 
   Application.ProcessMessages;
@@ -655,17 +702,17 @@ begin
   end;
 end;
 
-procedure TfrmAnaSayfa.YiginaEkle(ADeger, AVeriUzunlugu: LongWord);
+procedure TfrmAnaSayfa.YiginaEkle(ADeger, ADegerUzunlugu: LongWord);
 var
   V41, V42: LongWord;   // işaretsiz 32 bit
 begin
 
   V41 := YZMC_DEGERSN[YZMC0_SS];
   V42 := YZMC_DEGERSN[YZMC0_ESP];
-  V42 -= AVeriUzunlugu;
+  V42 -= ADegerUzunlugu;
   YZMC_DEGERSN[YZMC0_ESP] := V42;
 
-  case AVeriUzunlugu of
+  case ADegerUzunlugu of
     DU1: begin PByte(@Bellek144MB[(V41 * $10) + V42])^ := (ADeger and $FF); end;
     DU2: begin PWord(@Bellek144MB[(V41 * $10) + V42])^ := (ADeger and $FFFF); end;
     DU4: begin PLongWord(@Bellek144MB[(V41 * $10) + V42])^ := ADeger; end;
@@ -762,7 +809,7 @@ begin
   Application.ProcessMessages;
 end;
 
-function TfrmAnaSayfa.YigindanAl(AVeriUzunlugu: LongWord): LongWord;
+function TfrmAnaSayfa.YigindanAl(ADegerUzunlugu: LongWord): LongWord;
 var
   V41, V42: LongWord;   // işaretsiz 32 bit
 begin
@@ -770,14 +817,14 @@ begin
   V41 := YZMC_DEGERSN[YZMC0_SS];
   V42 := YZMC_DEGERSN[YZMC0_ESP];
 
-  case AVeriUzunlugu of
+  case ADegerUzunlugu of
     DU1: begin Result := PByte(@Bellek144MB[(V41 * $10) + V42])^; end;
     DU2: begin Result := PWord(@Bellek144MB[(V41 * $10) + V42])^; end;
     DU4: begin Result := PLongWord(@Bellek144MB[(V41 * $10) + V42])^; end;
     else Exit;
   end;
 
-  V42 += AVeriUzunlugu;
+  V42 += ADegerUzunlugu;
   YZMC_DEGERSN[YZMC0_ESP] := V42;
 
   {$IFDEF YAZMACLARI_GUNCELLE}

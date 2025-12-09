@@ -265,6 +265,22 @@ begin
   end
   else Result := False;
 end
+// 8C /r - MOV r/m16,Sreg** - Move segment register to r/m16
+else if(Komut = $8C) then
+begin
+
+  D11 := (Komut2 shr 3) and %111;     // kaynak yazmaç
+  D12 := (Komut2 and %111);           // hedef segment
+
+  D21 := SYZMC[D11];
+  D22 := MYB16[D12];
+
+  D23 := YazmacDegerAl(D21);
+  YazmacDegistir(D22, D23);
+
+  {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s', [Yazmaclar16[D22 and $F], SYazmaclar[D21 and $F]]); {$ENDIF}
+  IPDegeriniArtir(2);
+end
 // 8E /r - MOV Sreg,r/m16** - Move r/m16 to segment register
 else if(Komut = $8E) then
 begin
@@ -274,15 +290,8 @@ begin
   if(D12 = %11) then
   begin
 
-    case D13 of
-      0: D21 := ($02 shl 8) or $0A;
-      1: D21 := ($02 shl 8) or $08;
-      2: D21 := ($02 shl 8) or $0B;
-      3: D21 := ($02 shl 8) or $09;
-      4: D21 := ($02 shl 8) or $0C;
-      5: D21 := ($02 shl 8) or $0D;
-      else Result := False;
-    end;
+    D21 := SYZMC[D13];
+    if(D21 = 0) then Result := False;
 
     if(Result) then
     begin
@@ -434,7 +443,7 @@ begin
       D41 := PLongWord(@Bellek144MB[Adres + 4])^;
       PLongWord(@Bellek144MB[(D41 * $10) + D21])^ := D41;
 
-      {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.8x],dword %d', [D21, D41]); {$ENDIF}
+      {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.8x],dw %d', [D21, D41]); {$ENDIF}
       IPDegeriniArtir(2 + 6);
     end
     else
@@ -446,7 +455,7 @@ begin
       D22 := PWord(@Bellek144MB[Adres + 4])^;
       PWord(@Bellek144MB[(D41 * $10) + D21])^ := D22;
 
-      {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.4x],word %d', [D21, D22]); {$ENDIF}
+      {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.4x],w %d', [D21, D22]); {$ENDIF}
       IPDegeriniArtir(2 + 4);
     end;
 

@@ -54,12 +54,14 @@ const
   YZMC0_ESI   = $06;
   YZMC0_EDI   = $07;
 
-  YZMC0_CS    = $08;
-  YZMC0_DS    = $09;
-  YZMC0_ES    = $0A;
-  YZMC0_SS    = $0B;
-  YZMC0_FS    = $0C;
-  YZMC0_GS    = $0D;
+  // ModR/M değerleri
+  YZMC0_ES    = $08;      // 0
+  YZMC0_CS    = $09;      // 1
+  YZMC0_SS    = $0A;      // 2
+  YZMC0_DS    = $0B;      // 3
+  YZMC0_FS    = $0C;      // 4
+  YZMC0_GS    = $0D;      // 5
+                          // bilgi: 6 ve 7 değerleri ayrılmıştır
   YZMC0_EIP   = $0E;
 
   // 8 bit yazmaçlar
@@ -82,12 +84,13 @@ const
   YZMC_SI     = ($02 shl 8) or $06;
   YZMC_DI     = ($02 shl 8) or $07;
 
-  YZMC_CS     = ($02 shl 8) or $08;
-  YZMC_DS     = ($02 shl 8) or $09;
-  YZMC_ES     = ($02 shl 8) or $0A;
-  YZMC_SS     = ($02 shl 8) or $0B;
+  YZMC_ES     = ($02 shl 8) or $08;
+  YZMC_CS     = ($02 shl 8) or $09;
+  YZMC_SS     = ($02 shl 8) or $0A;
+  YZMC_DS     = ($02 shl 8) or $0B;
   YZMC_FS     = ($02 shl 8) or $0C;
   YZMC_GS     = ($02 shl 8) or $0D;
+
   YZMC_IP     = ($02 shl 8) or $0E;
 
   // 32 bit yazmaçlar
@@ -108,10 +111,13 @@ var
 const
   // yazmaç değerlerinin form üzerindeki sıra numaraları
   YZMC_GORSELSN: array[0..14] of LongWord =
-    {eax ecx edx ebx esp ebp esi edi cs  ds  es  ss  fs  gs  eip}
-    (0,  2,  3,  1,  7,  6,  4,  5,  8,  9,  10, 11, 12, 13, 14);
+    {eax ecx edx ebx esp ebp esi edi es  cs  ss  ds  fs  gs  eip}
+    (0,  2,  3,  1,  7,  6,  4,  5,  10,  8,  11, 9, 12, 13, 14);
 
 const
+  // segment yazmaçları
+  SYazmaclar : array[0..7] of string = ('es', 'cs', 'ss', 'ds', 'fs', 'gs', '?', '?');
+
   // Yazmaclar8, Instruction Set Reference Manual - tablo 2.1, 2.2, 2.3 değerlerine
   // yapılandırılmıştır
   Yazmaclar8: array[0..7] of string =
@@ -119,10 +125,10 @@ const
 
   Yazmaclar16: array[YZMC0_EAX..YZMC0_EIP] of string =
     ('ax', 'cx', 'dx', 'bx', 'sp', 'bp', 'si', 'di',
-     'cs', 'ds', 'es', 'ss', 'fs', 'gs', 'ip');
+     'es', 'cs', 'ss', 'ds', 'fs', 'gs', 'ip');
   Yazmaclar32: array[YZMC0_EAX..YZMC0_EIP] of string =
     ('eax', 'ecx', 'edx', 'ebx', 'esp', 'ebp', 'esi', 'edi',
-     'cs', 'ds', 'es', 'ss', 'fs', 'gs', 'eip');
+     'es', 'cs', 'ss', 'ds', 'fs', 'gs', 'eip');
 
   // bellek atamaları, tablo 1, mod 00
   Bellekler00: array[0..7] of string =
@@ -166,6 +172,9 @@ const
     YZMC_SP, YZMC_BP, YZMC_SI, YZMC_DI);
   MYB32 : array[0..7] of LongWord = (YZMC_EAX, YZMC_ECX, YZMC_EDX, YZMC_EBX,
     YZMC_ESP, YZMC_EBP, YZMC_ESI, YZMC_EDI);
+
+  // segment yazmaç ModRM değerleri
+  SYZMC : array[0..7] of LongWord = (YZMC_ES, YZMC_CS, YZMC_SS, YZMC_DS, YZMC_FS, YZMC_GS, 0, 0);
 
 var
   Bellek144MB: array of Byte;

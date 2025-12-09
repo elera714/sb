@@ -1,10 +1,10 @@
 use16
 ilk_degerler:
-        mov     ax,0x7c0
+        mov     ax,cs
         mov     ds,ax
         mov     es,ax
         mov     ss,ax
-;        mov     sp,0x1000
+        mov     sp,0x1000
 
 kod_bolumu:
 ;        mov     cx,0x10
@@ -20,29 +20,17 @@ esit:
 ;        xor     ax,ax
 ;        mov     al,'1'
 
+        pushf
+        mov     ax,0xffff
+        push    ax
+        popf
+        popf
+
 kesme:
 
 ;        pusha
 ;        int     0x10
 ;        popa
-
-        mov     [db11],8
-        mov     [db12],7
-        mov     [db13],6
-        mov     [db14],5
-        mov     [db15],4
-        mov     [db16],3
-        mov     [db17],2
-        mov     [db18],1
-
-        mov     al,[db11]
-        mov     cl,[db12]
-        mov     dl,[db13]
-        mov     bl,[db14]
-        mov     ah,[db15]
-        mov     ch,[db16]
-        mov     dh,[db17]
-        mov     bh,[db18]
 
 
 dongu:  jmp     dongu
@@ -63,5 +51,5 @@ db18    db      8
 
 arge:
         nop
-        mov     [arge],ah
+        popf
         nop
