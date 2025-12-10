@@ -20,13 +20,16 @@ esit:
 ;        xor     ax,ax
 ;        mov     al,'1'
 
-        pushf
-        mov     ax,0xffff
-        push    ax
-        popf
-        popf
 
+        add     si,[bx]
+        add     ax,[bx+si]
+        add     bx,[si]
+        add     bp,[bx]
+        add     cx,[di]
+        add     ax,[0x1010]
 kesme:
+
+
 
 ;        pusha
 ;        int     0x10
@@ -51,5 +54,5 @@ db18    db      8
 
 arge:
         nop
-        popf
+        mov     ax,[si]
         nop

@@ -3,7 +3,7 @@
 else if(Komut = $E8) then
 begin
 
-  D21 := PWord(@Bellek144MB[Adres + 1])^;
+  D21 := PWord(@Bellek144MB[IslenenAdres + 1])^;
   {$IFDEF DEBUG} mmCikti.Lines.Add('call (yakın) %.4d', [SmallInt(D21)]); {$ENDIF}
   YiginaEkle(YZMC_DEGERSN[YZMC0_EIP] + 3, DU2);
   IPDegeriniArtir(3);

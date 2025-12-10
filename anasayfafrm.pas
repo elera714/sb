@@ -1,8 +1,8 @@
 unit anasayfafrm;
 
 {$mode objfpc}{$H+}
-//{$DEFINE YAZMACLARI_GUNCELLE}
-//{$DEFINE DEBUG}
+{$DEFINE YAZMACLARI_GUNCELLE}
+{$DEFINE DEBUG}
 
 interface
 
@@ -224,7 +224,7 @@ end;
 
 procedure TfrmAnaSayfa.Yorumla;
 var
-  Islenen, Adres: Integer;
+  Islenen, HataAdresi: Integer;
   HataVar, Islendi: Boolean;
 begin
 
@@ -268,8 +268,8 @@ begin
   if(HataVar) then
   begin
 
-    Adres := (YZMC_DEGERSN[YZMC0_CS] * $10) + YZMC_DEGERSN[YZMC0_EIP];
-    Komut := Bellek144MB[Adres];
+    HataAdresi := (YZMC_DEGERSN[YZMC0_CS] * $10) + YZMC_DEGERSN[YZMC0_EIP];
+    Komut := Bellek144MB[HataAdresi];
     mmCikti.Lines.Add('Yürütme iptal edildi. Hatalı komut: $%.2x', [Komut]);
 
     SB_CALISIYOR := False;
@@ -279,14 +279,14 @@ end;
 
 function TfrmAnaSayfa.Isle(ACS, AIP: Integer): Boolean;
 var
-  Adres: LongWord;
   D11, D12,
   D13, D14,
   D15, D16: Byte;       // işaretsiz 8 bit
   D21, D22,
   D23: Word;            // işaretsiz 16 bit
   D41, D42,
-  D43, D44: LongWord;   // işaretsiz 32 bit
+  D43, D44,
+  D45: LongWord;        // işaretsiz 32 bit
 
   I11: ShortInt;
   I21: SmallInt;
@@ -309,10 +309,10 @@ begin
 
   Result := True;
 
-  Adres := (ACS * $10) + AIP;
+  IslenenAdres := (ACS * $10) + AIP;
 
-  Komut := Bellek144MB[Adres + 0];
-  Komut2 := Bellek144MB[Adres + 1];
+  Komut := Bellek144MB[IslenenAdres + 0];
+  Komut2 := Bellek144MB[IslenenAdres + 1];
 
   // Operand-size override, 66H
   if(Komut = $66) then
@@ -367,7 +367,7 @@ begin
     if((Komut2 and %00001110) = %00001110) then
     begin
 
-      D21 := PWord(@Bellek144MB[Adres + 2])^;
+      D21 := PWord(@Bellek144MB[IslenenAdres + 2])^;
       D11 := PByte(@Bellek144MB[D21])^;
       D11 := D11 - 1;
       PByte(@Bellek144MB[D21])^ := D11;
@@ -442,6 +442,19 @@ begin
       IPDegeriniArtir(2);
 
     end else Result := False;
+  end
+  // 81 /0 iw - ADD r/m16,imm16 - Add imm16 to r/m16
+  else if(Komut = $81) and ((Komut2 and %11111000) = %11000000) then
+  begin
+
+    D41 := MYB16[Komut2 and %111];
+    D42 := YazmacDegerAl(D41);
+    D21 := PWord(@Bellek144MB[IslenenAdres + 2])^;
+
+    YazmacDegistir(D41, D21, True);
+
+    {$IFDEF DEBUG} mmCikti.Lines.Add('add %s,%d', [Yazmaclar16[D41 and $F], D21]); {$ENDIF}
+    IPDegeriniArtir(2 + 2);
   end
 
 

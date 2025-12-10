@@ -144,6 +144,7 @@ var
   SB_CALISIYOR: Boolean = False;              // sanal bilgisayar çalışıyor mu?
   FlpOkunanSektorSayisi: LongWord;            // floppy okunan sektör sayısı
   BiosYuklendi: Boolean;
+  IslenenAdres: LongWord;                     // o anda assembly komutunun işlendiği adres
 
 const
   BAYRAK_CF     = 0;
@@ -187,6 +188,7 @@ procedure SetBit(var Value: LongWord; Index: Byte);
 function YazmacDegerAl(AYazmac: LongWord): LongWord;
 procedure IOPortYaz(AHedefPortNo, AKaynakYazmacSN: LongWord);
 procedure IOPortYaz2(AKaynakYazmacSN: LongWord);
+function Mod00Isle(AIslemNo: LongWord): LongWord;
 
 implementation
 
@@ -307,6 +309,58 @@ begin
       Portlar[HedefPortNo] := KaynakDeger;
     end;
     else Exit;
+  end;
+end;
+
+// tablo 2.1 - mod: 00 bellek hesaplama işlevlerini gerçekleştirir
+function Mod00Isle(AIslemNo: LongWord): LongWord;
+begin
+
+  case AIslemNo of
+    0:
+    begin
+      Result := YazmacDegerAl(YZMC_DS) * $10;
+      Result += YazmacDegerAl(YZMC_SI);
+      Result += YazmacDegerAl(YZMC_BX);
+    end;
+    1:
+    begin
+      Result := YazmacDegerAl(YZMC_ES) * $10;
+      Result += YazmacDegerAl(YZMC_DI);
+      Result += YazmacDegerAl(YZMC_BX);
+    end;
+    2:
+    begin
+      Result := YazmacDegerAl(YZMC_DS) * $10;
+      Result += YazmacDegerAl(YZMC_SI);
+      Result += YazmacDegerAl(YZMC_BP);
+    end;
+    3:
+    begin
+      Result := YazmacDegerAl(YZMC_ES) * $10;
+      Result += YazmacDegerAl(YZMC_DI);
+      Result += YazmacDegerAl(YZMC_BP);
+    end;
+    4:
+    begin
+      Result := YazmacDegerAl(YZMC_DS) * $10;
+      Result += YazmacDegerAl(YZMC_SI);
+    end;
+    5:
+    begin
+      Result := YazmacDegerAl(YZMC_ES) * $10;
+      Result += YazmacDegerAl(YZMC_DI);
+    end;
+    6:
+    begin
+      Result := YazmacDegerAl(YZMC_DS) * $10;
+      Result += PWord(@Bellek144MB[IslenenAdres + 2])^;
+    end;
+    7:
+    begin
+      Result := YazmacDegerAl(YZMC_ES) * $10;
+      Result += YazmacDegerAl(YZMC_BX);
+    end;
   end;
 end;
 

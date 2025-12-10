@@ -33,7 +33,7 @@ begin
   if(KomutModDegistir) then
   begin
 
-    D41 := PLongWord(@Bellek144MB[Adres + 1])^;
+    D41 := PLongWord(@Bellek144MB[IslenenAdres + 1])^;
 
     YiginaEkle(D41, DU4);
     {$IFDEF DEBUG} mmCikti.Lines.Add('push vu4 $%.8x', [D41]); {$ENDIF}
@@ -43,7 +43,7 @@ begin
   // 68 - PUSH imm16 - Push imm16
   begin
 
-    D21 := PWord(@Bellek144MB[Adres + 1])^;
+    D21 := PWord(@Bellek144MB[IslenenAdres + 1])^;
 
     YiginaEkle(D21, DU2);
     {$IFDEF DEBUG} mmCikti.Lines.Add('push vu2 $%.4x', [D21]); {$ENDIF}

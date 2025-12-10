@@ -8,7 +8,7 @@ begin
 
     D41 := MYB16[(Komut2 and %00000111)];          // çarpma işlemi yapılacak yazmaç
     D42 := YazmacDegerAl(D41);
-    D11 := PByte(@Bellek144MB[Adres + 2])^;
+    D11 := PByte(@Bellek144MB[IslenenAdres + 2])^;
 
     YazmacDegistir(D41, D42 * D11);
 
@@ -30,7 +30,7 @@ begin
 
       D41 := MYB16[(Komut2 and %00000111)];          // çarpma işlemi yapılacak yazmaç
       D42 := YazmacDegerAl(D41);
-      D43 := PLongWord(@Bellek144MB[Adres + 2])^;
+      D43 := PLongWord(@Bellek144MB[IslenenAdres + 2])^;
 
       YazmacDegistir(D41, D42 * D43);
 
@@ -43,7 +43,7 @@ begin
 
       D41 := MYB16[(Komut2 and %00000111)];          // çarpma işlemi yapılacak yazmaç
       D42 := YazmacDegerAl(D41);
-      D21 := PWord(@Bellek144MB[Adres + 2])^;
+      D21 := PWord(@Bellek144MB[IslenenAdres + 2])^;
 
       YazmacDegistir(D41, D42 * D21);
 

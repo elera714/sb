@@ -46,7 +46,7 @@ end
 else if(Komut = $0F) and (Komut2 = $82) then
 begin
 
-  D21 := PWord(@Bellek144MB[Adres + 2])^;
+  D21 := PWord(@Bellek144MB[IslenenAdres + 2])^;
   {$IFDEF DEBUG} mmCikti.Lines.Add('jb/jc/jnae (yakın) %.4d', [SmallInt(D21)]); {$ENDIF}
   IPDegeriniArtir(2 + 2);
 
