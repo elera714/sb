@@ -23,13 +23,13 @@ begin
     YZMC_DEGERSN[YZMC0_EIP] := D21;
     YZMC_DEGERSN[YZMC0_CS] := D22;
   end
-  else
+  else if(Komut2 = $13) then
   begin
 
     // 3.5" 1.44MB floppy disket değerleri
-    // silindir sayısı: 80
-    // kafa sayısı: 2
-    // iz başına sektör sayısı: 18
+    // silindir sayısı: 0..79
+    // kafa sayısı: 0..1
+    // iz başına sektör sayısı: 1..18
 
     // aşağıdaki yazmaç değerleri hatalı geliyor
     D21 := YazmacDegerAl(YZMC_ES);      // es:bx
@@ -53,7 +53,8 @@ begin
     mmCikti.Lines.Add('int bx: $%.4x', [D22]);
 
     // ilk sektör
-    D41 := ((D13 * 18) + (D16 - 1)) * 512;
+    //D41 := ((D13 * 18) + (D16 - 1)) * 512;
+    D41 := (((D15 * 36) + (D13 * 18) + D16) - 1) * 512;
 
     // ah = hata kodu = 0 = başarılı
     // al okunan sektör sayısı
@@ -61,8 +62,10 @@ begin
 
     DosyaYukle('disket144.img', (D21 * $10) + D22, D41, D12 * 512);
 
+    YazmacDegistir(YZMC_AH, 0);
     BayrakDegistir(BAYRAK_CF, False);
 
     IPDegeriniArtir(2);
-  end;
+
+  end else Result := False;
 end

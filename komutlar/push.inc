@@ -23,7 +23,7 @@ else if(Komut = $6A) then
 begin
 
   YiginaEkle(Komut2, DU1);
-  {$IFDEF DEBUG} mmCikti.Lines.Add('push vu1 $%.2x', [Komut2]); {$ENDIF}
+  {$IFDEF DEBUG} mmCikti.Lines.Add('push b $%.2x', [Komut2]); {$ENDIF}
   IPDegeriniArtir(1 + 1);
 end
 else if(Komut = $68) then
@@ -36,7 +36,7 @@ begin
     D41 := PLongWord(@Bellek144MB[IslenenAdres + 1])^;
 
     YiginaEkle(D41, DU4);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('push vu4 $%.8x', [D41]); {$ENDIF}
+    {$IFDEF DEBUG} mmCikti.Lines.Add('push dw $%.8x', [D41]); {$ENDIF}
     IPDegeriniArtir(1 + 4);
   end
   else
@@ -46,7 +46,7 @@ begin
     D21 := PWord(@Bellek144MB[IslenenAdres + 1])^;
 
     YiginaEkle(D21, DU2);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('push vu2 $%.4x', [D21]); {$ENDIF}
+    {$IFDEF DEBUG} mmCikti.Lines.Add('push w $%.4x', [D21]); {$ENDIF}
     IPDegeriniArtir(1 + 2);
   end;
 end

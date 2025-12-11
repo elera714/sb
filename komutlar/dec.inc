@@ -18,3 +18,24 @@ begin
 
   IPDegeriniArtir;
 end
+// FE /1 - DEC r/m8 - Decrement r/m8 by 1
+else if(Komut = $FE) and ((Komut2 and %00111000) = %00001000) then
+begin
+
+  if((Komut2 and %00001110) = %00001110) then
+  begin
+
+    D21 := PWord(@Bellek144MB[IslenenAdres + 2])^;
+    D11 := PByte(@Bellek144MB[D21])^;
+    D11 := D11 - 1;
+    PByte(@Bellek144MB[D21])^ := D11;
+
+    if(D11 = 0) then
+      BayrakDegistir(BAYRAK_ZF)
+    else BayrakDegistir(BAYRAK_ZF, False);
+
+    {$IFDEF DEBUG} mmCikti.Lines.Add('dec [$%.2x]', [D21]); {$ENDIF}
+    IPDegeriniArtir(2 + 2);
+
+  end else Result := False;
+end

@@ -21,20 +21,16 @@ esit:
 ;        mov     al,'1'
 
 
-        add     si,[bx]
-        add     ax,[bx+si]
-        add     bx,[si]
-        add     bp,[bx]
-        add     cx,[di]
-        add     ax,[0x1010]
+        mov     si,[bx]
+        mov     ax,[bx+si]
+        mov     bx,[si]
+        mov     bp,[bx]
+        mov     cx,[di]
+        mov     ax,[0x1010]
+        mov     dx,0
+        mov     ax,10
 kesme:
-
-
-
-;        pusha
-;        int     0x10
-;        popa
-
+        div     [bolme]
 
 dongu:  jmp     dongu
 
@@ -52,7 +48,9 @@ db16    db      6
 db17    db      7
 db18    db      8
 
+bolme   dw      3
+
 arge:
         nop
-        mov     ax,[si]
+        add     eax,0xabcdef12
         nop

@@ -87,6 +87,51 @@ begin
     IPDegeriniArtir(D44);
   end;
 end
+// 04 ib - ADD AL,imm8 - Add imm8 to AL
+else if(Komut = $04) then
+begin
+
+  YazmacDegistir(YZMC_AL, Komut2, True);
+  {$IFDEF DEBUG} mmCikti.Lines.Add('add al,$%.2x', [Komut2]); {$ENDIF}
+  IPDegeriniArtir(2);
+end
+else if(Komut = $05) then
+begin
+
+  // 05 id - ADD EAX,imm32 - Add imm32 to EAX
+  if(KomutModDegistir) then
+  begin
+
+    D41 := PLongWord(@Bellek144MB[IslenenAdres + 1])^;
+    YazmacDegistir(YZMC_EAX, D41, True);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('add eax,$%.8x', [D41]); {$ENDIF}
+
+    IPDegeriniArtir(1 + 4);
+  end
+  // 05 iw - ADD AX,imm16 - Add imm16 to AX
+  else
+  begin
+
+    D21 := PWord(@Bellek144MB[IslenenAdres + 1])^;
+    YazmacDegistir(YZMC_AX, D21, True);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('add ax,$%.4x', [D21]); {$ENDIF}
+
+    IPDegeriniArtir(1 + 2);
+  end;
+end
+// 81 /0 iw - ADD r/m16,imm16 - Add imm16 to r/m16
+else if(Komut = $81) and ((Komut2 and %11111000) = %11000000) then
+begin
+
+  D41 := MYB16[Komut2 and %111];
+  D42 := YazmacDegerAl(D41);
+  D21 := PWord(@Bellek144MB[IslenenAdres + 2])^;
+
+  YazmacDegistir(D41, D21, True);
+
+  {$IFDEF DEBUG} mmCikti.Lines.Add('add %s,%d', [Yazmaclar16[D41 and $F], D21]); {$ENDIF}
+  IPDegeriniArtir(2 + 2);
+end
 else if(Komut = $83) then
 begin
 

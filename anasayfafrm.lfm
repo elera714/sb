@@ -1,7 +1,7 @@
 object frmAnaSayfa: TfrmAnaSayfa
-  Left = 211
+  Left = 352
   Height = 535
-  Top = 128
+  Top = 136
   Width = 833
   Caption = 'Sanal Bilgisayar'
   ClientHeight = 535
@@ -256,7 +256,7 @@ object frmAnaSayfa: TfrmAnaSayfa
     end
     object pnlEkran: TPanel
       Left = 1
-      Height = 403
+      Height = 398
       Top = 1
       Width = 647
       Align = alClient
@@ -268,6 +268,15 @@ object frmAnaSayfa: TfrmAnaSayfa
       Font.Quality = fqDraft
       ParentFont = False
       TabOrder = 1
+    end
+    object Splitter1: TSplitter
+      Cursor = crVSplit
+      Left = 1
+      Height = 5
+      Top = 399
+      Width = 647
+      Align = alBottom
+      ResizeAnchor = akBottom
     end
   end
 end

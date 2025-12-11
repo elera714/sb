@@ -1,8 +1,8 @@
 unit anasayfafrm;
 
 {$mode objfpc}{$H+}
-{$DEFINE YAZMACLARI_GUNCELLE}
-{$DEFINE DEBUG}
+//{$DEFINE YAZMACLARI_GUNCELLE}
+//{$DEFINE DEBUG}
 
 interface
 
@@ -45,6 +45,7 @@ type
     pnlUst: TPanel;
     pnlYazmaclar: TPanel;
     sbDurum: TStatusBar;
+    Splitter1: TSplitter;
     ValueListEditor1: TValueListEditor;
     procedure btnCalistirClick(Sender: TObject);
     procedure btnBellekClick(Sender: TObject);
@@ -67,7 +68,7 @@ type
     procedure YiginaEkle(ADeger, ADegerUzunlugu: LongWord);
     procedure YiginaEkle2(AHedefYazmacSN: Integer);
     function YigindanAl(ADegerUzunlugu: LongWord): LongWord;
-    function DosyaYukle(ADosyaAdi: string; ABellekAdresi, ABaslangic,
+    function DosyaYukle(ADosyaAdi: string; AHedefBellekAdresi, ABaslangic,
       ABoyut: LongWord): string;
     procedure EkraniKartiniYukle;
     procedure BiosYukle;
@@ -325,87 +326,11 @@ begin
     KomutModDegistir := True;
   end
 
-  // 04 ib - ADD AL,imm8 - Add imm8 to AL
-{  else if(Komut = $04) then
-  begin
-
-    YazmacDegistir(YZMC_AL, Komut2, True);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('mov al,[$%.4x]', [D21]); {$ENDIF}
-    IPDegeriniArtir(2);
-  end
-  else if(Komut = $A1) then
-  begin
-
-    // 05 id - ADD EAX,imm32 - Add imm32 to EAX
-    if(KomutModDegistir) then
-    begin
-
-      D21 := PWord(@Bellek144MB[Adres + 1])^;
-      YazmacDegistir(YZMC_EAX, PLongWord(@Bellek144MB[D21])^);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('mov eax,[$%.8x]', [D21]); {$ENDIF}
-
-      IPDegeriniArtir(1 + 2);
-    end
-    // 05 iw - ADD AX,imm16 - Add imm16 to AX
-    else
-    begin
-
-      D21 := PWord(@Bellek144MB[Adres + 1])^;
-      YazmacDegistir(YZMC_AX, PWord(@Bellek144MB[D21])^ and $FFFF);
-      {$IFDEF DEBUG} mmCikti.Lines.Add('mov ax,[$%.4x]', [D21]); {$ENDIF}
-
-      IPDegeriniArtir(1 + 2);
-    end;
-  end
-}
-
-
-  // FE /1 - DEC r/m8 - Decrement r/m8 by 1
-  else if(Komut = $FE) and ((Komut2 and %00001000) = %00001000) then
-  begin
-
-    if((Komut2 and %00001110) = %00001110) then
-    begin
-
-      D21 := PWord(@Bellek144MB[IslenenAdres + 2])^;
-      D11 := PByte(@Bellek144MB[D21])^;
-      D11 := D11 - 1;
-      PByte(@Bellek144MB[D21])^ := D11;
-
-      if(D11 = 0) then
-        BayrakDegistir(BAYRAK_ZF)
-      else BayrakDegistir(BAYRAK_ZF, False);
-
-      {$IFDEF DEBUG} mmCikti.Lines.Add('dec [$%.2x]', [D21]); {$ENDIF}
-      IPDegeriniArtir(2 + 2);
-
-    end else Result := False;
-  end
-  // FE /0 - INC r/m8 - Increment r/m byte by 1
-  // FF /0 - INC r/m16 - Increment r/m word by 1
-  // FF /0 - INC r/m32 - Increment r/m doubleword by 1
-  else if(Komut = $FE) and ((Komut2 and %00111000) = %00000000) then
-  begin
-
-    if((Komut2 and %11000000) = %11000000) then
-    begin
-
-      D41 := MYB8[Komut2 and %00000111];
-      YazmacDegistir(D41, +1, True);
-
-      if((D41 and $FF) >= $40) then D41 := (D41 shr 4) and $F else D41 := D41 and $F;
-
-      {$IFDEF DEBUG} mmCikti.Lines.Add('inc %s', [Yazmaclar8[D41]]); {$ENDIF}
-      IPDegeriniArtir(2);
-
-    end else Result := False;
-  end
-
   // F6 /6 - DIV r/m8 - Unsigned divide AX by r/m8; AL ← Quotient, AH ← Remainder
   else if(Komut = $F6) then
   begin
 
-    if((Komut2 and %11110000) = %11110000) then
+    if((Komut2 and %11111000) = %11110000) then
     begin
 
       D41 := MYB8[Komut2 and %00000111];
@@ -425,6 +350,43 @@ begin
 
     end else Result := False;
   end
+  // F7 /6 - DIV r/m16 - Unsigned divide DX:AX by r/m16; AX ← Quotient, DX ← Remainder
+  // F7 /6 - DIV r/m32 - Unsigned divide EDX:EAX by r/m32 doubleword; EAX ← Quotient, EDX ← Remainder
+  else if(Komut = $F7) then
+  begin
+
+    if((Komut2 and %11111000) = %00110000) then
+    begin
+
+      D41 := (Komut2 and %00000111);                  // kaynak yazmaç
+      D42 := Mod00Isle(D41);
+      D43 := PWord(@Bellek144MB[D42])^;
+
+      D44 := YazmacDegerAl(YZMC_DX);
+      D45 := YazmacDegerAl(YZMC_AX);
+      D44 := D44 shl 16;
+      D44 := D44 or D45;
+
+      D45 := D44 div D43;
+      D44 := D44 mod D43;
+
+      YazmacDegistir(YZMC_AX, D45);
+      YazmacDegistir(YZMC_DX, D44);
+
+      // komut uzunluğu öndeğer = 2 byte
+      D44 := 2;
+      if(D41 = 6) then D44 := 4;
+
+      {$IFDEF DEBUG}
+        if(D41 = 6) then
+          mmCikti.Lines.Add('div [$%.4x]', [D43])
+        else mmCikti.Lines.Add('div %s', [Bellekler00[D41]]);
+      {$ENDIF}
+
+      IPDegeriniArtir(D44);
+
+    end else Result := False;
+  end
 
   // D1 /5 - SHR r/m16,1 - Unsigned divide r/m16 by 2, once
   else if(Komut = $D1) then
@@ -435,6 +397,9 @@ begin
 
       D41 := MYB16[Komut2 and %111];
       D21 := YazmacDegerAl(D41);
+
+      BayrakDegistir(BAYRAK_CF, (D21 and 1) = 1);
+
       D21 := D21 shr 1;
       YazmacDegistir(D41, D21);
 
@@ -443,22 +408,12 @@ begin
 
     end else Result := False;
   end
-  // 81 /0 iw - ADD r/m16,imm16 - Add imm16 to r/m16
-  else if(Komut = $81) and ((Komut2 and %11111000) = %11000000) then
-  begin
 
-    D41 := MYB16[Komut2 and %111];
-    D42 := YazmacDegerAl(D41);
-    D21 := PWord(@Bellek144MB[IslenenAdres + 2])^;
 
-    YazmacDegistir(D41, D21, True);
-
-    {$IFDEF DEBUG} mmCikti.Lines.Add('add %s,%d', [Yazmaclar16[D41 and $F], D21]); {$ENDIF}
-    IPDegeriniArtir(2 + 2);
-  end
 
 
   {$i komutlar\add.inc}
+  {$i komutlar\and.inc}
   {$i komutlar\call.inc}
   {$i komutlar\clc.inc}
   {$i komutlar\cld.inc}
@@ -847,7 +802,7 @@ begin
   Application.ProcessMessages;
 end;
 
-function TfrmAnaSayfa.DosyaYukle(ADosyaAdi: string; ABellekAdresi, ABaslangic,
+function TfrmAnaSayfa.DosyaYukle(ADosyaAdi: string; AHedefBellekAdresi, ABaslangic,
   ABoyut: LongWord): string;
 var
   FS: TFileStream;
@@ -867,7 +822,7 @@ begin
     if(DosyaU <= DISKET_BOYUT) then
     begin
 
-      FS.Read(Bellek144MB[ABellekAdresi], DosyaU);
+      FS.Read(Bellek144MB[AHedefBellekAdresi], ABoyut); //DosyaU);
       FlpOkunanSektorSayisi += (ABoyut div 512);
     end else Result := 'Hata: dosya 1.44MB''den büyük olamaz!';
 

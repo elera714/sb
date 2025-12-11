@@ -109,43 +109,30 @@ else if(Komut = $8B) then
 begin
 
   // bellek bölgesi ataması
-  if((Komut2 and %00000110) = %00000110) then
+  if((Komut2 and %11000000) = %00000000) then
   begin
 
-    // 8B /r - MOV r32,r/m32 - Move r/m32 to r32
-    {if(KomutModDegistir) then
-    begin
+    D41 := (Komut2 and %00000111);                  // kaynak yazmaç / bellek bölgesi
+    D42 := MYB16[(Komut2 and %00111000) shr 3];     // hedef yazmaç
 
-      D41 := PLongWord(@Bellek144MB[Adres + 2])^;
-      D42 := PLongWord(@Bellek144MB[D41])^;
+    // komut uzunluğu öndeğer = 2 byte
+    D44 := 2;
+    if(D41 = 6) then D44 := 4;
 
-      D43 := MYB32[(Komut2 and %00111000) shr 3];     // hedef yazmaç
-      YazmacDegistir(D43, D42);
+    D45 := Mod00Isle(D41);
+    D43 := PWord(@Bellek144MB[D45])^;
+    YazmacDegistir(D42, D43);
 
-      {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,[$%.8x]', [Yazmaclar32[D43 and $FF], D41]); {$ENDIF}
-      mmCikti.Lines.Add('mov %s,[$%.8x]', [Yazmaclar32[D43 and $FF], D41]);
+    {$IFDEF DEBUG}
+      if(D41 = 6) then
+        mmCikti.Lines.Add('mov %s,[$%.4x]', [Yazmaclar16[D42 and $F], PWord(@Bellek144MB[IslenenAdres + 2])^])
+      else mmCikti.Lines.Add('mov %s,%s', [Yazmaclar16[D42 and $F], Bellekler00[D41]]);
+    {$ENDIF}
 
-      IPDegeriniArtir(2 + 4);
-    end
-    else bu değerler %00000101 [DI] olarak geliyor? }
-    // 8B /r - MOV r16,r/m16 - Move r/m16 to r16
-    begin
-
-      D41 := YazmacDegerAl(YZMC_DS);
-      D21 := PWord(@Bellek144MB[IslenenAdres + 2])^;
-      D22 := PWord(@Bellek144MB[(D41 * $10) + D21])^;
-
-      D42 := MYB16[(Komut2 and %00111000) shr 3];     // hedef yazmaç
-      YazmacDegistir(D42, D22);
-
-      {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,[$%.4x]', [Yazmaclar16[D42 and $FF], D21]); {$ENDIF}
-
-      IPDegeriniArtir(2 + 2);
-    end;
-
+    IPDegeriniArtir(D44);
   end
   // bellek bölgesi ataması
-  else if((Komut2 and %01000000) = %01000000) then
+  else if((Komut2 and %11000000) = %01000000) then
   begin
 
     D41 := (Komut2 and %00000111);                  // bellek bölgesi
