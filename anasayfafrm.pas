@@ -1,14 +1,17 @@
 unit anasayfafrm;
 
 {$mode objfpc}{$H+}
-//{$DEFINE YAZMACLARI_GUNCELLE}
-//{$DEFINE DEBUG}
+{$DEFINE YAZMACLARI_GUNCELLE}
+{$DEFINE DEBUG}
 
 interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
   ComCtrls, Grids, ValEdit;
+
+type
+  TIslemciSonuc = (isBirSonraki, isIslendi, isHata);
 
 type
   TEkran = class(TThread)
@@ -19,8 +22,7 @@ type
     constructor Create(CreateSuspended : Boolean);
   end;
 
-  { TfrmAnaSayfa }
-
+type
   TfrmAnaSayfa = class(TForm)
     btnCalistir: TButton;
     btnBellek: TButton;
@@ -53,10 +55,8 @@ type
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormShow(Sender: TObject);
   private
-    Komut, Komut2: Byte;
-    KomutModDegistir: Boolean;      // $66 öneki
     procedure Yorumla;
-    function Isle(ACS, AIP: Integer): Boolean;
+    function Isle(ACS, AIP: Integer): TIslemciSonuc;
     procedure YazmacDegistir(AHedefYazmacSN, ADeger: LongInt; AArtir: Boolean = False);
     procedure BayrakDegistir(AHedefBayrak: LongWord; AAktiflestir: Boolean = True);
     procedure BayraklariGuncelle(AHedefBayrak: LongWord = $FFFFFFFF);
@@ -226,12 +226,15 @@ end;
 procedure TfrmAnaSayfa.Yorumla;
 var
   Islenen, HataAdresi: Integer;
-  HataVar, Islendi: Boolean;
+  HataVar: Boolean;
+  Islendi: TIslemciSonuc;
 begin
 
   Islenen := 0;
   HataVar := False;
+
   KomutModDegistir := False;
+  BaskinSegment := 0;
 
   lblIskenenKomutSayisi.Caption := Format('İşlenen Komut Sayısı: %d', [Islenen]);
 
@@ -248,17 +251,18 @@ begin
       YazmacDegistir(YZMC_CS, YZMC_DEGERSN[YZMC_CS and $FF]);
       YazmacDegistir(YZMC_IP, YZMC_DEGERSN[YZMC_IP and $FF]);
 
-      if(Islendi) then
+      if(Islendi = isIslendi) then
       begin
 
         Inc(Islenen);
         lblIskenenKomutSayisi.Caption := Format('İşlenen Komut Sayısı: %d', [Islenen]);
         Application.ProcessMessages;
 
-      end else HataVar := True;
-
-      // komut mod değiştirme işlemi gerçekleştirildikten sonra kapat
-      if(KomutModDegistir) and (Komut <> $66) then KomutModDegistir := False;
+        // her komut sonrası ilgili değerleri öndeğerlerle yükle
+        KomutModDegistir := False;
+        BaskinSegment := 0;
+      end
+      else if(Islendi = isHata) then HataVar := True;
 
     end; // else DosyaIP := DosyaU + 1;
 
@@ -278,7 +282,7 @@ begin
   end;
 end;
 
-function TfrmAnaSayfa.Isle(ACS, AIP: Integer): Boolean;
+function TfrmAnaSayfa.Isle(ACS, AIP: Integer): TIslemciSonuc;
 var
   D11, D12,
   D13, D14,
@@ -308,7 +312,7 @@ var
   end;
 begin
 
-  Result := True;
+  Result := isIslendi;
 
   IslenenAdres := (ACS * $10) + AIP;
 
@@ -319,11 +323,67 @@ begin
   if(Komut = $66) then
   begin
 
-    {$IFDEF DEBUG} {mmCikti.Lines.Add('ön ek - $66');} {$ENDIF}
+    {$IFDEF DEBUG} mmCikti.Lines.Add('önek - $66'); {$ENDIF}
     IPDegeriniArtir;
 
     // işlemci komutunun 16/32 bit değişimini gerçekleştirir
     KomutModDegistir := True;
+
+    Exit(isBirSonraki);
+  end
+  // 2EH — CS segment override prefix.
+  else if(Komut = $2E) then
+  begin
+
+    {$IFDEF DEBUG} mmCikti.Lines.Add('cs:'); {$ENDIF}
+    IPDegeriniArtir;
+    BaskinSegment := YZMC_CS;
+    Exit(isBirSonraki);
+  end
+  // 36H — SS segment override prefix.
+  else if(Komut = $36) then
+  begin
+
+    {$IFDEF DEBUG} mmCikti.Lines.Add('ss:'); {$ENDIF}
+    IPDegeriniArtir;
+    BaskinSegment := YZMC_SS;
+    Exit(isBirSonraki);
+  end
+  // 3EH — DS segment override prefix.
+  else if(Komut = $3E) then
+  begin
+
+    {$IFDEF DEBUG} mmCikti.Lines.Add('ds:'); {$ENDIF}
+    IPDegeriniArtir;
+    BaskinSegment := YZMC_DS;
+    Exit(isBirSonraki);
+  end
+  // 26H — ES segment override prefix.
+  else if(Komut = $26) then
+  begin
+
+    {$IFDEF DEBUG} mmCikti.Lines.Add('es:'); {$ENDIF}
+    IPDegeriniArtir;
+    BaskinSegment := YZMC_ES;
+    Exit(isBirSonraki);
+  end
+  // 64H — FS segment override prefix.
+  else if(Komut = $64) then
+  begin
+
+    {$IFDEF DEBUG} mmCikti.Lines.Add('fs:'); {$ENDIF}
+    IPDegeriniArtir;
+    BaskinSegment := YZMC_FS;
+    Exit(isBirSonraki);
+  end
+  // 65H — GS segment override prefix.
+  else if(Komut = $65) then
+  begin
+
+    {$IFDEF DEBUG} mmCikti.Lines.Add('gs:'); {$ENDIF}
+    IPDegeriniArtir;
+    BaskinSegment := YZMC_GS;
+    Exit(isBirSonraki);
   end
 
   // F6 /6 - DIV r/m8 - Unsigned divide AX by r/m8; AL ← Quotient, AH ← Remainder
@@ -348,7 +408,7 @@ begin
       {$IFDEF DEBUG} mmCikti.Lines.Add('div %s', [Yazmaclar8[D41]]); {$ENDIF}
       IPDegeriniArtir(2);
 
-    end else Result := False;
+    end else Result := isHata;
   end
   // F7 /6 - DIV r/m16 - Unsigned divide DX:AX by r/m16; AX ← Quotient, DX ← Remainder
   // F7 /6 - DIV r/m32 - Unsigned divide EDX:EAX by r/m32 doubleword; EAX ← Quotient, EDX ← Remainder
@@ -385,7 +445,7 @@ begin
 
       IPDegeriniArtir(D44);
 
-    end else Result := False;
+    end else Result := isHata;
   end
 
   // D1 /5 - SHR r/m16,1 - Unsigned divide r/m16 by 2, once
@@ -406,10 +466,30 @@ begin
       {$IFDEF DEBUG} mmCikti.Lines.Add('shr %s,1', [Yazmaclar16[D41 and $F]]); {$ENDIF}
       IPDegeriniArtir(2);
 
-    end else Result := False;
+    end else Result := isHata;
   end
 
+  // C5 /r - LDS r16,m16:16 - Load DS:r16 with far pointer from memory
+  else if(Komut = $C5) then
+  begin
 
+    if((Komut2 and %11000000) = %00000000) then
+    begin
+
+      D41 := (Komut2 and %111);
+      D42 := Mod00Isle(D41);
+
+      D43 := MYB16[(Komut2 and %00111000) shr 3];     // 1. hedef yazmaç
+      D44 := PWord(@Bellek144MB[D42 + 0])^;
+      YazmacDegistir(D43, D44);
+      D44 := PWord(@Bellek144MB[D42 + 2])^;
+      YazmacDegistir(YZMC_DS, D44);
+
+      {$IFDEF DEBUG} mmCikti.Lines.Add('lds %s,%s', [Yazmaclar16[D43 and $F], Bellekler00[D41]]); {$ENDIF}
+      IPDegeriniArtir(2);
+
+    end else Result := isHata;
+  end
 
 
   {$i komutlar\add.inc}
@@ -445,7 +525,8 @@ begin
   {$i komutlar\sti.inc}
   {$i komutlar\test.inc}
   {$i komutlar\xor.inc}
-  else Result := False;
+
+  else Result := isHata;
 end;
 
 procedure TfrmAnaSayfa.YazmacDegistir(AHedefYazmacSN, ADeger: LongInt; AArtir: Boolean = False);

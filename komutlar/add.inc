@@ -19,7 +19,7 @@ begin
     {$IFDEF DEBUG} mmCikti.Lines.Add('add %s,%s', [Yazmaclar8[D41], Yazmaclar8[D42]]); {$ENDIF}
     IPDegeriniArtir(2);
 
-  end else Result := False;
+  end else Result := isHata;
 end
 else if(Komut = $01) then
 begin
@@ -56,7 +56,7 @@ begin
 
     IPDegeriniArtir(2);
 
-  end else Result := False;
+  end else Result := isHata;
 end
 // 03 /r - ADD r16,r/m16 - Add r/m16 to r16
 else if(Komut = $03) then
@@ -161,5 +161,5 @@ begin
 
     IPDegeriniArtir(3);
 
-  end else Result := False;
+  end else Result := isHata;
 end

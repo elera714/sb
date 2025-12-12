@@ -67,5 +67,5 @@ begin
 
     IPDegeriniArtir(2);
 
-  end else Result := False;
+  end else Result := isHata;
 end

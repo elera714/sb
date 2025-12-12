@@ -44,7 +44,7 @@ begin
     {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s', [Yazmaclar8[D41], Yazmaclar8[D42]]); {$ENDIF}
     IPDegeriniArtir(2);
 
-  end else Result := False;
+  end else Result := isHata;
 end
 else if(Komut = $89) then
 begin
@@ -81,7 +81,7 @@ begin
 
     IPDegeriniArtir(2);
 
-  end else Result := False;
+  end else Result := isHata;
 end
 // 8A /r - MOV r8,r/m8 - Move r/m8 to r8
 else if(Komut = $8A) then
@@ -103,7 +103,7 @@ begin
     {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,[$%.4x]', [Yazmaclar8[D42], D21]); {$ENDIF}
     IPDegeriniArtir(2 + 2);
 
-  end else Result := False;
+  end else Result := isHata;
 end
 else if(Komut = $8B) then
 begin
@@ -201,7 +201,7 @@ begin
 
     IPDegeriniArtir(2 + 1);
   end
-  else Result := False;
+  else Result := isHata;
 end
 // 8C /r - MOV r/m16,Sreg** - Move segment register to r/m16
 else if(Komut = $8C) then
@@ -229,9 +229,7 @@ begin
   begin
 
     D21 := SYZMC[D13];
-    if(D21 = 0) then Result := False;
-
-    if(Result) then
+    if(D21 <> 0) then
     begin
 
       D22 := MYB16[Komut2 and %111];   // kaynak yazmaç
@@ -239,8 +237,8 @@ begin
       YazmacDegistir(D21, D23);
       {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s', [Yazmaclar16[D21 and $F], Yazmaclar16[D22 and $F]]); {$ENDIF}
       IPDegeriniArtir(2);
-    end;
-  end else Result := False;
+    end else Result := isHata;
+  end else Result := isHata;
 end
 // A0 - MOV AL,moffs8* - Move byte at (seg:offset) to AL
 else if(Komut = $A0) then
@@ -363,7 +361,7 @@ begin
     {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.2x],byte %d', [D21, D11]); {$ENDIF}
     IPDegeriniArtir(2 + 3);
 
-  end else Result := False;
+  end else Result := isHata;
 end
 else if(Komut = $C7) then
 begin
@@ -397,5 +395,5 @@ begin
       IPDegeriniArtir(2 + 4);
     end;
 
-  end else Result := False;
+  end else Result := isHata;
 end

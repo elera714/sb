@@ -50,7 +50,16 @@ db18    db      8
 
 bolme   dw      3
 
+use32
 arge:
         nop
         add     eax,0xabcdef12
         nop
+
+
+use64
+        db      0x99
+;        xor     r8,r8
+
+        mov     rax,[r12 + r9]
+        db      0x99

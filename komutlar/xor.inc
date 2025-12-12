@@ -19,7 +19,7 @@ begin
     {$IFDEF DEBUG} mmCikti.Lines.Add('xor %s,%s', [Yazmaclar8[D41], Yazmaclar8[D42]]); {$ENDIF}
     IPDegeriniArtir(2);
 
-  end else Result := False;
+  end else Result := isHata;
 end
 else if(Komut = $31) or (Komut = $33) then
 begin
@@ -59,5 +59,5 @@ begin
       IPDegeriniArtir(2);
     end;
 
-  end else Result := False;
+  end else Result := isHata;
 end

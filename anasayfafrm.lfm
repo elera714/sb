@@ -1,7 +1,7 @@
 object frmAnaSayfa: TfrmAnaSayfa
-  Left = 352
+  Left = 363
   Height = 535
-  Top = 136
+  Top = 308
   Width = 833
   Caption = 'Sanal Bilgisayar'
   ClientHeight = 535
@@ -59,7 +59,7 @@ object frmAnaSayfa: TfrmAnaSayfa
       Top = 9
       Width = 200
       ItemHeight = 15
-      ItemIndex = 0
+      ItemIndex = 2
       Items.Strings = (
         'disket144.img'
         'yazmaçlar.bin'
@@ -67,7 +67,7 @@ object frmAnaSayfa: TfrmAnaSayfa
         '622c.img'
       )
       TabOrder = 2
-      Text = 'disket144.img'
+      Text = 'elera001.img'
     end
   end
   object sbDurum: TStatusBar

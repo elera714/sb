@@ -35,5 +35,5 @@ begin
     {$IFDEF DEBUG} mmCikti.Lines.Add('inc %s', [Yazmaclar8[D41]]); {$ENDIF}
     IPDegeriniArtir(2);
 
-  end else Result := False;
+  end else Result := isHata;
 end
