@@ -119,6 +119,10 @@ begin
     IPDegeriniArtir(1 + 2);
   end;
 end
+
+{ TODO - cmp ile karışmaması için aşağıdaki gibi kodla }
+//else if(Komut = $80) and ((Komut2 and %00111000) = %00000000) then
+
 // 81 /0 iw - ADD r/m16,imm16 - Add imm16 to r/m16
 else if(Komut = $81) and ((Komut2 and %11111000) = %11000000) then
 begin

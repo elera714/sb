@@ -6,12 +6,25 @@ begin
 
   I11 := ShortInt(D11) - ShortInt(Komut2);
   if(I11 = 0) then
-    BayrakDegistir(BAYRAK_ZF)
-  else BayrakDegistir(BAYRAK_ZF, False);
+  begin
 
-  if(I11 < 0) then
-    BayrakDegistir(BAYRAK_SF)
-  else BayrakDegistir(BAYRAK_SF, False);
+    BayrakDegistir(BAYRAK_ZF);
+    BayrakDegistir(BAYRAK_CF);
+  end
+  else if(I11 < 0) then
+  begin
+
+    BayrakDegistir(BAYRAK_ZF, False);
+    BayrakDegistir(BAYRAK_CF);
+    BayrakDegistir(BAYRAK_SF);
+  end
+  else if(I11 > 0) then
+  begin
+
+    BayrakDegistir(BAYRAK_ZF, False);
+    BayrakDegistir(BAYRAK_CF, False);
+    BayrakDegistir(BAYRAK_SF, False);
+  end;
 
   {$IFDEF DEBUG} mmCikti.Lines.Add('cmp al,%d', [ShortInt(Komut2)]); {$ENDIF}
 
@@ -45,18 +58,31 @@ begin
   // 3D iw - CMP AX, imm16 - Compare imm16 with AX
   begin
 
-    D21 := PWord(@Bellek144MB[IslenenAdres + 1])^;
+    D21 := YazmacDegerAl(YZMC_AX);
+    D22 := PWord(@Bellek144MB[IslenenAdres + 1])^;
 
-    D22 := YazmacDegerAl(YZMC_AX);
+    I21 := SmallInt(D21) - SmallInt(D22);
 
-    I21 := ShortInt(D22) - ShortInt(D21);
     if(I21 = 0) then
-      BayrakDegistir(BAYRAK_ZF)
-    else BayrakDegistir(BAYRAK_ZF, False);
+    begin
 
-    if(I21 < 0) then
-      BayrakDegistir(BAYRAK_SF)
-    else BayrakDegistir(BAYRAK_SF, False);
+      BayrakDegistir(BAYRAK_ZF);
+      BayrakDegistir(BAYRAK_CF);
+    end
+    else if(I21 < 0) then
+    begin
+
+      BayrakDegistir(BAYRAK_ZF, False);
+      BayrakDegistir(BAYRAK_CF);
+      BayrakDegistir(BAYRAK_SF);
+    end
+    else if(I21 > 0) then
+    begin
+
+      BayrakDegistir(BAYRAK_ZF, False);
+      BayrakDegistir(BAYRAK_CF, False);
+      BayrakDegistir(BAYRAK_SF, False);
+    end;
 
     {$IFDEF DEBUG} mmCikti.Lines.Add('cmp ax,%d', [SmallInt(D21)]); {$ENDIF}
 
@@ -64,7 +90,7 @@ begin
   end;
 end
 // 80 /7 ib - CMP r/m8, imm8 - Compare imm8 with r/m8
-else if(Komut = $80) then
+else if(Komut = $80) and ((Komut2 and %00111000) = %00111000) then
 begin
 
   if((Komut2 and %11111000) = %11111000) then

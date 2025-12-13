@@ -59,7 +59,7 @@ object frmAnaSayfa: TfrmAnaSayfa
       Top = 9
       Width = 200
       ItemHeight = 15
-      ItemIndex = 2
+      ItemIndex = 1
       Items.Strings = (
         'disket144.img'
         'yazmaçlar.bin'
@@ -67,7 +67,7 @@ object frmAnaSayfa: TfrmAnaSayfa
         '622c.img'
       )
       TabOrder = 2
-      Text = 'elera001.img'
+      Text = 'yazmaçlar.bin'
     end
   end
   object sbDurum: TStatusBar

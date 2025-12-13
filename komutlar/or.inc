@@ -11,6 +11,8 @@ begin
     D43 := YazmacDegerAl(D41);
     D44 := YazmacDegerAl(D42);
 
+    YazmacDegistir(D41, D43 or D44);
+
     if((D43 or D44) = 0) then
       BayrakDegistir(BAYRAK_ZF)
     else BayrakDegistir(BAYRAK_ZF, False);

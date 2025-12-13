@@ -1,8 +1,8 @@
 unit anasayfafrm;
 
 {$mode objfpc}{$H+}
-{$DEFINE YAZMACLARI_GUNCELLE}
-{$DEFINE DEBUG}
+//{$DEFINE YAZMACLARI_GUNCELLE}
+//{$DEFINE DEBUG}
 
 interface
 
@@ -227,7 +227,7 @@ procedure TfrmAnaSayfa.Yorumla;
 var
   Islenen, HataAdresi: Integer;
   HataVar: Boolean;
-  Islendi: TIslemciSonuc;
+  IslemciSonuc: TIslemciSonuc;
 begin
 
   Islenen := 0;
@@ -246,12 +246,12 @@ begin
     if(SB_CALISIYOR) then
     begin
 
-      Islendi := Isle(YZMC_DEGERSN[YZMC0_CS], YZMC_DEGERSN[YZMC0_EIP]);
+      IslemciSonuc := Isle(YZMC_DEGERSN[YZMC0_CS], YZMC_DEGERSN[YZMC0_EIP]);
 
       YazmacDegistir(YZMC_CS, YZMC_DEGERSN[YZMC_CS and $FF]);
       YazmacDegistir(YZMC_IP, YZMC_DEGERSN[YZMC_IP and $FF]);
 
-      if(Islendi = isIslendi) then
+      if(IslemciSonuc = isIslendi) then
       begin
 
         Inc(Islenen);
@@ -262,7 +262,7 @@ begin
         KomutModDegistir := False;
         BaskinSegment := 0;
       end
-      else if(Islendi = isHata) then HataVar := True;
+      else if(IslemciSonuc = isHata) then HataVar := True;
 
     end; // else DosyaIP := DosyaU + 1;
 
@@ -447,28 +447,6 @@ begin
 
     end else Result := isHata;
   end
-
-  // D1 /5 - SHR r/m16,1 - Unsigned divide r/m16 by 2, once
-  else if(Komut = $D1) then
-  begin
-
-    if((Komut2 and %11101000) = %11101000) then
-    begin
-
-      D41 := MYB16[Komut2 and %111];
-      D21 := YazmacDegerAl(D41);
-
-      BayrakDegistir(BAYRAK_CF, (D21 and 1) = 1);
-
-      D21 := D21 shr 1;
-      YazmacDegistir(D41, D21);
-
-      {$IFDEF DEBUG} mmCikti.Lines.Add('shr %s,1', [Yazmaclar16[D41 and $F]]); {$ENDIF}
-      IPDegeriniArtir(2);
-
-    end else Result := isHata;
-  end
-
   // C5 /r - LDS r16,m16:16 - Load DS:r16 with far pointer from memory
   else if(Komut = $C5) then
   begin
@@ -523,6 +501,7 @@ begin
   {$i komutlar\stc.inc}
   {$i komutlar\std.inc}
   {$i komutlar\sti.inc}
+  {$i komutlar\sxlr.inc}
   {$i komutlar\test.inc}
   {$i komutlar\xor.inc}
 

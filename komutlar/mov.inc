@@ -49,7 +49,30 @@ end
 else if(Komut = $89) then
 begin
 
-  if((Komut2 and %11000000) = %11000000) then
+  // yazmaç tanımlı bellek bölgesi ataması
+  if((Komut2 and %11000000) = %00000000) then
+  begin
+
+    D41 := (Komut2 and %00000111);                  // hedef yazmaç (1. parametre)
+    D42 := MYB16[(Komut2 and %00111000) shr 3];     // kaynak yazmaç (2. parametre)
+    D43 := YazmacDegerAl(D42);
+
+    // komut uzunluğu öndeğer = 2 byte
+    D44 := 2;
+    if(D41 = 6) then D44 := 4;
+
+    D45 := Mod00Isle(D41);
+    PWord(@Bellek144MB[D45])^ := D43;
+
+    {$IFDEF DEBUG}
+      if(D41 = 6) then
+        mmCikti.Lines.Add('mov [$%.4x],%s', [PWord(@Bellek144MB[IslenenAdres + 2])^, Yazmaclar16[D42 and $F]])
+      else mmCikti.Lines.Add('mov %s,%s', [Bellekler00[D41], Yazmaclar16[D42 and $F]]);
+    {$ENDIF}
+
+    IPDegeriniArtir(D44);
+  end
+  else if((Komut2 and %11000000) = %11000000) then
   begin
 
     // 89 /r - MOV r/m32,r32 - Move r32 to r/m32
@@ -193,11 +216,11 @@ begin
       end;
     end;
 
-    D42 := MYB16[(Komut2 and %00111000) shr 3];     // hedef yazmaç
+    D43 := MYB16[(Komut2 and %00111000) shr 3];     // hedef yazmaç
     D21 := PWord(@Bellek144MB[D42])^;
-    YazmacDegistir(D42, D21);
+    YazmacDegistir(D43, D21);
 
-    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s%d', [Yazmaclar16[D42 and $FF], Bellekler01[D41], D11]); {$ENDIF}
+    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s%d', [Yazmaclar16[D43 and $FF], Bellekler01[D41], D11]); {$ENDIF}
 
     IPDegeriniArtir(2 + 1);
   end

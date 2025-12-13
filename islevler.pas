@@ -21,9 +21,9 @@ const
     $00636363, $00FFD590, $0088E788, $00FFFFE0, $002B4BEE, $00FF80FF, clYellow, clWhite);
 
 type
-  PByte = ^Byte;                // işaretli 8 bit
-  PWord = ^Word;                // işaretli 16 bit
-  PLongWord = ^LongWord;        // işaretli 32 bit
+  PByte = ^Byte;                // işaretsiz 8 bit
+  PWord = ^Word;                // işaretsiz 16 bit
+  PLongWord = ^LongWord;        // işaretsiz 32 bit
 
   PShortInt = ^ShortInt;        // işaretli 8 bit
   PSmallInt = ^SmallInt;        // işaretli 16 bit
