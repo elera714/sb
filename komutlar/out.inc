@@ -28,8 +28,7 @@ begin
     end;
 
     IPDegeriniArtir(2);
-
-  end else Result := isHata;
+  end;
 end
 // EE - OUT DX, AL - Output byte in AL to I/O port address in DX
 // EF - OUT DX, AX - Output word in AX to I/O port address in DX
@@ -61,6 +60,5 @@ begin
     end;
 
     IPDegeriniArtir;
-
-  end else Result := isHata;
+  end;
 end

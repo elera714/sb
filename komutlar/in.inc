@@ -28,8 +28,7 @@ begin
     end;
 
     IPDegeriniArtir(2);
-
-  end else Result := isHata;
+  end;
 end
 // EC - IN AL,DX - Input byte from I/O port in DX into AL
 // ED - IN AX,DX - Input word from I/O port in DX into AX
@@ -61,6 +60,5 @@ begin
     end;
 
     IPDegeriniArtir;
-
-  end else Result := isHata;
+  end;
 end

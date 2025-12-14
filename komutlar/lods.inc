@@ -29,6 +29,11 @@ begin
     D41 := PLongWord(@Bellek144MB[D42])^;
     YazmacDegistir(YZMC_EAX, D41);
 
+    // df bayrağının durumuna göre (e)si yazmacını bir artır/eksilt
+    if(GetBit(Bayraklar, BAYRAK_DF)) then
+      YazmacDegistir(YZMC_ESI, -1, True)
+    else YazmacDegistir(YZMC_ESI, +1, True);
+
     {$IFDEF DEBUG} mmCikti.Lines.Add('lodsd'); {$ENDIF}
   end
   // AD - LODS m16 - Load word at address DS:(E)SI into AX
@@ -41,13 +46,13 @@ begin
     D21 := PWord(@Bellek144MB[D42])^;
     YazmacDegistir(YZMC_AX, D21);
 
+    // df bayrağının durumuna göre (e)si yazmacını bir artır/eksilt
+    if(GetBit(Bayraklar, BAYRAK_DF)) then
+      YazmacDegistir(YZMC_SI, -1, True)
+    else YazmacDegistir(YZMC_SI, +1, True);
+
     {$IFDEF DEBUG} mmCikti.Lines.Add('lodsw'); {$ENDIF}
   end;
-
-  // df bayrağının durumuna göre (e)si yazmacını bir artır/eksilt
-  if(GetBit(Bayraklar, BAYRAK_DF)) then
-    YazmacDegistir(YZMC_ESI, -1, True)
-  else YazmacDegistir(YZMC_ESI, +1, True);
 
   IPDegeriniArtir;
 end

@@ -10,7 +10,7 @@ begin
   for i := 1 to D21 do
   begin
 
-    if(PChar(@Bellek144MB[D41])^ <> PChar(@Bellek144MB[D42])^) then
+    if(PByte(@Bellek144MB[D41])^ <> PByte(@Bellek144MB[D42])^) then
     begin
 
       Esit := False;
@@ -29,3 +29,24 @@ begin
 
   IPDegeriniArtir(2);
 end
+// F3 A5 - REP MOVS m16,m16 - Move (E)CX words from DS:[(E)SI] to ES:[(E)DI]
+else if(Komut = $F3) and (Komut2 = $A5) then
+begin
+
+  D21 := YazmacDegerAl(YZMC_CX);
+  D41 := (YZMC_DEGERSN[YZMC_DS and $F] * $10) + YZMC_DEGERSN[YZMC_SI and $F];
+  D42 := (YZMC_DEGERSN[YZMC_ES and $F] * $10) + YZMC_DEGERSN[YZMC_DI and $F];
+
+  for i := 1 to D21 do
+  begin
+
+    PWord(@Bellek144MB[D42])^ := PWord(@Bellek144MB[D41])^;
+    Inc(D41, 2);
+    Inc(D42, 2);
+  end;
+
+  {$IFDEF DEBUG} mmCikti.Lines.Add('rep movsw', []); {$ENDIF}
+
+  IPDegeriniArtir(2);
+end
+

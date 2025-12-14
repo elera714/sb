@@ -1,21 +1,21 @@
 object frmBellek: TfrmBellek
   Left = 485
-  Height = 500
+  Height = 497
   Top = 299
-  Width = 550
+  Width = 648
   Caption = 'Bellek İçerik Görüntüleyici'
-  ClientHeight = 500
-  ClientWidth = 550
+  ClientHeight = 497
+  ClientWidth = 648
   LCLVersion = '4.4.0.0'
   OnShow = FormShow
   object pnlUst: TPanel
     Left = 0
     Height = 37
     Top = 0
-    Width = 550
+    Width = 648
     Align = alTop
     ClientHeight = 37
-    ClientWidth = 550
+    ClientWidth = 648
     TabOrder = 0
     object lblAdres: TLabel
       Left = 8
@@ -28,13 +28,13 @@ object frmBellek: TfrmBellek
       Left = 48
       Height = 23
       Top = 7
-      Width = 340
+      Width = 438
       Anchors = [akTop, akLeft, akRight]
       TabOrder = 0
       OnKeyDown = edtAdresKeyDown
     end
     object btnYenile: TButton
-      Left = 456
+      Left = 554
       Height = 25
       Top = 6
       Width = 76
@@ -44,7 +44,7 @@ object frmBellek: TfrmBellek
       OnClick = btnYenileClick
     end
     object btnArtir: TButton
-      Left = 424
+      Left = 522
       Height = 25
       Top = 6
       Width = 29
@@ -54,7 +54,7 @@ object frmBellek: TfrmBellek
       OnClick = btnArtirClick
     end
     object btnAzalt: TButton
-      Left = 393
+      Left = 491
       Height = 25
       Top = 6
       Width = 29
@@ -66,33 +66,35 @@ object frmBellek: TfrmBellek
   end
   object sgBellek: TStringGrid
     Left = 0
-    Height = 463
+    Height = 460
     Top = 37
-    Width = 550
+    Width = 648
     Align = alClient
     ColCount = 17
-    DefaultColWidth = 28
+    DefaultColWidth = 33
     DefaultRowHeight = 26
+    Font.Height = -15
+    ParentFont = False
     RowCount = 17
     TabOrder = 1
     ColWidths = (
-      78
-      28
-      28
-      28
-      28
-      28
-      28
-      28
-      28
-      28
-      28
-      28
-      28
-      28
-      28
-      28
-      28
+      98
+      33
+      33
+      33
+      33
+      33
+      33
+      33
+      33
+      33
+      33
+      33
+      33
+      33
+      33
+      33
+      33
     )
     Cells = (
       16

@@ -15,8 +15,7 @@ begin
 
     {$IFDEF DEBUG} mmCikti.Lines.Add('shr %s,1', [Yazmaclar16[D41 and $F]]); {$ENDIF}
     IPDegeriniArtir(2);
-
-  end else Result := isHata;
+  end;
 end
 // C1 /5 ib - SHR r/m16,imm8 - Unsigned divide r/m16 by 2, imm8 times
 else if(Komut = $C1) then
@@ -37,6 +36,5 @@ begin
 
     {$IFDEF DEBUG} mmCikti.Lines.Add('shr %s,%.2x', [Yazmaclar16[D41 and $F], D11]); {$ENDIF}
     IPDegeriniArtir(2 + 1);
-
-  end else Result := isHata;
+  end;
 end

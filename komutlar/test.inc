@@ -21,8 +21,7 @@ begin
 
     {$IFDEF DEBUG} mmCikti.Lines.Add('test %s,%s', [Yazmaclar8[D41], Yazmaclar8[D42]]); {$ENDIF}
     IPDegeriniArtir(2);
-
-  end else Result := isHata;
+  end;
 end
 else if(Komut = $85) then
 begin
@@ -62,6 +61,5 @@ begin
     end;
 
     IPDegeriniArtir(2);
-
-  end else Result := isHata;
+  end;
 end

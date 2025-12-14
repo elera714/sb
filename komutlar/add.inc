@@ -18,8 +18,7 @@ begin
 
     {$IFDEF DEBUG} mmCikti.Lines.Add('add %s,%s', [Yazmaclar8[D41], Yazmaclar8[D42]]); {$ENDIF}
     IPDegeriniArtir(2);
-
-  end else Result := isHata;
+  end;
 end
 else if(Komut = $01) then
 begin
@@ -55,8 +54,7 @@ begin
     end;
 
     IPDegeriniArtir(2);
-
-  end else Result := isHata;
+  end;
 end
 // 03 /r - ADD r16,r/m16 - Add r/m16 to r16
 else if(Komut = $03) then
@@ -119,10 +117,23 @@ begin
     IPDegeriniArtir(1 + 2);
   end;
 end
+// 80 /0 ib - ADD r/m8,imm8 - Add imm8 to r/m8
+else if(Komut = $80) and ((Komut2 and %11111000) = %11000000) then
+begin
 
-{ TODO - cmp ile karışmaması için aşağıdaki gibi kodla }
-//else if(Komut = $80) and ((Komut2 and %00111000) = %00000000) then
+  D41 := MYB8[(Komut2 and %00000111)];          // hedef yazmaç
+  D11 := PByte(@Bellek144MB[IslenenAdres + 2])^;
 
+  YazmacDegistir(D41, D11, True);
+
+  if((D41 and $FF) >= $40) then D41 := (D41 shr 4) and $F else D41 := D41 and $F;
+
+  {$IFDEF DEBUG} mmCikti.Lines.Add('add %s,%.2x', [Yazmaclar16[D41 and $F], D11]); {$ENDIF}
+
+  mmCikti.Lines.Add('add %s,%.2x', [Yazmaclar16[D41 and $F], D11]);
+
+  IPDegeriniArtir(2 + 1);
+end
 // 81 /0 iw - ADD r/m16,imm16 - Add imm16 to r/m16
 else if(Komut = $81) and ((Komut2 and %11111000) = %11000000) then
 begin
@@ -136,34 +147,29 @@ begin
   {$IFDEF DEBUG} mmCikti.Lines.Add('add %s,%d', [Yazmaclar16[D41 and $F], D21]); {$ENDIF}
   IPDegeriniArtir(2 + 2);
 end
-else if(Komut = $83) then
+else if(Komut = $83) and ((Komut2 and %11111000) = %11000000) then
 begin
 
-  if((Komut2 and %11000000) = %11000000) then
+  // 83 /0 ib - ADD r/m32,imm8 - Add sign-extended imm8 to r/m32
+  if(KomutModDegistir) then
   begin
 
-    // 83 /0 ib - ADD r/m32,imm8 - Add sign-extended imm8 to r/m32
-    if(KomutModDegistir) then
-    begin
+    D41 := MYB32[(Komut2 and %00000111)];          // hedef yazmaç
+    D11 := PByte(@Bellek144MB[IslenenAdres + 2])^;
+    YazmacDegistir(D41, D11, True);
 
-      D41 := MYB32[(Komut2 and %00000111)];          // hedef yazmaç
-      D11 := PByte(@Bellek144MB[IslenenAdres + 2])^;
-      YazmacDegistir(D41, D11, True);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('add %s,$%.2x', [Yazmaclar32[D41 and $FF], D11]); {$ENDIF}
+  end
+  else
+  // 83 /0 ib - ADD r/m16,imm8 - Add sign-extended imm8 to r/m16
+  begin
 
-      {$IFDEF DEBUG} mmCikti.Lines.Add('add %s,$%.2x', [Yazmaclar32[D41 and $FF], D11]); {$ENDIF}
-    end
-    else
-    // 83 /0 ib - ADD r/m16,imm8 - Add sign-extended imm8 to r/m16
-    begin
+    D41 := MYB16[(Komut2 and %00000111)];          // hedef yazmaç
+    D11 := PByte(@Bellek144MB[IslenenAdres + 2])^;
+    YazmacDegistir(D41, D11, True);
 
-      D41 := MYB16[(Komut2 and %00000111)];          // hedef yazmaç
-      D11 := PByte(@Bellek144MB[IslenenAdres + 2])^;
-      YazmacDegistir(D41, D11, True);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('add %s,$%.2x', [Yazmaclar16[D41 and $FF], D11]); {$ENDIF}
+  end;
 
-      {$IFDEF DEBUG} mmCikti.Lines.Add('add %s,$%.2x', [Yazmaclar16[D41 and $FF], D11]); {$ENDIF}
-    end;
-
-    IPDegeriniArtir(3);
-
-  end else Result := isHata;
+  IPDegeriniArtir(3);
 end

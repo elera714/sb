@@ -43,8 +43,7 @@ begin
 
     {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s', [Yazmaclar8[D41], Yazmaclar8[D42]]); {$ENDIF}
     IPDegeriniArtir(2);
-
-  end else Result := isHata;
+  end;
 end
 else if(Komut = $89) then
 begin
@@ -103,8 +102,7 @@ begin
     end;
 
     IPDegeriniArtir(2);
-
-  end else Result := isHata;
+  end;
 end
 // 8A /r - MOV r8,r/m8 - Move r/m8 to r8
 else if(Komut = $8A) then
@@ -125,8 +123,7 @@ begin
 
     {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,[$%.4x]', [Yazmaclar8[D42], D21]); {$ENDIF}
     IPDegeriniArtir(2 + 2);
-
-  end else Result := isHata;
+  end;
 end
 else if(Komut = $8B) then
 begin
@@ -223,8 +220,7 @@ begin
     {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s%d', [Yazmaclar16[D43 and $FF], Bellekler01[D41], D11]); {$ENDIF}
 
     IPDegeriniArtir(2 + 1);
-  end
-  else Result := isHata;
+  end;
 end
 // 8C /r - MOV r/m16,Sreg** - Move segment register to r/m16
 else if(Komut = $8C) then
@@ -383,8 +379,7 @@ begin
 
     {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.2x],byte %d', [D21, D11]); {$ENDIF}
     IPDegeriniArtir(2 + 3);
-
-  end else Result := isHata;
+  end;
 end
 else if(Komut = $C7) then
 begin
@@ -417,6 +412,5 @@ begin
       {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.4x],w %d', [D21, D22]); {$ENDIF}
       IPDegeriniArtir(2 + 4);
     end;
-
-  end else Result := isHata;
+  end;
 end

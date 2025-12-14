@@ -80,6 +80,5 @@ begin
 
     {$IFDEF DEBUG} mmCikti.Lines.Add('int $%.2x', [Komut2]); {$ENDIF}
     IPDegeriniArtir(2);
-
-  end else Result := isHata;
+  end;
 end
