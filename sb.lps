@@ -18,7 +18,8 @@
         <ComponentName Value="frmAnaSayfa"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <CursorPos X="41" Y="21"/>
+        <IsVisibleTab Value="True"/>
+        <CursorPos X="50" Y="16"/>
         <UsageCount Value="203"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -27,6 +28,7 @@
         <Filename Value="islevler.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="3"/>
+        <TopLine Value="14"/>
         <UsageCount Value="208"/>
         <Loaded Value="True"/>
       </Unit>
@@ -42,9 +44,10 @@
       </Unit>
       <Unit>
         <Filename Value="komutlar\mov.inc"/>
-        <EditorIndex Value="1"/>
-        <UsageCount Value="88"/>
-        <Loaded Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="40"/>
+        <CursorPos X="38" Y="58"/>
+        <UsageCount Value="89"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\inc.inc"/>
@@ -55,8 +58,11 @@
       </Unit>
       <Unit>
         <Filename Value="komutlar\dec.inc"/>
-        <EditorIndex Value="-1"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="16"/>
+        <CursorPos X="41" Y="47"/>
         <UsageCount Value="10"/>
+        <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\push.inc"/>
@@ -73,16 +79,13 @@
       <Unit>
         <Filename Value="komutlar\jcc.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="7"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\int.inc"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="13"/>
-        <CursorPos X="24" Y="82"/>
-        <UsageCount Value="97"/>
+        <CursorPos X="41" Y="14"/>
+        <UsageCount Value="100"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -94,13 +97,14 @@
       <Unit>
         <Filename Value="komutlar\add.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="140"/>
-        <CursorPos X="30" Y="169"/>
+        <TopLine Value="57"/>
+        <CursorPos Y="69"/>
         <UsageCount Value="27"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\cmp.inc"/>
         <EditorIndex Value="-1"/>
+        <CursorPos Y="21"/>
         <UsageCount Value="13"/>
       </Unit>
       <Unit>
@@ -146,7 +150,6 @@
       <Unit>
         <Filename Value="komutlar\jmp.inc"/>
         <EditorIndex Value="-1"/>
-        <CursorPos X="37" Y="13"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
@@ -162,8 +165,6 @@
       <Unit>
         <Filename Value="komutlar\test.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="30"/>
-        <CursorPos X="24" Y="63"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
@@ -198,7 +199,6 @@
       <Unit>
         <Filename Value="komutlar\rep.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="17"/>
         <UsageCount Value="19"/>
       </Unit>
       <Unit>
@@ -241,80 +241,14 @@
         <EditorIndex Value="-1"/>
         <UsageCount Value="10"/>
       </Unit>
+      <Unit>
+        <Filename Value="komutlar\loop.inc"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="64"/>
+        <UsageCount Value="10"/>
+      </Unit>
     </Units>
-    <JumpHistory HistoryIndex="25">
-      <Position>
-        <Filename Value="islevler.pas"/>
-        <Caret Line="195" Column="10" TopLine="177"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="514" Column="37" TopLine="491"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="510" Column="22" TopLine="489"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="535" Column="33" TopLine="511"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="504" Column="22" TopLine="482"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="60" Column="15" TopLine="43"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="549" Column="5" TopLine="537"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="582" Column="20" TopLine="549"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="488" Column="24" TopLine="484"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="497" Column="2" TopLine="481"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="495" Column="3" TopLine="481"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="496" TopLine="481"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="494" Column="6" TopLine="481"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="521" Column="30" TopLine="476"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="409" Column="26" TopLine="385"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="487" Column="24" TopLine="479"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="487" Column="24" TopLine="479"/>
-      </Position>
-      <Position>
-        <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="487" Column="24" TopLine="479"/>
-      </Position>
+    <JumpHistory HistoryIndex="29">
       <Position>
         <Filename Value="anasayfafrm.pas"/>
         <Caret Line="487" Column="24" TopLine="479"/>
@@ -326,10 +260,6 @@
       <Position>
         <Filename Value="anasayfafrm.pas"/>
         <Caret Line="487" Column="24" TopLine="485"/>
-      </Position>
-      <Position>
-        <Filename Value="komutlar\mov.inc"/>
-        <Caret Line="414" Column="9" TopLine="381"/>
       </Position>
       <Position>
         <Filename Value="anasayfafrm.pas"/>
@@ -341,11 +271,103 @@
       </Position>
       <Position>
         <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="304" Column="13" TopLine="492"/>
+        <Caret Line="301" Column="32" TopLine="287"/>
       </Position>
       <Position>
         <Filename Value="anasayfafrm.pas"/>
-        <Caret Line="301" Column="32" TopLine="287"/>
+        <Caret Line="497" Column="34" TopLine="497"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="505" Column="28" TopLine="482"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="483" Column="52" TopLine="459"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="527" Column="20" TopLine="510"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="457" Column="30" TopLine="447"/>
+      </Position>
+      <Position>
+        <Filename Value="islevler.pas"/>
+        <Caret Line="195" Column="19" TopLine="162"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="464" Column="24" TopLine="447"/>
+      </Position>
+      <Position>
+        <Filename Value="islevler.pas"/>
+        <Caret Line="10" Column="13"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="950" Column="30" TopLine="938"/>
+      </Position>
+      <Position>
+        <Filename Value="islevler.pas"/>
+        <Caret Line="196" Column="44" TopLine="175"/>
+      </Position>
+      <Position>
+        <Filename Value="komutlar\int.inc"/>
+        <Caret Line="15" Column="47"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="74" Column="15" TopLine="57"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="963" Column="3" TopLine="940"/>
+      </Position>
+      <Position>
+        <Filename Value="islevler.pas"/>
+        <Caret Line="148" TopLine="130"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="192" Column="5" TopLine="168"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="958" TopLine="923"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="74" TopLine="57"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="150" TopLine="133"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="166" Column="25" TopLine="157"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="806" Column="22" TopLine="798"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="11" Column="22" TopLine="479"/>
+      </Position>
+      <Position>
+        <Filename Value="islevler.pas"/>
+        <Caret Line="80" Column="35" TopLine="64"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="11" Column="22" TopLine="476"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="489" Column="28" TopLine="477"/>
       </Position>
     </JumpHistory>
     <RunParams>

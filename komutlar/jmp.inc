@@ -2,7 +2,7 @@
 else if(Komut = $EB) then
 begin
 
-  {$IFDEF DEBUG} mmCikti.Lines.Add('jmp (yakın) $%.2x', [ShortInt(Komut2)]); {$ENDIF}
+  {$IFDEF DEBUG} mmCikti.Lines.Add('jmp (yakın) %d', [ShortInt(Komut2)]); {$ENDIF}
   IPDegeriniArtir(1 + 1);
   IPDegeriniArtir(ShortInt(Komut2));
 end
@@ -14,7 +14,7 @@ begin
   begin
 
     D21 := PWord(@Bellek144MB[IslenenAdres + 1])^;
-    {$IFDEF DEBUG} mmCikti.Lines.Add('jmp (yakın) $%.4x', [SmallInt(D21)]); {$ENDIF}
+    {$IFDEF DEBUG} mmCikti.Lines.Add('jmp (yakın) %d', [SmallInt(D21)]); {$ENDIF}
     IPDegeriniArtir(1 + 2);
     IPDegeriniArtir(SmallInt(D21));
   end
@@ -23,7 +23,7 @@ begin
   begin
 
     D41 := PWord(@Bellek144MB[IslenenAdres + 1])^;
-    {$IFDEF DEBUG} mmCikti.Lines.Add('jmp (yakın) $%.8x', [LongInt(D41)]); {$ENDIF}
+    {$IFDEF DEBUG} mmCikti.Lines.Add('jmp (yakın) %d', [LongInt(D41)]); {$ENDIF}
     IPDegeriniArtir(1 + 4);
     IPDegeriniArtir(LongInt(D41));
   end;

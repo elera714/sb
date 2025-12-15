@@ -12,6 +12,8 @@ const
   Kodlayan: string = 'Fatih KILIC';
 
 const
+  YAZIEKRAN_BELLEKADRESI = LongWord($B8000);
+
   // 2 kafa, 80 iz, 18 sektör, her sektörde 512 byte
   DISKET_BOYUT = LongWord((2 * 80 * 18) * 512);
 
@@ -143,7 +145,6 @@ var
   ISLEMCI_CM: Integer = ICM_BIT16;
   SB_CALISIYOR: Boolean = False;              // sanal bilgisayar çalışıyor mu?
   FlpOkunanSektorSayisi: LongWord;            // floppy okunan sektör sayısı
-  BiosYuklendi: Boolean;
   IslenenAdres: LongWord;                     // o anda assembly komutunun işlendiği adres
   Komut, Komut2: Byte;
   KomutModDegistir: Boolean;                  // $66 öneki
@@ -185,6 +186,7 @@ var
   Bellek144MB: array of Byte;
   Portlar: array[0..65535] of Integer;
   Bayraklar: LongWord = 0;                    // işlemci bayrakları (flags)
+  GostergeX, GostergeY: Byte;                 // yazı mod yatay / dikey gösterge (cursor) konumu
 
 procedure ClearBit(var Value: LongWord; Index: Byte);
 function GetBit(Value: LongWord; Index: Byte): Boolean;

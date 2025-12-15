@@ -6,12 +6,13 @@ ilk_degerler:
         mov     ss,ax
         mov     sp,0x1000
 
-        mov     bx,0x1234
-        mov     cx,0x5678
-        xchg    bx,cx
+        mov     ax,0x1234
+        mov     dx,0x1234
+        mov     cx,0x1234
 kod_bolumu:
-
-        mov     al,ah
+        mov     ch,al
+        mov     al,dl
+        mov     bl,cl
 
 dongu:  jmp     kod_bolumu
 
@@ -30,7 +31,9 @@ db8     db      8
         db      0x99
 ;        xor     r8,r8
 
-        mov     al,ah
+;        mov     al,ah
+
+        dec     bp
 
 ;        mov     rax,[r12 + r9]
         db      0x99

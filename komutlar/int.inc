@@ -8,22 +8,25 @@ begin
     {$IFDEF DEBUG} mmCikti.Lines.Add('int $%.2x', [Komut2]); {$ENDIF}
     IPDegeriniArtir(2);
 
-    // aktif olan bayrak, cs ve ip değerlerini yığına sakla
-    YiginaEkle(Bayraklar, DU2);
-    YiginaEkle(YZMC_DEGERSN[YZMC0_CS], DU2);
-    YiginaEkle(YZMC_DEGERSN[YZMC0_EIP], DU2);
+    D21 := ((GostergeY * 80) + GostergeX) * 2;
 
-    { TODO - diğer bayrak değerleri de burada ayarlanacak }
+    D11 := YazmacDegerAl(YZMC_AL);
+    PByte(@Bellek144MB[YAZIEKRAN_BELLEKADRESI + D21 + 0])^ := D11;
+    PByte(@Bellek144MB[YAZIEKRAN_BELLEKADRESI + D21 + 1])^ := 15;
 
-    // çalıştırılacak kesme girişini belirle
-    D21 := PWord(@Bellek144MB[(Komut2 * 4) + 0])^;
-    D22 := PWord(@Bellek144MB[(Komut2 * 4) + 2])^;
+    Inc(GostergeX);
+    if(GostergeX = 80) then
+    begin
 
-    // kesme işlevini çalıştır
-    YZMC_DEGERSN[YZMC0_EIP] := D21;
-    YZMC_DEGERSN[YZMC0_CS] := D22;
+      GostergeX := 0;
+      Inc(GostergeY);
+      if(GostergeY = 25) then
+      begin
 
-    //Result := isHata;
+        GostergeX := 0;
+        GostergeY := 0;
+      end;
+    end;
   end
   else if(Komut2 = $13) then
   begin

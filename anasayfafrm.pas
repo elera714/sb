@@ -71,7 +71,6 @@ type
     function DosyaYukle(ADosyaAdi: string; AHedefBellekAdresi, ABaslangic,
       ABoyut: LongWord): string;
     procedure EkraniKartiniYukle;
-    procedure BiosYukle;
   public
 
   end;
@@ -148,8 +147,6 @@ end;
 procedure TfrmAnaSayfa.FormShow(Sender: TObject);
 begin
 
-  BiosYukle;
-
   EkraniKartiniYukle;
 
   Ekran.Start;
@@ -175,7 +172,6 @@ begin
   if not(SB_CALISIYOR) then
   begin
 
-    BiosYukle;
     EkraniKartiniYukle;
     YazmaclariSifirla;
 
@@ -188,13 +184,8 @@ begin
     sbDurum.Repaint;
     Application.ProcessMessages;
 
-    // bios işlevlerinin yüklenip yüklenmediğini kontrol et
-    if not(BiosYuklendi) then
-      Hata := 'Hata: bios işlevleri yüklenemedi!'
-    else Hata := '';
-
     // imaj dosyasını $7C0 adresine yükle
-    if(Length(Hata) = 0) then Hata := DosyaYukle(cbIslenecekDosya.Text, $07C0 * $10, 0, 512);
+    Hata := DosyaYukle(cbIslenecekDosya.Text, $07C0 * $10, 0, 512);
 
     if(Length(Hata) = 0) then
     begin
@@ -486,6 +477,11 @@ begin
     {$IFDEF DEBUG} mmCikti.Lines.Add('xchg %s,%s', [Yazmaclar16[D41 and $F], Yazmaclar16[D42 and $F]]); {$ENDIF}
     IPDegeriniArtir(2);
   end
+
+
+
+
+
   {$i komutlar\add.inc}
   {$i komutlar\and.inc}
   {$i komutlar\call.inc}
@@ -502,6 +498,7 @@ begin
   {$i komutlar\jcc.inc}
   {$i komutlar\jmp.inc}
   {$i komutlar\lods.inc}
+  {$i komutlar\loop.inc}
   {$i komutlar\mov.inc}
   {$i komutlar\nop.inc}
   {$i komutlar\or.inc}
@@ -778,18 +775,6 @@ var
 begin
 
   case AHedefYazmacSN of
-    YZMC_AL:
-    begin
-
-      {D11 := PShortInt(@YZMC_DEGERSN[DegerSN] + 0)^;
-      PShortInt(@YZMC_DEGERSN[DegerSN] + 0)^ := D11;}
-    end;
-    YZMC_AH:
-    begin
-
-      {D11 := PShortInt(@YZMC_DEGERSN[DegerSN] + 1)^;
-      PShortInt(@YZMC_DEGERSN[DegerSN] + 1)^ := D11;}
-    end;
     YZMC_AX, YZMC_CX, YZMC_DX, YZMC_BX, YZMC_SP, YZMC_BP, YZMC_SI, YZMC_DI,
     YZMC_CS, YZMC_DS, YZMC_ES, YZMC_SS, YZMC_FS, YZMC_GS:
     begin
@@ -949,18 +934,9 @@ begin
   Yaz(0, ProgramAdi);
   Yaz(1, 'Surum: ' + SurumNo);
   Yaz(2, 'Kodlayan: ' + Kodlayan);
-end;
 
-procedure TfrmAnaSayfa.BiosYukle;
-var
-  Hata: string;
-begin
-
-  // bios işlevlerini 0 adresine yükle
-  Hata := DosyaYukle('bios.bin', 0, 0, 512);
-  if(Length(Hata) = 0) then
-    BiosYuklendi := True
-  else BiosYuklendi := False;
+  GostergeX := 0;
+  GostergeY := 4;
 end;
 
 end.

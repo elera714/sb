@@ -6,14 +6,46 @@ begin
   if(KomutModDegistir) then
   begin
 
-    YazmacDegistir(($04 shl 8) or (Komut - $48), -1, True);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('dec %s', [Yazmaclar32[Komut - $48]]); {$ENDIF}
+    D11 := Komut - $48;
+    I41 := LongInt(YazmacDegerAl(($04 shl 8) or D11));
+    I41 := I41 - 1;
+
+    if(I41 = 0) then
+    begin
+
+      BayrakDegistir(BAYRAK_ZF);
+    end
+    else if(I41 < 0) then
+    begin
+
+      BayrakDegistir(BAYRAK_ZF, False);
+      BayrakDegistir(BAYRAK_SF);
+    end;
+
+    YazmacDegistir(($04 shl 8) or D11, I41);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('dec %s', [Yazmaclar32[D11]]); {$ENDIF}
   end
   else
   begin
 
-    YazmacDegistir(($02 shl 8) or (Komut - $48), -1, True);
-    {$IFDEF DEBUG} mmCikti.Lines.Add('dec %s', [Yazmaclar16[Komut - $48]]); {$ENDIF}
+    D11 := Komut - $48;
+    I21 := SmallInt(YazmacDegerAl(($02 shl 8) or D11));
+    I21 := I21 - 1;
+
+    if(I21 = 0) then
+    begin
+
+      BayrakDegistir(BAYRAK_ZF);
+    end
+    else if(I21 < 0) then
+    begin
+
+      BayrakDegistir(BAYRAK_ZF, False);
+      BayrakDegistir(BAYRAK_SF);
+    end;
+
+    YazmacDegistir(($02 shl 8) or D11, I21);
+    {$IFDEF DEBUG} mmCikti.Lines.Add('dec %s', [Yazmaclar16[D11]]); {$ENDIF}
   end;
 
   IPDegeriniArtir;

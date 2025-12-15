@@ -66,7 +66,6 @@ begin
 
     D41 := (Komut2 and %00000111);                  // kaynak yazmaç
     D42 := MYB16[(Komut2 and %00111000) shr 3];     // hedef yazmaç
-    D43 := YazmacDegerAl(D42);
 
     // komut uzunluğu öndeğer = 2 byte
     D44 := 2;
