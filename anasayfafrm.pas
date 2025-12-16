@@ -1,8 +1,8 @@
 unit anasayfafrm;
 
 {$mode objfpc}{$H+}
-//{$DEFINE YAZMACLARI_GUNCELLE}
-//{$DEFINE DEBUG}
+{$DEFINE YAZMACLARI_GUNCELLE}
+{$DEFINE DEBUG}
 
 interface
 
@@ -184,8 +184,10 @@ begin
     sbDurum.Repaint;
     Application.ProcessMessages;
 
+    DisketImajDosyaAdi := cbIslenecekDosya.Text;
+
     // imaj dosyasını $7C0 adresine yükle
-    Hata := DosyaYukle(cbIslenecekDosya.Text, $07C0 * $10, 0, 512);
+    Hata := DosyaYukle(DisketImajDosyaAdi, $07C0 * $10, 0, 512);
 
     if(Length(Hata) = 0) then
     begin
@@ -438,27 +440,6 @@ begin
       IPDegeriniArtir(D44);
     end;
   end
-  // C5 /r - LDS r16,m16:16 - Load DS:r16 with far pointer from memory
-  else if(Komut = $C5) then
-  begin
-
-    if((Komut2 and %11000000) = %00000000) then
-    begin
-
-      D41 := (Komut2 and %111);
-      D42 := Mod00Isle(D41);
-
-      D43 := MYB16[(Komut2 and %00111000) shr 3];     // 1. hedef yazmaç
-      D44 := PWord(@Bellek144MB[D42 + 0])^;
-      YazmacDegistir(D43, D44);
-      D44 := PWord(@Bellek144MB[D42 + 2])^;
-      YazmacDegistir(YZMC_DS, D44);
-
-      {$IFDEF DEBUG} mmCikti.Lines.Add('lds %s,%s', [Yazmaclar16[D43 and $F], Bellekler00[D41]]); {$ENDIF}
-      IPDegeriniArtir(2);
-    end;
-  end
-
   // 87 /r XCHG r/m16,r16 Exchange r16 with word from r/m16
   // 87 /r XCHG r16,r/m16 Exchange word from r/m16 with r16
   // 87 /r XCHG r/m32,r32 Exchange r32 with doubleword from r/m32
@@ -499,6 +480,7 @@ begin
   {$i komutlar\jmp.inc}
   {$i komutlar\lods.inc}
   {$i komutlar\loop.inc}
+  {$i komutlar\lxs.inc}
   {$i komutlar\mov.inc}
   {$i komutlar\nop.inc}
   {$i komutlar\or.inc}

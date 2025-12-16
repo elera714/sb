@@ -138,7 +138,8 @@ const
 
   // bellek atamaları, tablo 1, mod 01
   Bellekler01: array[0..7] of string =
-    ('[bx+si]+b', '[bx+di]+b', '[bp+si]+b', '[bp+di]+b', '[si]+b', '[di]+b', '[bp]+b', '[bx]+b');
+    ('[bx+si]b ', '[bx+di]b ', '[bp+si]b ', '[bp+di]b ', '[si]b ', '[di]b ',
+    '[bp]b ', '[bx]b ');
 
 
 var
@@ -150,6 +151,7 @@ var
   KomutModDegistir: Boolean;                  // $66 öneki
   // BaskinSegment: $2E, $36 gibi segment yazmaçların baskın kullanılma zorunluluğu
   BaskinSegment: LongWord;
+  DisketImajDosyaAdi: string;
 
 const
   BAYRAK_CF     = 0;
@@ -195,6 +197,7 @@ function YazmacDegerAl(AYazmac: LongWord): LongWord;
 procedure IOPortYaz(AHedefPortNo, AKaynakYazmacSN: LongWord);
 procedure IOPortYaz2(AKaynakYazmacSN: LongWord);
 function Mod00Isle(AIslemNo: LongWord): LongWord;
+function Mod01Isle(AIslemNo: LongWord): LongWord;
 
 implementation
 
@@ -375,6 +378,75 @@ begin
         Result := YazmacDegerAl(YZMC_DS) * $10
       else Result := YazmacDegerAl(BaskinSegment) * $10;
       Result += PWord(@Bellek144MB[IslenenAdres + 2])^;
+    end;
+    7:
+    begin
+      if(BaskinSegment = 0) then
+        Result := YazmacDegerAl(YZMC_DS) * $10
+      else Result := YazmacDegerAl(BaskinSegment) * $10;
+      Result += YazmacDegerAl(YZMC_BX);
+    end;
+  end;
+end;
+
+// tablo 2.1 - mod: 01 bellek hesaplama işlevlerini gerçekleştirir
+// bilgi: disp8 değeri bellek hesaplamasına çağıran işlev tarafından eklenecektir
+function Mod01Isle(AIslemNo: LongWord): LongWord;
+begin
+
+  case AIslemNo of
+    0:
+    begin
+      if(BaskinSegment = 0) then
+        Result := YazmacDegerAl(YZMC_DS) * $10
+      else Result := YazmacDegerAl(BaskinSegment) * $10;
+      Result += YazmacDegerAl(YZMC_SI);
+      Result += YazmacDegerAl(YZMC_BX);
+    end;
+    1:
+    begin
+      if(BaskinSegment = 0) then
+        Result := YazmacDegerAl(YZMC_DS) * $10
+      else Result := YazmacDegerAl(BaskinSegment) * $10;
+      Result += YazmacDegerAl(YZMC_DI);
+      Result += YazmacDegerAl(YZMC_BX);
+    end;
+    2:
+    begin
+      if(BaskinSegment = 0) then
+        Result := YazmacDegerAl(YZMC_SS) * $10
+      else Result := YazmacDegerAl(BaskinSegment) * $10;
+      Result += YazmacDegerAl(YZMC_SI);
+      Result += YazmacDegerAl(YZMC_BP);
+    end;
+    3:
+    begin
+      if(BaskinSegment = 0) then
+        Result := YazmacDegerAl(YZMC_SS) * $10
+      else Result := YazmacDegerAl(BaskinSegment) * $10;
+      Result += YazmacDegerAl(YZMC_DI);
+      Result += YazmacDegerAl(YZMC_BP);
+    end;
+    4:
+    begin
+      if(BaskinSegment = 0) then
+        Result := YazmacDegerAl(YZMC_DS) * $10
+      else Result := YazmacDegerAl(BaskinSegment) * $10;
+      Result += YazmacDegerAl(YZMC_SI);
+    end;
+    5:
+    begin
+      if(BaskinSegment = 0) then
+        Result := YazmacDegerAl(YZMC_ES) * $10
+      else Result := YazmacDegerAl(BaskinSegment) * $10;
+      Result += YazmacDegerAl(YZMC_DI);
+    end;
+    6:
+    begin
+      if(BaskinSegment = 0) then
+        Result := YazmacDegerAl(YZMC_DS) * $10
+      else Result := YazmacDegerAl(BaskinSegment) * $10;
+      Result += YazmacDegerAl(YZMC_BP);
     end;
     7:
     begin

@@ -27,6 +27,23 @@ begin
 
     IPDegeriniArtir(D44);
   end
+  else if((Komut2 and %11000000) = %01000000) then
+  begin
+
+    D41 := (Komut2 and %00000111);                  // bellek bölgesi
+    D42 := MYB8[(Komut2 and %00111000) shr 3];      // kaynak yazmaç
+    D11 := YazmacDegerAl(D42);                      // hedef bölgeye aktarılacak değer
+
+    D12 := PByte(@Bellek144MB[IslenenAdres + 2])^;
+
+    D45 := Mod01Isle(D41) + ShortInt(D12);
+    PByte(@Bellek144MB[D45])^ := D11;
+
+    if((D42 and $FF) >= $40) then D42 := (D42 shr 4) and $F else D42 := D42 and $F;
+
+    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s%d,%s', [Bellekler01[D41], ShortInt(D12), Yazmaclar8[D42 and $F]]); {$ENDIF}
+    IPDegeriniArtir(2 + 1);
+  end
   // 8 bitlik yazmaç ataması
   else if((Komut2 and %11000000) = %11000000) then
   begin
@@ -70,6 +87,21 @@ begin
     {$ENDIF}
 
     IPDegeriniArtir(D44);
+  end
+  else if((Komut2 and %11000000) = %01000000) then
+  begin
+
+    D41 := (Komut2 and %00000111);                  // bellek bölgesi
+    D42 := MYB16[(Komut2 and %00111000) shr 3];     // kaynak yazmaç
+    D21 := YazmacDegerAl(D42);                      // hedef bölgeye aktarılacak değer
+
+    D11 := PByte(@Bellek144MB[IslenenAdres + 2])^;
+
+    D45 := Mod01Isle(D41) + ShortInt(D11);
+    PWord(@Bellek144MB[D45])^ := D21;
+
+    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s%d,%s', [Bellekler01[D41], ShortInt(D11), Yazmaclar16[D42 and $F]]); {$ENDIF}
+    IPDegeriniArtir(2 + 1);
   end
   else if((Komut2 and %11000000) = %11000000) then
   begin
@@ -132,6 +164,24 @@ begin
 
     IPDegeriniArtir(D44);
   end
+  else if((Komut2 and %11000000) = %01000000) then
+  begin
+
+    D41 := (Komut2 and %00000111);                  // bellek bölgesi
+    D42 := MYB8[(Komut2 and %00111000) shr 3];      // hedef yazmaç
+
+    D11 := PByte(@Bellek144MB[IslenenAdres + 2])^;
+
+    D45 := Mod01Isle(D41) + ShortInt(D11);
+    D12 := PByte(@Bellek144MB[D45])^;
+    YazmacDegistir(D42, D12);
+
+    if((D42 and $FF) >= $40) then D42 := (D42 shr 4) and $F else D42 := D42 and $F;
+
+    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s%d', [Yazmaclar8[D42 and $F], Bellekler01[D41], D11]); {$ENDIF}
+
+    IPDegeriniArtir(2 + 1);
+  end
   else if((Komut2 and %11000000) = %11000000) then
   begin
 
@@ -182,68 +232,15 @@ begin
   begin
 
     D41 := (Komut2 and %00000111);                  // bellek bölgesi
+    D42 := MYB16[(Komut2 and %00111000) shr 3];     // hedef yazmaç
+
     D11 := PByte(@Bellek144MB[IslenenAdres + 2])^;
 
-    case D41 of
-      0:
-      begin
-        D42 := YazmacDegerAl(YZMC_DS) * $10;
-        D42 += YazmacDegerAl(YZMC_BX);
-        D42 += YazmacDegerAl(YZMC_SI);
-        D42 += D11;
-      end;
-      1:
-      begin
-        D42 := YazmacDegerAl(YZMC_ES) * $10;
-        D42 += YazmacDegerAl(YZMC_BX);
-        D42 += YazmacDegerAl(YZMC_DI);
-        D42 += D11;
-      end;
-      2:
-      begin
-        D42 := YazmacDegerAl(YZMC_DS) * $10;
-        D42 += YazmacDegerAl(YZMC_BP);
-        D42 += YazmacDegerAl(YZMC_SI);
-        D42 += D11;
-      end;
-      3:
-      begin
-        D42 := YazmacDegerAl(YZMC_ES) * $10;
-        D42 += YazmacDegerAl(YZMC_DI);
-        D42 += YazmacDegerAl(YZMC_BP);
-        D42 += D11;
-      end;
-      4:
-      begin
-        D42 := YazmacDegerAl(YZMC_DS) * $10;
-        D42 += YazmacDegerAl(YZMC_SI);
-        D42 += D11;
-      end;
-      5:
-      begin
-        D42 := YazmacDegerAl(YZMC_ES) * $10;
-        D42 += YazmacDegerAl(YZMC_DI);
-        D42 += D11;
-      end;
-      6:
-      begin
-        D42 := YazmacDegerAl(YZMC_SS) * $10;
-        D42 += YazmacDegerAl(YZMC_BP);
-        D42 += D11;
-      end;
-      7:
-      begin
-        D42 := YazmacDegerAl(YZMC_ES) * $10;
-        D42 := YazmacDegerAl(YZMC_BX);
-        D42 += D11;
-      end;
-    end;
+    D45 := Mod01Isle(D41) + ShortInt(D11);
+    D21 := PWord(@Bellek144MB[D45])^;
+    YazmacDegistir(D42, D21);
 
-    D43 := MYB16[(Komut2 and %00111000) shr 3];     // hedef yazmaç
-    D21 := PWord(@Bellek144MB[D42])^;
-    YazmacDegistir(D43, D21);
-
-    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s%d', [Yazmaclar16[D43 and $FF], Bellekler01[D41], D11]); {$ENDIF}
+    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s%d', [Yazmaclar16[D42 and $FF], Bellekler01[D41], D11]); {$ENDIF}
 
     IPDegeriniArtir(2 + 1);
   end;
@@ -395,17 +392,49 @@ else if(Komut = $C6) then
 begin
 
   // bellek bölgesi ataması
-  if((Komut2 and %00000110) = %00000110) then
+  if((Komut2 and %11111000) = %00000000) then
   begin
 
-    D41 := YazmacDegerAl(YZMC_DS);
-    D21 := PWord(@Bellek144MB[IslenenAdres + 2])^;
-    D11 := PByte(@Bellek144MB[IslenenAdres + 4])^;
-    PByte(@Bellek144MB[(D41 * $10) + D21])^ := D11;
+    D41 := (Komut2 and %00000111);                  // kaynak yazmaç / bellek bölgesi
 
-    {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.2x],byte %d', [D21, D11]); {$ENDIF}
-    IPDegeriniArtir(2 + 3);
-  end;
+    // komut uzunluğu öndeğer = 2 byte
+    D44 := 3;
+    if(D41 = 6) then
+    begin
+
+      D44 := 5;
+      D21 := PWord(@Bellek144MB[IslenenAdres + 2])^;    // okunacak bellek adresi
+      D11 := PByte(@Bellek144MB[IslenenAdres + 4])^;    // yerleştirilecek değer
+    end else D11 := PByte(@Bellek144MB[IslenenAdres + 2])^;
+
+    D45 := Mod00Isle(D41);
+    PByte(@Bellek144MB[D45])^ := D11;
+
+    {$IFDEF DEBUG}
+      if(D41 = 6) then
+        mmCikti.Lines.Add('mov [$%.4x],b %d', [D21, D11])
+      else mmCikti.Lines.Add('mov %s,b %d', [Bellekler00[D41], D11]);
+    {$ENDIF}
+
+    IPDegeriniArtir(D44);
+  end
+  else if((Komut2 and %11111000) = %01000000) then
+  begin
+
+    D41 := (Komut2 and %00000111);                    // kaynak yazmaç / bellek bölgesi
+
+    D11 := PByte(@Bellek144MB[IslenenAdres + 2])^;    // kaynak yazmaca eklenecek ek değer (disp8)
+    D12 := PByte(@Bellek144MB[IslenenAdres + 3])^;    // yerleştirilecek değer
+
+    D45 := Mod00Isle(D41) + ShortInt(D12);
+    PByte(@Bellek144MB[D45])^ := D11;
+
+    {$IFDEF DEBUG}
+    mmCikti.Lines.Add('mov %s%.d,%.2x', [Bellekler01[D41], ShortInt(D11), D12]);
+    {$ENDIF}
+
+    IPDegeriniArtir(2 + 2);
+  end
 end
 else if(Komut = $C7) then
 begin

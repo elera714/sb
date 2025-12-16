@@ -64,6 +64,8 @@ object frmAnaSayfa: TfrmAnaSayfa
         'disket144.img'
         'yazmaçlar.bin'
         'elera001.img'
+        'freedos.img'
+        'msdos50.img'
         '622c.img'
       )
       TabOrder = 2
