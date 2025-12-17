@@ -26,7 +26,7 @@ begin
 
     D41 := MYB16[Komut2 and %111];
     D21 := YazmacDegerAl(D41);
-    D11 := PByte(@Bellek144MB[D42 + 2])^;
+    D11 := PByte(@Bellek144MB[IslenenAdres + 2])^;
 
     D22 := D21 shr D11-1;
     BayrakDegistir(BAYRAK_CF, (D22 and 1) = 1);

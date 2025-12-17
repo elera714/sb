@@ -20,9 +20,9 @@ begin
     if((D42 and $FF) >= $40) then D42 := (D42 shr 4) and $F else D42 := D42 and $F;
 
     {$IFDEF DEBUG}
-      if(D41 = 6) then
-        mmCikti.Lines.Add('mov [$%.4x],%s', [PWord(@Bellek144MB[IslenenAdres + 2])^, Yazmaclar8[D42]])
-      else mmCikti.Lines.Add('mov %s,%s', [Bellekler00[D41], Yazmaclar8[D42]]);
+    if(D41 = 6) then
+      mmCikti.Lines.Add('mov [$%.4x],%s', [PWord(@Bellek144MB[IslenenAdres + 2])^, Yazmaclar8[D42]])
+    else mmCikti.Lines.Add('mov %s,%s', [Bellekler00[D41], Yazmaclar8[D42]]);
     {$ENDIF}
 
     IPDegeriniArtir(D44);
@@ -81,9 +81,9 @@ begin
     PWord(@Bellek144MB[D45])^ := D43;
 
     {$IFDEF DEBUG}
-      if(D41 = 6) then
-        mmCikti.Lines.Add('mov [$%.4x],%s', [PWord(@Bellek144MB[IslenenAdres + 2])^, Yazmaclar16[D42 and $F]])
-      else mmCikti.Lines.Add('mov %s,%s', [Bellekler00[D41], Yazmaclar16[D42 and $F]]);
+    if(D41 = 6) then
+      mmCikti.Lines.Add('mov [$%.4x],%s', [PWord(@Bellek144MB[IslenenAdres + 2])^, Yazmaclar16[D42 and $F]])
+    else mmCikti.Lines.Add('mov %s,%s', [Bellekler00[D41], Yazmaclar16[D42 and $F]]);
     {$ENDIF}
 
     IPDegeriniArtir(D44);
@@ -157,9 +157,9 @@ begin
     if((D42 and $FF) >= $40) then D42 := (D42 shr 4) and $F else D42 := D42 and $F;
 
     {$IFDEF DEBUG}
-      if(D41 = 6) then
-        mmCikti.Lines.Add('mov %s,[$%.4x]', [Yazmaclar8[D42 and $F], PWord(@Bellek144MB[IslenenAdres + 2])^])
-      else mmCikti.Lines.Add('mov %s,%s', [Yazmaclar8[D42 and $F], Bellekler00[D41]]);
+    if(D41 = 6) then
+      mmCikti.Lines.Add('mov %s,[$%.4x]', [Yazmaclar8[D42 and $F], PWord(@Bellek144MB[IslenenAdres + 2])^])
+    else mmCikti.Lines.Add('mov %s,%s', [Yazmaclar8[D42 and $F], Bellekler00[D41]]);
     {$ENDIF}
 
     IPDegeriniArtir(D44);
@@ -220,9 +220,9 @@ begin
     YazmacDegistir(D42, D43);
 
     {$IFDEF DEBUG}
-      if(D41 = 6) then
-        mmCikti.Lines.Add('mov %s,[$%.4x]', [Yazmaclar16[D42 and $F], PWord(@Bellek144MB[IslenenAdres + 2])^])
-      else mmCikti.Lines.Add('mov %s,%s', [Yazmaclar16[D42 and $F], Bellekler00[D41]]);
+    if(D41 = 6) then
+      mmCikti.Lines.Add('mov %s,[$%.4x]', [Yazmaclar16[D42 and $F], PWord(@Bellek144MB[IslenenAdres + 2])^])
+    else mmCikti.Lines.Add('mov %s,%s', [Yazmaclar16[D42 and $F], Bellekler00[D41]]);
     {$ENDIF}
 
     IPDegeriniArtir(D44);
@@ -440,32 +440,47 @@ else if(Komut = $C7) then
 begin
 
   // bellek bölgesi ataması
-  if((Komut2 and %00000110) = %00000110) then
+  if((Komut2 and %11111000) = %00000000) then
   begin
 
     // C7 /0 - MOV r/m32,imm32 - Move imm32 to r/m32
     if(KomutModDegistir) then
     begin
 
-      D41 := YazmacDegerAl(YZMC_DS);
+      {D41 := YazmacDegerAl(YZMC_DS);
       D21 := PWord(@Bellek144MB[IslenenAdres + 2])^;
       D41 := PLongWord(@Bellek144MB[IslenenAdres + 4])^;
       PLongWord(@Bellek144MB[(D41 * $10) + D21])^ := D41;
 
       {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.8x],dw %d', [D21, D41]); {$ENDIF}
-      IPDegeriniArtir(2 + 6);
+      IPDegeriniArtir(2 + 6);}
+      { TODO - kontrol et }
     end
     else
     // C7 /0 - MOV r/m16,imm16 - Move imm16 to r/m16
     begin
 
-      D41 := YazmacDegerAl(YZMC_DS);
-      D21 := PWord(@Bellek144MB[IslenenAdres + 2])^;
-      D22 := PWord(@Bellek144MB[IslenenAdres + 4])^;
-      PWord(@Bellek144MB[(D41 * $10) + D21])^ := D22;
+      D41 := (Komut2 and %00000111);                  // hedef bellek bölgesi
 
-      {$IFDEF DEBUG} mmCikti.Lines.Add('mov [$%.4x],w %d', [D21, D22]); {$ENDIF}
-      IPDegeriniArtir(2 + 4);
+      // komut uzunluğu öndeğer = 2 byte
+      D44 := 4;
+      if(D41 = 6) then
+      begin
+
+        D44 := 6;
+        D21 := PWord(@Bellek144MB[IslenenAdres + 4])^;    // yazılacak bellek adresi
+      end else D21 := PWord(@Bellek144MB[IslenenAdres + 2])^;
+
+      D45 := Mod00Isle(D41);
+      PWord(@Bellek144MB[D45])^ := D21;
+
+      {$IFDEF DEBUG}
+      if(D41 = 6) then
+        mmCikti.Lines.Add('mov [$%.4x],$%.4x', [PWord(@Bellek144MB[IslenenAdres + 2])^, D21])
+      else mmCikti.Lines.Add('mov %s,$%.4x', [Bellekler00[D41], D21]);
+      {$ENDIF}
+
+      IPDegeriniArtir(D44);
     end;
   end;
 end

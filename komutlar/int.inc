@@ -37,7 +37,18 @@ begin
   begin
 
     D11 := YazmacDegerAl(YZMC_AH);
-    if(D11 = $02) then
+
+    // sürücüleri  sıfırla
+    if(D11 = $00) then
+    begin
+
+      YazmacDegistir(YZMC_AH, 0);
+      BayrakDegistir(BAYRAK_CF, False);
+
+      mmCikti.Lines.Add('kesme: $%.2x:$%.2x', [Komut2, D11]);
+      IPDegeriniArtir(2);
+    end
+    else if(D11 = $02) then
     begin
 
       // 3.5" 1.44MB floppy disket değerleri
@@ -93,11 +104,11 @@ begin
 
       {$IFDEF DEBUG} mmCikti.Lines.Add('int $%.2x', [Komut2]); {$ENDIF}
       IPDegeriniArtir(2);
-    end;
-  end
-  else
-  begin
+    end
+    else
+    begin
 
-    mmCikti.Lines.Add('int hatası: $%.2x:$%.2x', [Komut2, D11]);
+      mmCikti.Lines.Add('int hatası: $%.2x:$%.2x', [Komut2, D11]);
+    end;
   end;
 end

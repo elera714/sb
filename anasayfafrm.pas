@@ -380,66 +380,6 @@ begin
     BaskinSegment := YZMC_GS;
     Exit(isBirSonraki);
   end
-
-  // F6 /6 - DIV r/m8 - Unsigned divide AX by r/m8; AL ← Quotient, AH ← Remainder
-  else if(Komut = $F6) then
-  begin
-
-    if((Komut2 and %11111000) = %11110000) then
-    begin
-
-      D41 := MYB8[Komut2 and %00000111];
-
-      D21 := YazmacDegerAl(YZMC_AX);
-      D22 := YazmacDegerAl(D41);
-      D11 := D21 div D22;
-      D12 := D21 mod D22;
-
-      YazmacDegistir(YZMC_AL, D11);
-      YazmacDegistir(YZMC_AH, D12);
-
-      if((D41 and $FF) >= $40) then D41 := (D41 shr 4) and $F else D41 := D41 and $F;
-
-      {$IFDEF DEBUG} mmCikti.Lines.Add('div %s', [Yazmaclar8[D41]]); {$ENDIF}
-      IPDegeriniArtir(2);
-    end;
-  end
-  // F7 /6 - DIV r/m16 - Unsigned divide DX:AX by r/m16; AX ← Quotient, DX ← Remainder
-  // F7 /6 - DIV r/m32 - Unsigned divide EDX:EAX by r/m32 doubleword; EAX ← Quotient, EDX ← Remainder
-  else if(Komut = $F7) then
-  begin
-
-    if((Komut2 and %11111000) = %00110000) then
-    begin
-
-      D41 := (Komut2 and %00000111);                  // kaynak yazmaç
-      D42 := Mod00Isle(D41);
-      D43 := PWord(@Bellek144MB[D42])^;
-
-      D44 := YazmacDegerAl(YZMC_DX);
-      D45 := YazmacDegerAl(YZMC_AX);
-      D44 := D44 shl 16;
-      D44 := D44 or D45;
-
-      D45 := D44 div D43;
-      D44 := D44 mod D43;
-
-      YazmacDegistir(YZMC_AX, D45);
-      YazmacDegistir(YZMC_DX, D44);
-
-      // komut uzunluğu öndeğer = 2 byte
-      D44 := 2;
-      if(D41 = 6) then D44 := 4;
-
-      {$IFDEF DEBUG}
-        if(D41 = 6) then
-          mmCikti.Lines.Add('div [$%.4x]', [D43])
-        else mmCikti.Lines.Add('div %s', [Bellekler00[D41]]);
-      {$ENDIF}
-
-      IPDegeriniArtir(D44);
-    end;
-  end
   // 87 /r XCHG r/m16,r16 Exchange r16 with word from r/m16
   // 87 /r XCHG r16,r/m16 Exchange word from r/m16 with r16
   // 87 /r XCHG r/m32,r32 Exchange r32 with doubleword from r/m32
@@ -460,9 +400,6 @@ begin
   end
 
 
-
-
-
   {$i komutlar\add.inc}
   {$i komutlar\and.inc}
   {$i komutlar\call.inc}
@@ -471,6 +408,7 @@ begin
   {$i komutlar\cli.inc}
   {$i komutlar\cmp.inc}
   {$i komutlar\dec.inc}
+  {$i komutlar\div.inc}
   {$i komutlar\imul.inc}
   {$i komutlar\in.inc}
   {$i komutlar\inc.inc}

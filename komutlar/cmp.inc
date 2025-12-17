@@ -1,3 +1,53 @@
+// 39 /r - CMP r/m16,r16 - Compare r16 with r/m16
+else if(Komut = $39) then
+begin
+
+  D41 := (Komut2 and %00000111);                  // hedef bellek bölgesi
+  D42 := MYB16[(Komut2 and %00111000) shr 3];     // kaynak yazmaç
+
+  // komut uzunluğu öndeğer = 2 byte
+  D44 := 2;
+  if(D41 = 6) then
+  begin
+
+    D44 := 4;
+    D23 := PWord(@Bellek144MB[IslenenAdres + 2])^;
+  end;
+
+  D21 := Mod00Isle(D41);      // karşılaştırılacak 1. değer
+  D22 := YazmacDegerAl(D42);  // karşılaştırılacak 2. değer
+
+  I21 := SmallInt(D21) - SmallInt(D22);
+
+  if(I21 = 0) then
+  begin
+
+    BayrakDegistir(BAYRAK_ZF);
+    BayrakDegistir(BAYRAK_CF);
+  end
+  else if(I21 < 0) then
+  begin
+
+    BayrakDegistir(BAYRAK_ZF, False);
+    BayrakDegistir(BAYRAK_CF);
+    BayrakDegistir(BAYRAK_SF);
+  end
+  else if(I21 > 0) then
+  begin
+
+    BayrakDegistir(BAYRAK_ZF, False);
+    BayrakDegistir(BAYRAK_CF, False);
+    BayrakDegistir(BAYRAK_SF, False);
+  end;
+
+  {$IFDEF DEBUG}
+  if(D41 = 6) then
+    mmCikti.Lines.Add('cmp [$%.4x],%s', [D23, Yazmaclar16[D42 and $FF]])
+  else mmCikti.Lines.Add('cmp %s,%s', [Bellekler00[D41], Yazmaclar16[D42 and $FF]]);
+  {$ENDIF}
+
+  IPDegeriniArtir(D44);
+end
 // 3C ib - CMP AL, imm8 - Compare imm8 with AL
 else if(Komut = $3C) then
 begin
