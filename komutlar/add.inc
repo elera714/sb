@@ -76,9 +76,9 @@ begin
     YazmacDegistir(D42, D43, True);
 
     {$IFDEF DEBUG}
-      if(D41 = 6) then
-        mmCikti.Lines.Add('add %s,[$%.4x]', [Yazmaclar16[D42 and $F], PWord(@Bellek144MB[IslenenAdres + 2])^])
-      else mmCikti.Lines.Add('add %s,%s', [Yazmaclar16[D42 and $F], Bellekler00[D41]]);
+    if(D41 = 6) then
+      mmCikti.Lines.Add('add %s,[$%.4x]', [Yazmaclar16[D42 and $F], PWord(@Bellek144MB[IslenenAdres + 2])^])
+    else mmCikti.Lines.Add('add %s,%s', [Yazmaclar16[D42 and $F], Bellekler00[D41]]);
     {$ENDIF}
 
     IPDegeriniArtir(D44);
@@ -128,8 +128,6 @@ begin
   if((D41 and $FF) >= $40) then D41 := (D41 shr 4) and $F else D41 := D41 and $F;
 
   {$IFDEF DEBUG} mmCikti.Lines.Add('add %s,%.2x', [Yazmaclar16[D41 and $F], D11]); {$ENDIF}
-
-  mmCikti.Lines.Add('add %s,%.2x', [Yazmaclar16[D41 and $F], D11]);
 
   IPDegeriniArtir(2 + 1);
 end

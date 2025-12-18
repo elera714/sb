@@ -9,27 +9,58 @@ begin
     if(D11 = $0E) then
     begin
 
-      D21 := ((GostergeY * 80) + GostergeX) * 2;
+      GostergeGuncelle := True;
 
-      D11 := YazmacDegerAl(YZMC_AL);
-      PByte(@Bellek144MB[YAZIEKRAN_BELLEKADRESI + D21 + 0])^ := D11;
-      PByte(@Bellek144MB[YAZIEKRAN_BELLEKADRESI + D21 + 1])^ := 15;
-
-      Inc(GostergeX);
-      if(GostergeX = 80) then
+      D12 := YazmacDegerAl(YZMC_AL);
+      // satırbaşı işareti
+      if(D12 = $0D) then
       begin
 
         GostergeX := 0;
-        Inc(GostergeY);
-        if(GostergeY = 25) then
+        GostergeGuncelle := False;
+      end
+      // yeni satır işareti
+      else if(D12 = $0A) then
+      begin
+
+        GostergeX := 79;
+      end
+      else
+      begin
+
+        D21 := ((GostergeY * 80) + GostergeX) * 2;
+
+        D11 := YazmacDegerAl(YZMC_AL);
+        PByte(@Bellek144MB[YAZIEKRAN_BELLEKADRESI + D21 + 0])^ := D11;
+        PByte(@Bellek144MB[YAZIEKRAN_BELLEKADRESI + D21 + 1])^ := 15;
+      end;
+
+      if(GostergeGuncelle) then
+      begin
+
+        Inc(GostergeX);
+        if(GostergeX = 80) then
         begin
 
           GostergeX := 0;
-          GostergeY := 0;
+          Inc(GostergeY);
+          if(GostergeY = 25) then
+          begin
+
+            GostergeX := 0;
+            GostergeY := 0;
+          end;
         end;
       end;
 
       {$IFDEF DEBUG} mmCikti.Lines.Add('int $%.2x', [Komut2]); {$ENDIF}
+      IPDegeriniArtir(2);
+    end
+    else if(D11 = $4F) then
+    begin
+
+      YazmacDegistir(YZMC_AX, $004F);
+      //BayrakDegistir(BAYRAK_CF, False);
       IPDegeriniArtir(2);
     end;
   end
@@ -110,5 +141,33 @@ begin
 
       mmCikti.Lines.Add('int hatası: $%.2x:$%.2x', [Komut2, D11]);
     end;
+  end
+  // klavye kesmesi
+  else if(Komut2 = $16) then
+  begin
+
+    D11 := YazmacDegerAl(YZMC_AH);
+    // basılan tuşu al
+    if(D11 = $00) then
+    begin
+
+      { TODO - geliştirilecek }
+      while BasilanTusSayisi = 0 do
+      begin
+
+        Application.ProcessMessages;
+      end;
+
+      YazmacDegistir(YZMC_AH, BasilanTus);
+      YazmacDegistir(YZMC_AL, BasilanTus);
+
+      IPDegeriniArtir(2);
+    end;
+  end
+  // bilgisayarı yeniden başlat kesmesi
+  else if(Komut2 = $19) then
+  begin
+
+    Result := isYenidenBaslat;
   end;
 end

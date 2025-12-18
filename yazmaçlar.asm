@@ -33,7 +33,9 @@ db8     db      8
         db      0x99
 ;        xor     r8,r8
 
-        shr     ax,4
+;        movzx   ecx,word[db1]
+
+        mov     eax,0x100
 
 ;        mov     rax,[r12 + r9]
         db      0x99

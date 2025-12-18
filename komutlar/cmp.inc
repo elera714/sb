@@ -286,3 +286,64 @@ begin
     IPDegeriniArtir(2 + 2);
   end;
 end
+else if(Komut = $83) and ((Komut2 and %11111000) = %11111000) then
+begin
+
+  // 83 /7 ib - CMP r/m32,imm8 - Compare imm8 with r/m32
+  if(KomutModDegistir) then
+  begin
+
+    D41 := MYB32[(Komut2 and %00000111)];          // hedef yazmaç
+    D42 := YazmacDegerAl(D41);
+    D43 := PByte(@Bellek144MB[IslenenAdres + 2])^;
+
+    I41 := SmallInt(D42) - SmallInt(D43);
+
+    if(I41 = 0) then
+      BayrakDegistir(BAYRAK_ZF)
+    else BayrakDegistir(BAYRAK_ZF, False);
+
+    if(I41 < 0) then
+      BayrakDegistir(BAYRAK_CF)
+    else BayrakDegistir(BAYRAK_CF, False);
+
+    {$IFDEF DEBUG} mmCikti.Lines.Add('cmp %s,$%.2x', [Yazmaclar32[D41 and $FF], D43]); {$ENDIF}
+
+    IPDegeriniArtir(2 + 1);
+  end
+  else
+  // 83 /7 ib - CMP r/m16,imm8 - Compare imm8 with r/m16
+  begin
+
+    D41 := MYB16[(Komut2 and %00000111)];          // hedef yazmaç
+    D21 := YazmacDegerAl(D41);
+    D22 := PByte(@Bellek144MB[IslenenAdres + 2])^;
+
+    I21 := SmallInt(D21) - SmallInt(D22);
+
+    if(I21 = 0) then
+    begin
+
+      BayrakDegistir(BAYRAK_ZF);
+      BayrakDegistir(BAYRAK_CF);
+    end
+    else if(I21 < 0) then
+    begin
+
+      BayrakDegistir(BAYRAK_ZF, False);
+      BayrakDegistir(BAYRAK_CF);
+      BayrakDegistir(BAYRAK_SF);
+    end
+    else if(I21 > 0) then
+    begin
+
+      BayrakDegistir(BAYRAK_ZF, False);
+      BayrakDegistir(BAYRAK_CF, False);
+      BayrakDegistir(BAYRAK_SF, False);
+    end;
+
+    {$IFDEF DEBUG} mmCikti.Lines.Add('cmp %s,$%.2x', [Yazmaclar16[D41 and $FF], D22]); {$ENDIF}
+
+    IPDegeriniArtir(2 + 1);
+  end;
+end

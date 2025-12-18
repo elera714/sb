@@ -11,7 +11,7 @@ uses
   ComCtrls, Grids, ValEdit;
 
 type
-  TIslemciSonuc = (isBirSonraki, isIslendi, isHata);
+  TIslemciSonuc = (isBirSonraki, isIslendi, isHata, isYenidenBaslat);
 
 type
   TEkran = class(TThread)
@@ -23,6 +23,9 @@ type
   end;
 
 type
+
+  { TfrmAnaSayfa }
+
   TfrmAnaSayfa = class(TForm)
     btnCalistir: TButton;
     btnBellek: TButton;
@@ -53,9 +56,10 @@ type
     procedure btnBellekClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormShow(Sender: TObject);
   private
-    procedure Yorumla;
+    function Yorumla: TIslemciSonuc;
     function Isle(ACS, AIP: Integer): TIslemciSonuc;
     procedure YazmacDegistir(AHedefYazmacSN, ADeger: LongInt; AArtir: Boolean = False);
     procedure BayrakDegistir(AHedefBayrak: LongWord; AAktiflestir: Boolean = True);
@@ -164,16 +168,31 @@ begin
   SetLength(Bellek144MB, 0);
 end;
 
+procedure TfrmAnaSayfa.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+
+  BasilanTus := Key;
+  BasilanTusSayisi := 1;
+end;
+
 procedure TfrmAnaSayfa.btnCalistirClick(Sender: TObject);
 var
   Hata: string;
+  IslemciSonuc: TIslemciSonuc;
+label Ilklendir;
 begin
+
+Ilklendir:
 
   if not(SB_CALISIYOR) then
   begin
 
     EkraniKartiniYukle;
     YazmaclariSifirla;
+
+    BasilanTusSayisi := 0;
+    BasilanTus := 0;
 
     DosyaU := 0;
     FlpOkunanSektorSayisi := 0;
@@ -197,7 +216,15 @@ begin
       SB_CALISIYOR := True;
       btnCalistir.Caption := 'Durdur';
 
-      Yorumla;
+      IslemciSonuc := Yorumla;
+      if(IslemciSonuc = isYenidenBaslat) then
+      begin
+
+        SB_CALISIYOR := False;
+        btnCalistir.Caption := 'Çalıştır';
+        goto Ilklendir;
+      end;
+
     end else ShowMessage('Hata: ' + Hata);
   end
   else
@@ -216,7 +243,7 @@ begin
   frmBellek.Show;
 end;
 
-procedure TfrmAnaSayfa.Yorumla;
+function TfrmAnaSayfa.Yorumla: TIslemciSonuc;
 var
   Islenen, HataAdresi: Integer;
   HataVar: Boolean;
@@ -261,7 +288,7 @@ begin
 
     Application.ProcessMessages;
 
-  until (SB_CALISIYOR = False) or (HataVar = True);
+  until (SB_CALISIYOR = False) or (HataVar = True) or (IslemciSonuc = isYenidenBaslat);
 
   if(HataVar) then
   begin
@@ -273,6 +300,8 @@ begin
     SB_CALISIYOR := False;
     btnCalistir.Caption := 'Çalıştır';
   end;
+
+  Result := IslemciSonuc;
 end;
 
 function TfrmAnaSayfa.Isle(ACS, AIP: Integer): TIslemciSonuc;
@@ -290,7 +319,8 @@ var
   I21: SmallInt;
   I41: LongInt;
 
-  Esit: Boolean;
+  Esit,
+  GostergeGuncelle: Boolean;
   i: Integer;
 
   // komuttan itibaren belirtilen değer kadar atlama gerçekleştir
@@ -420,6 +450,7 @@ begin
   {$i komutlar\loop.inc}
   {$i komutlar\lxs.inc}
   {$i komutlar\mov.inc}
+  {$i komutlar\mul.inc}
   {$i komutlar\nop.inc}
   {$i komutlar\or.inc}
   {$i komutlar\out.inc}

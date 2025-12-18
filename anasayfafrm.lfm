@@ -6,9 +6,11 @@ object frmAnaSayfa: TfrmAnaSayfa
   Caption = 'Sanal Bilgisayar'
   ClientHeight = 535
   ClientWidth = 833
+  KeyPreview = True
   LCLVersion = '4.4.0.0'
   OnClose = FormClose
   OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
   OnShow = FormShow
   object pnlUst: TPanel
     Left = 0
@@ -59,7 +61,7 @@ object frmAnaSayfa: TfrmAnaSayfa
       Top = 9
       Width = 200
       ItemHeight = 15
-      ItemIndex = 1
+      ItemIndex = 0
       Items.Strings = (
         'disket144.img'
         'yazmaçlar.bin'
@@ -69,7 +71,7 @@ object frmAnaSayfa: TfrmAnaSayfa
         '622c.img'
       )
       TabOrder = 2
-      Text = 'yazmaçlar.bin'
+      Text = 'disket144.img'
     end
   end
   object sbDurum: TStatusBar

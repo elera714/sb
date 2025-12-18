@@ -64,3 +64,30 @@ begin
     IPDegeriniArtir(2);
   end;
 end
+// 0A /r - OR r8,r/m8 - r8 OR r/m8
+else if(Komut = $0A) then
+begin
+
+  // 8 bitlik yazmaç işlemi
+  if((Komut2 and %11000000) = %11000000) then
+  begin
+
+    D41 := MYB8[(Komut2 and %00111000) shr 3];     // 1. yazmaç (1. parametre)
+    D42 := MYB8[(Komut2 and %00000111)];           // 2. yazmaç (2. parametre)
+    D43 := YazmacDegerAl(D41);
+    D44 := YazmacDegerAl(D42);
+
+    YazmacDegistir(D41, D43 or D44);
+
+    if((D43 or D44) = 0) then
+      BayrakDegistir(BAYRAK_ZF)
+    else BayrakDegistir(BAYRAK_ZF, False);
+
+    if((D41 and $FF) >= $40) then D41 := (D41 shr 4) and $F else D41 := D41 and $F;
+    if((D42 and $FF) >= $40) then D42 := (D42 shr 4) and $F else D42 := D42 and $F;
+
+    {$IFDEF DEBUG} mmCikti.Lines.Add('or %s,%s', [Yazmaclar8[D41], Yazmaclar8[D42]]); {$ENDIF}
+    IPDegeriniArtir(2);
+  end;
+end
+

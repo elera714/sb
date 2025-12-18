@@ -141,18 +141,6 @@ const
     ('[bx+si]b ', '[bx+di]b ', '[bp+si]b ', '[bp+di]b ', '[si]b ', '[di]b ',
     '[bp]b ', '[bx]b ');
 
-
-var
-  ISLEMCI_CM: Integer = ICM_BIT16;
-  SB_CALISIYOR: Boolean = False;              // sanal bilgisayar çalışıyor mu?
-  FlpOkunanSektorSayisi: LongWord;            // floppy okunan sektör sayısı
-  IslenenAdres: LongWord;                     // o anda assembly komutunun işlendiği adres
-  Komut, Komut2: Byte;
-  KomutModDegistir: Boolean;                  // $66 öneki
-  // BaskinSegment: $2E, $36 gibi segment yazmaçların baskın kullanılma zorunluluğu
-  BaskinSegment: LongWord;
-  DisketImajDosyaAdi: string;
-
 const
   BAYRAK_CF     = 0;
   BAYRAK_A1     = 1;      // her zaman 1
@@ -185,10 +173,26 @@ const
   SYZMC : array[0..7] of LongWord = (YZMC_ES, YZMC_CS, YZMC_SS, YZMC_DS, YZMC_FS, YZMC_GS, 0, 0);
 
 var
+  ISLEMCI_CM: Integer = ICM_BIT16;
+  SB_CALISIYOR: Boolean = False;              // sanal bilgisayar çalışıyor mu?
+  FlpOkunanSektorSayisi: LongWord;            // floppy okunan sektör sayısı
+  IslenenAdres: LongWord;                     // o anda assembly komutunun işlendiği adres
+  Komut, Komut2: Byte;
+  KomutModDegistir: Boolean;                  // $66 öneki
+  // BaskinSegment: $2E, $36 gibi segment yazmaçların baskın kullanılma zorunluluğu
+  BaskinSegment: LongWord;
+  DisketImajDosyaAdi: string;
+
+{TODO - programdaki tüm işlevlerin mikroişlemci komutları için kullanacağı ortak değişkenler buraya eklenecek}
+
+var
   Bellek144MB: array of Byte;
   Portlar: array[0..65535] of Integer;
   Bayraklar: LongWord = 0;                    // işlemci bayrakları (flags)
   GostergeX, GostergeY: Byte;                 // yazı mod yatay / dikey gösterge (cursor) konumu
+
+  BasilanTus: Byte;
+  BasilanTusSayisi: LongWord;
 
 procedure ClearBit(var Value: LongWord; Index: Byte);
 function GetBit(Value: LongWord; Index: Byte): Boolean;

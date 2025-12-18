@@ -2,22 +2,22 @@ else if(Komut = $E9) then
 begin
 
   // E9 cd - JMP rel32 - Jump near, relative, displacement relative to next instruction
-  if(KomutModDegistir) then
+  {if(KomutModDegistir) then
+  begin
+
+    D21 := PWord(@Bellek144MB[IslenenAdres + 1])^;
+    {$IFDEF DEBUG} mmCikti.Lines.Add('jmp (yakın) %d', [(LongIntD21)]); {$ENDIF}
+    IPDegeriniArtir(1 + 2);
+    IPDegeriniArtir(SmallInt(D21));
+  end
+  else}
+  // E9 cw - JMP rel16 - Jump near, relative, displacement relative to next instruction
   begin
 
     D21 := PWord(@Bellek144MB[IslenenAdres + 1])^;
     {$IFDEF DEBUG} mmCikti.Lines.Add('jmp (yakın) %d', [SmallInt(D21)]); {$ENDIF}
     IPDegeriniArtir(1 + 2);
-    IPDegeriniArtir(SmallInt(D21));
-  end
-  else
-  // E9 cw - JMP rel16 - Jump near, relative, displacement relative to next instruction
-  begin
-
-    D41 := PWord(@Bellek144MB[IslenenAdres + 1])^;
-    {$IFDEF DEBUG} mmCikti.Lines.Add('jmp (yakın) %d', [LongInt(D41)]); {$ENDIF}
-    IPDegeriniArtir(1 + 4);
-    IPDegeriniArtir(LongInt(D41));
+    IPDegeriniArtir(LongInt(D21));
   end;
 end
 // EA cd - JMP ptr16:16 - Jump far, absolute, address given in operand
