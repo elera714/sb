@@ -19,8 +19,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="352"/>
-        <CursorPos X="36" Y="373"/>
+        <TopLine Value="392"/>
+        <CursorPos Y="414"/>
         <UsageCount Value="203"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -49,38 +49,27 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="201"/>
         <CursorPos X="22" Y="219"/>
-        <UsageCount Value="99"/>
+        <UsageCount Value="97"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\inc.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="3"/>
         <CursorPos X="24" Y="36"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="4"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\dec.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="16"/>
         <CursorPos X="41" Y="47"/>
-        <UsageCount Value="4"/>
+        <UsageCount Value="2"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\push.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="65"/>
-        <UsageCount Value="7"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\lods.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="23"/>
-        <UsageCount Value="2"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\jcc.inc"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="2"/>
+        <UsageCount Value="5"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\int.inc"/>
@@ -94,199 +83,110 @@
         <Filename Value="komutlar\pop.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="32"/>
-        <UsageCount Value="7"/>
+        <UsageCount Value="5"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\add.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="120"/>
-        <UsageCount Value="19"/>
+        <UsageCount Value="17"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\cmp.inc"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="37" Y="10"/>
-        <UsageCount Value="10"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\cld.inc"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="2"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\iret.inc"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="2"/>
+        <UsageCount Value="8"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\or.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="58"/>
         <CursorPos X="28" Y="23"/>
-        <UsageCount Value="9"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\pusha.inc"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="2"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\pushf.inc"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="2"/>
+        <UsageCount Value="7"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\popf.inc"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="8"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\call.inc"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="2"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\imul.inc"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="2"/>
+        <UsageCount Value="6"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\jmp.inc"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="39" Y="19"/>
-        <UsageCount Value="7"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\stc.inc"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="2"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\std.inc"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="2"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\test.inc"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="2"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\in.inc"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="2"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\and.inc"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="2"/>
+        <UsageCount Value="5"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\ret.inc"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="7"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\popa.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="15"/>
-        <UsageCount Value="2"/>
+        <UsageCount Value="5"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\xor.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="26"/>
         <CursorPos X="9" Y="59"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="6"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\rep.inc"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="11"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\out.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="29"/>
-        <CursorPos X="21" Y="62"/>
-        <UsageCount Value="2"/>
+        <UsageCount Value="9"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\sxlr.inc"/>
         <EditorIndex Value="-1"/>
         <CursorPos Y="5"/>
-        <UsageCount Value="9"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\stos.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="23"/>
-        <UsageCount Value="2"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\clc.inc"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="2"/>
+        <UsageCount Value="7"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\cli.inc"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="36" Y="5"/>
-        <UsageCount Value="8"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\nop.inc"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="2"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\sti.inc"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="2"/>
-      </Unit>
-      <Unit>
-        <Filename Value="komutlar\loop.inc"/>
-        <EditorIndex Value="-1"/>
-        <CursorPos X="64"/>
-        <UsageCount Value="2"/>
+        <UsageCount Value="6"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\lxs.inc"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="4"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\div.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="43"/>
         <CursorPos X="57" Y="74"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="7"/>
       </Unit>
       <Unit>
         <Filename Value="kesmeler\int10.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="3" Y="12"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="6"/>
       </Unit>
       <Unit>
         <Filename Value="kesmeler\int10.inc"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="6"/>
       </Unit>
       <Unit>
         <Filename Value="C:\lazarus40\lcl\include\customform.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="925"/>
         <CursorPos Y="943"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="6"/>
       </Unit>
       <Unit>
         <Filename Value="komutlar\mul.inc"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="8"/>
+      </Unit>
+      <Unit>
+        <Filename Value="komutlar\xchg.inc"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="58"/>
+        <UsageCount Value="9"/>
       </Unit>
     </Units>
-    <JumpHistory HistoryIndex="22">
+    <JumpHistory HistoryIndex="23">
       <Position>
         <Filename Value="anasayfafrm.pas"/>
         <Caret Line="414" Column="61" TopLine="405"/>
@@ -378,6 +278,10 @@
       <Position>
         <Filename Value="anasayfafrm.pas"/>
         <Caret Line="5"/>
+      </Position>
+      <Position>
+        <Filename Value="anasayfafrm.pas"/>
+        <Caret Line="472" Column="20" TopLine="440"/>
       </Position>
     </JumpHistory>
     <RunParams>

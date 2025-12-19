@@ -35,7 +35,11 @@ db8     db      8
 
 ;        movzx   ecx,word[db1]
 
-        mov     eax,0x100
+;use16
+
+;        mov     eax,0x100
+use32
+        xchg    ebx,edx
 
 ;        mov     rax,[r12 + r9]
         db      0x99
