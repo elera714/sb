@@ -140,43 +140,6 @@ begin
   end;
 end
 // 80 /7 ib - CMP r/m8, imm8 - Compare imm8 with r/m8
-else if(Komut = $80) and ((Komut2 and %11111000) = %11111000) then
-begin
-
-  D21 := MYB8[(Komut2 and %00000111)];          // hedef yazmaç
-  D11 := YazmacDegerAl(D21);
-  D12 := PByte(@Bellek144MB[IslenenAdres + 2])^;
-
-  I11 := ShortInt(D11) - ShortInt(D12);
-
-  if(I11 = 0) then
-  begin
-
-    BayrakDegistir(BAYRAK_ZF);
-    BayrakDegistir(BAYRAK_CF);
-  end
-  else if(I11 < 0) then
-  begin
-
-    BayrakDegistir(BAYRAK_ZF, False);
-    BayrakDegistir(BAYRAK_CF);
-    BayrakDegistir(BAYRAK_SF);
-  end
-  else if(I11 > 0) then
-  begin
-
-    BayrakDegistir(BAYRAK_ZF, False);
-    BayrakDegistir(BAYRAK_CF, False);
-    BayrakDegistir(BAYRAK_SF, False);
-  end;
-
-  if((D21 and $FF) >= $40) then D21 := (D21 shr 4) and $F else D21 := D21 and $F;
-
-  {$IFDEF DEBUG} mmCikti.Lines.Add('cmp %s,$%.2x', [Yazmaclar8[D21], D12]); {$ENDIF}
-
-  IPDegeriniArtir(2 + 1);
-end
-// 80 /7 ib - CMP r/m8, imm8 - Compare imm8 with r/m8
 else if(Komut = $80) and ((Komut2 and %11111000) = %00111000) then
 begin
 
@@ -224,6 +187,43 @@ begin
   {$ENDIF}
 
   IPDegeriniArtir(D44);
+end
+// 80 /7 ib - CMP r/m8, imm8 - Compare imm8 with r/m8
+else if(Komut = $80) and ((Komut2 and %11111000) = %11111000) then
+begin
+
+  D21 := MYB8[(Komut2 and %00000111)];          // hedef yazmaç
+  D11 := YazmacDegerAl(D21);
+  D12 := PByte(@Bellek144MB[IslenenAdres + 2])^;
+
+  I11 := ShortInt(D11) - ShortInt(D12);
+
+  if(I11 = 0) then
+  begin
+
+    BayrakDegistir(BAYRAK_ZF);
+    BayrakDegistir(BAYRAK_CF);
+  end
+  else if(I11 < 0) then
+  begin
+
+    BayrakDegistir(BAYRAK_ZF, False);
+    BayrakDegistir(BAYRAK_CF);
+    BayrakDegistir(BAYRAK_SF);
+  end
+  else if(I11 > 0) then
+  begin
+
+    BayrakDegistir(BAYRAK_ZF, False);
+    BayrakDegistir(BAYRAK_CF, False);
+    BayrakDegistir(BAYRAK_SF, False);
+  end;
+
+  if((D21 and $FF) >= $40) then D21 := (D21 shr 4) and $F else D21 := D21 and $F;
+
+  {$IFDEF DEBUG} mmCikti.Lines.Add('cmp %s,$%.2x', [Yazmaclar8[D21], D12]); {$ENDIF}
+
+  IPDegeriniArtir(2 + 1);
 end
 else if(Komut = $81) and ((Komut2 and %11111000) = %11111000) then
 begin

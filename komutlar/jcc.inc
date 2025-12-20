@@ -52,3 +52,26 @@ begin
 
   if(GetBit(Bayraklar, BAYRAK_CF)) then IPDegeriniArtir(SmallInt(D21));
 end
+// 0F 83 cw/cd - JAE rel16/32 - Jump near if above or equal (CF=0)
+// 0F 83 cw/cd - JNB rel16/32 - Jump near if not below (CF=0)
+// 0F 83 cw/cd - JNC rel16/32 - Jump near if not carry (CF=0)
+else if(Komut = $0F) and (Komut2 = $83) then
+begin
+
+  D21 := PWord(@Bellek144MB[IslenenAdres + 2])^;
+  {$IFDEF DEBUG} mmCikti.Lines.Add('jae/jnb/jnc (yakın) %.4d', [SmallInt(D21)]); {$ENDIF}
+  IPDegeriniArtir(2 + 2);
+
+  if not(GetBit(Bayraklar, BAYRAK_CF)) then IPDegeriniArtir(SmallInt(D21));
+end
+// 0F 84 cw/cd - JE rel16/32 - Jump near if equal (ZF=1)
+// 0F 84 cw/cd - JZ rel16/32 - Jump near if 0 (ZF=1)
+else if(Komut = $0F) and (Komut2 = $84) then
+begin
+
+  D21 := PWord(@Bellek144MB[IslenenAdres + 2])^;
+  {$IFDEF DEBUG} mmCikti.Lines.Add('je/jz (yakın) %.4d', [SmallInt(D21)]); {$ENDIF}
+  IPDegeriniArtir(2 + 2);
+
+  if(GetBit(Bayraklar, BAYRAK_ZF)) then IPDegeriniArtir(SmallInt(D21));
+end

@@ -413,6 +413,30 @@ begin
   end
 
 
+  // 8D /r - LEA r16,m - Store effective address for m in register r16
+  // 8D /r - LEA r32,m - Store effective address for m in register r32
+  else if(Komut = $8D) then
+  begin
+
+    if((Komut2 and %11000000) = %01000000) then
+    begin
+
+      D41 := (Komut2 and %00000111);                  // bellek bölgesi
+      D42 := MYB16[(Komut2 and %00111000) shr 3];     // hedef yazmaç
+
+      D11 := PByte(@Bellek144MB[IslenenAdres + 2])^;
+
+      D45 := Mod01Isle(D41) + ShortInt(D11);
+      D21 := PWord(@Bellek144MB[D45])^;
+      YazmacDegistir(D42, D21);
+
+      {$IFDEF DEBUG} mmCikti.Lines.Add('lea %s,%s%d', [Yazmaclar16[D42 and $F], Bellekler01[D41], ShortInt(D11)]); {$ENDIF}
+
+      IPDegeriniArtir(2 + 1);
+    end;
+  end
+
+
 
   {$i komutlar\add.inc}
   {$i komutlar\and.inc}
