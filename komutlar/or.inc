@@ -90,4 +90,3 @@ begin
     IPDegeriniArtir(2);
   end;
 end
-

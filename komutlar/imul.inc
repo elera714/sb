@@ -49,6 +49,5 @@ begin
       {$IFDEF DEBUG} mmCikti.Lines.Add('imul %s,%d', [Yazmaclar16[D41 and $FF], D21]); {$ENDIF}
       IPDegeriniArtir(1 + 3);
     end;
-
   end;
 end

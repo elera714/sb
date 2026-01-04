@@ -68,6 +68,5 @@ begin
 
     {$IFDEF DEBUG} mmCikti.Lines.Add('dec [$%.2x]', [D21]); {$ENDIF}
     IPDegeriniArtir(2 + 2);
-
   end;
 end

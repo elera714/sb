@@ -46,9 +46,9 @@ begin
   if(D41 = 6) then D44 := 4;
 
   {$IFDEF DEBUG}
-    if(D41 = 6) then
-      mmCikti.Lines.Add('div [$%.4x]', [D43])
-    else mmCikti.Lines.Add('div %s', [Bellekler00[D41]]);
+  if(D41 = 6) then
+    mmCikti.Lines.Add('div [$%.4x]', [D43])
+  else mmCikti.Lines.Add('div %s', [Bellekler00[D41]]);
   {$ENDIF}
 
   IPDegeriniArtir(D44);

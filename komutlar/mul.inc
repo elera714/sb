@@ -67,9 +67,7 @@ begin
     BayrakDegistir(BAYRAK_OF, False);
   end;
 
-  {$IFDEF DEBUG}
-  mmCikti.Lines.Add('mul %s', [Yazmaclar16[D41 and $FF]]);
-  {$ENDIF}
+  {$IFDEF DEBUG} mmCikti.Lines.Add('mul %s', [Yazmaclar16[D41 and $FF]]); {$ENDIF}
 
   IPDegeriniArtir(2);
 end

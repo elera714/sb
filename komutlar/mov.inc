@@ -194,9 +194,7 @@ begin
     if((D41 and $FF) >= $40) then D41 := (D41 shr 4) and $F else D41 := D41 and $F;
     if((D42 and $FF) >= $40) then D42 := (D42 shr 4) and $F else D42 := D42 and $F;
 
-    {$IFDEF DEBUG}
-    mmCikti.Lines.Add('mov %s,%s', [Yazmaclar8[D42 and $F], Yazmaclar8[D41 and $F]]);
-    {$ENDIF}
+    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s,%s', [Yazmaclar8[D42 and $F], Yazmaclar8[D41 and $F]]); {$ENDIF}
 
     IPDegeriniArtir(2);
   end;
@@ -411,9 +409,9 @@ begin
     PByte(@Bellek144MB[D45])^ := D11;
 
     {$IFDEF DEBUG}
-      if(D41 = 6) then
-        mmCikti.Lines.Add('mov [$%.4x],b %d', [D21, D11])
-      else mmCikti.Lines.Add('mov %s,b %d', [Bellekler00[D41], D11]);
+    if(D41 = 6) then
+      mmCikti.Lines.Add('mov [$%.4x],b %d', [D21, D11])
+    else mmCikti.Lines.Add('mov %s,b %d', [Bellekler00[D41], D11]);
     {$ENDIF}
 
     IPDegeriniArtir(D44);
@@ -429,9 +427,7 @@ begin
     D45 := Mod00Isle(D41) + ShortInt(D12);
     PByte(@Bellek144MB[D45])^ := D11;
 
-    {$IFDEF DEBUG}
-    mmCikti.Lines.Add('mov %s%.d,%.2x', [Bellekler01[D41], ShortInt(D11), D12]);
-    {$ENDIF}
+    {$IFDEF DEBUG} mmCikti.Lines.Add('mov %s%.d,%.2x', [Bellekler01[D41], ShortInt(D11), D12]); {$ENDIF}
 
     IPDegeriniArtir(2 + 2);
   end

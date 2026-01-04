@@ -181,12 +181,54 @@ begin
   if(D41 = 6) then D44 := 5;
 
   {$IFDEF DEBUG}
-    if(D41 = 6) then
-      mmCikti.Lines.Add('cmp [$%.4x],$%.2x', [PWord(@Bellek144MB[IslenenAdres + 2])^, D12])
-    else mmCikti.Lines.Add('cmp %s,$%.2x', [Bellekler00[D41], D12]);
+  if(D41 = 6) then
+    mmCikti.Lines.Add('cmp [$%.4x],$%.2x', [PWord(@Bellek144MB[IslenenAdres + 2])^, D12])
+  else mmCikti.Lines.Add('cmp %s,$%.2x', [Bellekler00[D41], D12]);
   {$ENDIF}
 
   IPDegeriniArtir(D44);
+end
+// 80 /7 ib - CMP r/m8, imm8 - Compare imm8 with r/m8
+else if(Komut = $80) and ((Komut2 and %11111000) = %01111000) then
+begin
+
+  D41 := (Komut2 and %00000111);                  // bellek bölgesi
+
+  D12 := PByte(@Bellek144MB[IslenenAdres + 2])^;
+  D45 := Mod01Isle(D41) + ShortInt(D12);
+  D11 := PByte(@Bellek144MB[D45])^;
+
+  // karşılaştırılacak byte değeri
+  D13 := PByte(@Bellek144MB[IslenenAdres + 3])^;
+
+  I11 := ShortInt(D11) - ShortInt(D13);
+
+  if(I11 = 0) then
+  begin
+
+    BayrakDegistir(BAYRAK_ZF);
+    BayrakDegistir(BAYRAK_CF);
+  end
+  else if(I11 < 0) then
+  begin
+
+    BayrakDegistir(BAYRAK_ZF, False);
+    BayrakDegistir(BAYRAK_CF);
+    BayrakDegistir(BAYRAK_SF);
+  end
+  else if(I11 > 0) then
+  begin
+
+    BayrakDegistir(BAYRAK_ZF, False);
+    BayrakDegistir(BAYRAK_CF, False);
+    BayrakDegistir(BAYRAK_SF, False);
+  end;
+
+  {$IFDEF DEBUG}
+  mmCikti.Lines.Add('cmp %s%d,$%2x', [Bellekler01[D41], ShortInt(D12), D13]);
+  {$ENDIF}
+
+  IPDegeriniArtir(2 + 2);
 end
 // 80 /7 ib - CMP r/m8, imm8 - Compare imm8 with r/m8
 else if(Komut = $80) and ((Komut2 and %11111000) = %11111000) then
